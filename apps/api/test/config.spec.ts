@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ConfigError, loadConfig } from '../src/config/env.js';
+import { ConfigError, loadConfig, loadWorkerConfig } from '../src/config/env.js';
 import { TEST_ENV } from './support/app.js';
 
 describe('loadConfig', () => {
@@ -48,5 +48,18 @@ describe('loadConfig', () => {
     );
     expect(loadConfig(TEST_ENV).DB_POOL_SIZE).toBe(5);
     expect(() => loadConfig({ ...TEST_ENV, DB_POOL_SIZE: '0' })).toThrow(/DB_POOL_SIZE/);
+  });
+});
+
+describe('loadWorkerConfig', () => {
+  it('ne demande que la base au script cron, pas les secrets HTTP', () => {
+    const url = 'mysql://u:p@127.0.0.1:3307/depenseo';
+    expect(loadWorkerConfig({ DATABASE_URL: url })).toEqual({
+      NODE_ENV: 'development',
+      LOG_LEVEL: 'info',
+      DATABASE_URL: url,
+      DB_POOL_SIZE: 5,
+    });
+    expect(() => loadWorkerConfig({})).toThrow(/DATABASE_URL/);
   });
 });

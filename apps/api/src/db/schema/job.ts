@@ -26,5 +26,9 @@ export const job = mysqlTable(
   (t) => [
     uniqueIndex('job_unique_key_uq').on(t.uniqueKey),
     index('job_status_run_idx').on(t.status, t.runAt),
+    /** Reprise des baux expirés (`running`, `locked_until` dépassé). */
+    index('job_status_locked_idx').on(t.status, t.lockedUntil),
+    /** Purge des tâches terminées depuis plus de 7 jours. */
+    index('job_status_finished_idx').on(t.status, t.finishedAt),
   ],
 );

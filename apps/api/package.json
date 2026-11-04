@@ -15,6 +15,7 @@
     "test:tz": "for tz in Europe/Paris Europe/Lisbon America/Montreal Indian/Reunion; do TZ=$tz vitest run --passWithNoTests tz.spec || exit 1; done",
     "openapi": "pnpm build && node dist/scripts/openapi.js",
     "migrate": "pnpm build && node dist/scripts/migrate.js",
+    "jobs:run": "node dist/scripts/jobs-run.js",
     "db:generate": "drizzle-kit generate"
   },
   "devDependencies": {

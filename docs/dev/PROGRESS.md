@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P1-04 (file de tâches `job` + `scripts/jobs-run.ts`)
-- Dernier commit : ce1dc1b feat(api): versioned drizzle-kit migrations … (P1-03)
+- Prochaine tâche : P1-05 (inscription e-mail + mot de passe, vérification e-mail, `Mailer` via la file de tâches)
+- Dernier commit : feat(api): job queue … (P1-04)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 57 vitest api), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ). Couverture shared 98,7 % (`pnpm --filter @depenseo/shared coverage`)
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 84 vitest api), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ)
 
 ## Pièges connus (à lire avant de coder)
 
@@ -39,6 +39,11 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Migrations (P1-03, ADR-015) : schéma `src/db/schema/*.ts` → `pnpm --filter api db:generate` (drizzle-kit) → `apps/api/drizzle/NNNN_*.sql` committé ; appliquer par `runMigrations(url)` / `MIGRATOR_DATABASE_URL=… pnpm --filter api migrate`. Ne jamais modifier une migration appliquée. Pas de colonne JSON (utf8mb4_bin sous MariaDB) ni `binary()` Drizzle (décode en UTF-8 : utiliser `sha256Binary`/`uuidBinary`). Horodatages fournis par l'app.
 - `vitest` a un `globalSetup` qui **vide** `depenseo_test`, la passe en latin1 puis la remigre : un test ne doit rien attendre d'un lancement précédent. Le test d'invariants (`test/support/schema-invariants.ts`) parcourt toutes les tables sauf `__drizzle_migrations`/`zz_test_*` ; règles par nom (`*_id`, `*amount*`, `*currency`, `*rate`) — un identifiant externe ne doit pas finir en `_id`.
 - `scripts/db.test.mjs` (node --test, lancé avant vitest) vérifie la collation de `depenseo_test` : si un lancement vitest est interrompu après le passage en latin1, relancer vitest une fois.
+- File de tâches (P1-04, ADR-016) : `JobQueue(clock).enqueue(tx, defineJob(type, zod), payload, {runAt, uniqueKey})` ; charge utile = identifiants seuls (clés sensibles et chaînes `x@y` refusées, ≤ 4 Kio). Gestionnaires et tâches périodiques à déclarer dans `src/jobs/registry.ts` ; `runJobs` ne réclame que les types enregistrés. Gestionnaires idempotents, à l'écoute de `context.signal`. Tests : `test/support/jobs.ts` (`testDb`, `testJob()` à type unique par test, `silentLogger`), `test/support/clock.ts` (`FakeClock`). Horloge applicative : `src/clock.ts` (`Clock`, `systemClock`).
+- Ne **jamais** combiner `OR` + `ORDER BY` dans une requête `FOR UPDATE SKIP LOCKED` : MariaDB trie hors index et verrouille toutes les lignes candidates (constaté). Vérifier le plan par EXPLAIN (`ref`/`range` sans filesort).
+- Un client Drizzle sur le pool ne doit pas être utilisé pendant qu'on tient une connexion dédiée (`GET_LOCK`) : avec `DB_POOL_SIZE=1`, interblocage. Utiliser `drizzle(poolConnection.connection)`.
+- mysql2 active `CLIENT_FOUND_ROWS` : `affectedRows` compte les lignes **trouvées** (ON DUPLICATE KEY sans changement → 1). Ne pas s'en servir pour distinguer insertion et doublon.
+- `sed`/remplacements Python sur un fichier déjà passé par Prettier : les imports longs sont reformatés, vérifier par `grep` (encore piégé en P1-04).
 
 ## Actions humaines (non bloquantes)
 
@@ -50,6 +55,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-04 session 5 — P1-04 fait : file `job` (enqueue transactionnel, unicité, garde PII), `runJobs` (réclamation SKIP LOCKED en deux requêtes, bail 5 min, garde de clôture, délai gestionnaire, 1-2-4-8 min puis `failed`), planification sous `GET_LOCK` + purge par lots, `scripts/jobs-run.ts`, migration `0001_job_claim_indexes` ; ADR-016. Deux relectures (1 bloquant corrigé : verrouillage de toutes les lignes dues). Contre-épreuves faites (skipLocked, garde attempts). Passation après 1 tâche (~15 fichiers lus).
 
 - 2026-11-04 session 4 — P1-03 fait : 7 tables du socle (user, notebook, notebook_member, refresh_token, email_token, audit_log, job), migration drizzle-kit + `ALTER DATABASE` de collation, `runMigrations` sous `GET_LOCK`, test d'invariants information_schema avec contre-épreuve (table fautive) ; ADR-015. Passation après 1 tâche (~13 fichiers lus, P1-04 volumineuse).
 

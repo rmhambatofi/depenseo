@@ -8,6 +8,13 @@
       "when": 1793821008059,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1793822202360,
+      "tag": "0001_job_claim_indexes",
+      "breakpoints": true
     }
   ]
 }

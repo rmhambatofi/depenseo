@@ -25,8 +25,28 @@ export class ConfigError extends Error {
   override readonly name = 'ConfigError';
 }
 
+/** Variables utiles au script cron de la file de tâches (`scripts/jobs-run.ts`). */
+const workerSchema = schema.pick({
+  NODE_ENV: true,
+  LOG_LEVEL: true,
+  DATABASE_URL: true,
+  DB_POOL_SIZE: true,
+});
+export type WorkerConfig = Readonly<z.infer<typeof workerSchema>>;
+
 export function loadConfig(env: Readonly<Record<string, string | undefined>>): AppConfig {
-  const parsed = schema.safeParse(env);
+  return parseEnv(schema, env);
+}
+
+export function loadWorkerConfig(env: Readonly<Record<string, string | undefined>>): WorkerConfig {
+  return parseEnv(workerSchema, env);
+}
+
+function parseEnv<T extends z.ZodType>(
+  envSchema: T,
+  env: Readonly<Record<string, string | undefined>>,
+): Readonly<z.infer<T>> {
+  const parsed = envSchema.safeParse(env);
   if (parsed.success) return Object.freeze(parsed.data);
   // Messages zod génériques (type, longueur) : ils ne recopient pas la valeur reçue.
   const problems = parsed.error.issues.map(
