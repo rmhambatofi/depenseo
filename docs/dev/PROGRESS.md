@@ -7,9 +7,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P1-07 (réinitialisation du mot de passe, lien 30 min, révocation des refresh). Réutiliser `email_token` (purpose `reset_password`), `generateOpaqueToken`, le modèle `mail.verify_email` ; révoquer **toutes** les familles du compte en prenant le verrou `user … FOR UPDATE` comme `SessionService.lockedTokenRow` (ADR-018).
-- Dernier commit : feat(api) P1-06 sessions (voir `git log -1`)
+- Dernier commit : be8f04b feat(api): JWT sessions with rotating refresh tokens, reuse detection and logout (F-AUTH-01, NF-SEC-02)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 119+ vitest api), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ)
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 119 vitest api ; `test/auth test/jobs` stable sur 3 relances, voir l'instabilité connue de job-runner.spec), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ)
 
 ## Pièges connus (à lire avant de coder)
 
@@ -65,7 +65,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
-- 2026-11-04 session 7 — P1-06 fait : `POST /auth/login|refresh|logout`, JWT HS256 15 min (jose 6.2.15), refresh opaque 30 j glissants à rotation, réutilisation → famille révoquée, verrou `user FOR UPDATE` contre la course révocation/rotation, purge des refresh expirés (migration 0002), garde globale + liste blanche testée, `GET /me` minimal ; ADR-018. Deux relectures (aucun bloquant ; 5 importants corrigés). Contre-épreuves faites (8 mutations).
+- 2026-11-04 session 7 — P1-06 fait : `POST /auth/login|refresh|logout`, JWT HS256 15 min (jose 6.2.15), refresh opaque 30 j glissants à rotation, réutilisation → famille révoquée, verrou `user FOR UPDATE` contre la course révocation/rotation, purge des refresh expirés (migration 0002), garde globale + liste blanche testée, `GET /me` minimal ; ADR-018. Deux relectures (aucun bloquant ; 5 importants corrigés). Contre-épreuves faites (8 mutations). Passation après 1 tâche (~22 fichiers lus).
 
 - 2026-11-04 session 6 — P1-05 fait : inscription (argon2id, 202 sans énumération, remplacement du mot de passe d'un compte non vérifié contre la pré-inscription), lien de vérification 24 h tiré par le gestionnaire `mail.verify_email` (≤ 3/h), `verify-email` usage unique sous concurrence, `Mailer` (SMTP nodemailer 15 s + faux mémoire), `authenticate` 401/403 ; ADR-017. Deux relectures (1 bloquant corrigé : pré-détournement). Contre-épreuves faites. Passation après 1 tâche (~20 fichiers lus).
 
