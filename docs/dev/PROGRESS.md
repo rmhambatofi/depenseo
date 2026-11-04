@@ -13,7 +13,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Pièges connus (à lire avant de coder)
 
-- (vide — ajoute ici tout comportement non évident découvert : version de lib, erreur CI, config MariaDB, etc.)
+- Versions relevées le 2026-11-04 : Node **v26.10.0** local (cible 22, voir ADR-006 ; pas de nvm/fnm/volta, `n` présent dans /usr/local/bin), pnpm 9.15.4, Docker Compose v5.1.0, Flutter 3.47.6 / Dart 3.13.5, git 2.45.2.
+- Le démon Docker peut être arrêté : lancer Docker Desktop (`open -a Docker`) avant P0-02 et tout test API.
+- Le plan a été renuméroté le 2026-11-04 (session d'amorçage) : se fier aux IDs actuels de PLAN.md et à TRACEABILITY.md.
 
 ## BLOQUÉ
 
