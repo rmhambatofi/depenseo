@@ -10,6 +10,8 @@ export const TEST_ENV = {
   NODE_ENV: 'test',
   JWT_ACCESS_SECRET: 'test-secret-test-secret-test-secret-0123',
   DATABASE_URL: TEST_DATABASE_URL,
+  APPLE_CLIENT_IDS: 'app.depenseo.ios, app.depenseo.web',
+  GOOGLE_CLIENT_IDS: 'depenseo-android.apps.googleusercontent.com',
 } as const;
 
 export class LogCapture extends Writable {
@@ -24,7 +26,7 @@ export class LogCapture extends Writable {
 }
 
 export async function startTestApp(
-  options: Pick<CreateAppOptions, 'clock'> = {},
+  options: Pick<CreateAppOptions, 'clock' | 'idTokenKeys'> = {},
 ): Promise<{ app: INestApplication; logs: LogCapture }> {
   const logs = new LogCapture();
   const app = await createApp(loadConfig(TEST_ENV), { ...options, logDestination: logs });

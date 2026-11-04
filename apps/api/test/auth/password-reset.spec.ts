@@ -200,7 +200,7 @@ describe('réinitialisation du mot de passe (F-AUTH-03)', () => {
         const [rows] = await pool
           .promise()
           .query<({ n: number } & RowDataPacket)[]>(
-            "SELECT COUNT(*) AS n FROM information_schema.PROCESSLIST WHERE COMMAND IN ('Query', 'Execute') AND INFO LIKE '%from `user`%for update%'",
+            "SELECT COUNT(*) AS n FROM information_schema.PROCESSLIST WHERE ID <> CONNECTION_ID() AND COMMAND IN ('Query', 'Execute') AND INFO LIKE '%from `user`%for update%'",
           );
         if (Number(rows[0]!.n) > 0) break;
         await new Promise((resolve) => setImmediate(resolve));

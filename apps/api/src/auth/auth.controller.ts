@@ -2,14 +2,18 @@ import { Body, Controller, Header, HttpCode, HttpStatus, Post } from '@nestjs/co
 import {
   ApiAcceptedResponse,
   ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiOkResponse,
+  ApiServiceUnavailableResponse,
+  ApiUnprocessableEntityResponse,
   ApiProperty,
   ApiPropertyOptional,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { IDENTITY_PROVIDERS, type IdentityProvider } from '../db/schema/index.js';
 import { parseBody } from '../http/parse-body.js';
 import { Public } from './access-token.guard.js';
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from './password.js';
@@ -20,6 +24,7 @@ import {
   passwordResetRequestSchema,
 } from './password-reset.service.js';
 import { loginSchema, refreshTokenSchema, SessionService } from './session.service.js';
+import { SocialLoginService, socialLoginSchema } from './social-login.service.js';
 import { ACCESS_TOKEN_TTL_S, REFRESH_TOKEN_TTL_S, type SessionTokens } from './session-tokens.js';
 
 export class RegisterDto {
@@ -65,6 +70,30 @@ export class LoginDto {
   readonly password!: string;
 }
 
+export class SocialLoginDto {
+  @ApiProperty({ enum: IDENTITY_PROVIDERS })
+  readonly provider!: IdentityProvider;
+
+  @ApiProperty({ description: '`id_token` (JWT) remis par Apple ou Google', maxLength: 8192 })
+  readonly idToken!: string;
+
+  @ApiProperty({
+    description: 'Nonce brut ; le fournisseur doit avoir reçu son SHA-256 hexadécimal',
+    minLength: 16,
+    maxLength: 128,
+  })
+  readonly nonce!: string;
+
+  @ApiPropertyOptional({
+    enum: [true],
+    description: 'Requis pour créer un compte ou reprendre un compte non vérifié (sinon 422)',
+  })
+  readonly acceptTerms?: true;
+
+  @ApiPropertyOptional({ enum: LANGUAGES, default: 'fr', description: 'Langue d’un compte créé' })
+  readonly language?: (typeof LANGUAGES)[number];
+}
+
 export class RefreshTokenDto {
   @ApiProperty({ description: 'Jeton de rafraîchissement (base64url, 43 caractères)' })
   readonly refreshToken!: string;
@@ -100,6 +129,7 @@ export class AuthController {
     private readonly auth: AuthService,
     private readonly sessions: SessionService,
     private readonly passwordReset: PasswordResetService,
+    private readonly socialLogin: SocialLoginService,
   ) {}
 
   /** Réponse 202 identique que l'adresse soit nouvelle ou déjà inscrite (F-AUTH-01, ADR-017). */
@@ -136,6 +166,25 @@ export class AuthController {
   async login(@Body() body: LoginDto): Promise<SessionTokensDto> {
     const { email, password } = parseBody(loginSchema, body);
     return this.sessions.login(email, password);
+  }
+
+  /**
+   * Connexion Apple ou Google (F-AUTH-02, ADR-020) : ouvre une session, en créant le compte ou en
+   * le rattachant à celui de même adresse si le fournisseur fait autorité sur elle.
+   */
+  @Public()
+  @Post('social')
+  @HttpCode(HttpStatus.OK)
+  @Header('Cache-Control', 'no-store')
+  @ApiOkResponse({ type: SessionTokensDto })
+  @ApiBadRequestResponse({ description: 'Champs invalides' })
+  @ApiUnauthorizedResponse({ description: 'Jeton d’identité invalide' })
+  @ApiForbiddenResponse({ description: 'Adresse e-mail non vérifiée ou inutilisable' })
+  @ApiConflictResponse({ description: 'Compte existant non rattachable (adresse non garantie)' })
+  @ApiUnprocessableEntityResponse({ description: 'Acceptation des CGU requise' })
+  @ApiServiceUnavailableResponse({ description: 'Fournisseur non configuré' })
+  async social(@Body() body: SocialLoginDto): Promise<SessionTokensDto> {
+    return this.socialLogin.signIn(parseBody(socialLoginSchema, body));
   }
 
   /** Rotation (NF-SEC-02) : le jeton présenté est consommé ; sa réutilisation révoque la session. */

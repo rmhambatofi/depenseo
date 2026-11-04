@@ -5,6 +5,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger } from 'nestjs-pino';
 import type { DestinationStream } from 'pino';
 import { AppModule } from './app.module.js';
+import type { IdTokenKeys } from './auth/id-token-verifier.js';
 import type { Clock } from './clock.js';
 import type { AppConfig } from './config/env.js';
 import { ProblemDetailsFilter } from './errors/problem-details.filter.js';
@@ -16,6 +17,8 @@ export interface CreateAppOptions {
   logDestination?: DestinationStream;
   /** Horloge applicative (tests) ; horloge système par défaut. */
   clock?: Clock;
+  /** Clés de signature Apple/Google (tests) ; JWKS distants des fournisseurs par défaut. */
+  idTokenKeys?: IdTokenKeys;
 }
 
 export async function createApp(
@@ -24,7 +27,7 @@ export async function createApp(
 ): Promise<INestApplication> {
   // Pas de CORS : web, back-office et API partagent le même domaine (§8.4).
   const app = await NestFactory.create<NestExpressApplication>(
-    AppModule.register(config, options.logDestination, options.clock),
+    AppModule.register(config, options),
     { bufferLogs: true, cors: false },
   );
   app.useLogger(app.get(Logger));

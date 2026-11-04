@@ -3,6 +3,8 @@
 
 export const ER_LOCK_WAIT_TIMEOUT = 1205;
 export const ER_LOCK_DEADLOCK = 1213;
+/** Doublon sur un index unique. */
+export const ER_DUP_ENTRY = 1062;
 const RETRYABLE = new Set<number>([ER_LOCK_WAIT_TIMEOUT, ER_LOCK_DEADLOCK]);
 
 export interface Transactional<Tx> {
@@ -28,6 +30,15 @@ function retryableErrno(error: unknown): number | undefined {
     current = current.cause;
   }
   return undefined;
+}
+
+/** Vrai si l'erreur (ou l'une de ses causes, Drizzle enveloppe le pilote) porte ce code MySQL. */
+export function hasErrno(error: unknown, errno: number): boolean {
+  for (let current = error, depth = 0; current instanceof Error && depth < 5; depth += 1) {
+    if ((current as { errno?: unknown }).errno === errno) return true;
+    current = current.cause;
+  }
+  return false;
 }
 
 export function isRetryableLockError(error: unknown): boolean {

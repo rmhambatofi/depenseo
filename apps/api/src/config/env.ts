@@ -2,6 +2,17 @@
 // Un secret absent ou invalide empêche le démarrage ; le message nomme la variable, jamais sa valeur.
 import { z } from 'zod';
 
+/** Liste d'identifiants séparés par des virgules ; vide ou absente = fournisseur désactivé. */
+const clientIds = z
+  .string()
+  .default('')
+  .transform((value) =>
+    value
+      .split(',')
+      .map((id) => id.trim())
+      .filter((id) => id.length > 0),
+  );
+
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
@@ -17,6 +28,10 @@ const schema = z.object({
   }),
   /** Connexions simultanées par processus Passenger (ADR-014). */
   DB_POOL_SIZE: z.coerce.number().int().min(1).max(20).default(5),
+  /** Connexion Apple (ADR-020) : bundle ID iOS et Services ID web acceptés pour `aud`. */
+  APPLE_CLIENT_IDS: clientIds,
+  /** Connexion Google (ADR-020) : identifiants de client OAuth (Android, iOS, web) pour `aud`. */
+  GOOGLE_CLIENT_IDS: clientIds,
 });
 
 export type AppConfig = Readonly<z.infer<typeof schema>>;

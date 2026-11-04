@@ -2,6 +2,7 @@ import { type DynamicModule, Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import type { DestinationStream } from 'pino';
 import { AuthModule } from './auth/auth.module.js';
+import type { IdTokenKeys } from './auth/id-token-verifier.js';
 import { type Clock, systemClock } from './clock.js';
 import { ClockModule } from './clock.module.js';
 import { ConfigModule } from './config/config.module.js';
@@ -15,8 +16,11 @@ import { pinoHttpOptions } from './logging/pino-options.js';
 export class AppModule {
   static register(
     config: AppConfig,
-    logDestination?: DestinationStream,
-    clock: Clock = systemClock,
+    {
+      logDestination,
+      clock = systemClock,
+      idTokenKeys,
+    }: { logDestination?: DestinationStream; clock?: Clock; idTokenKeys?: IdTokenKeys } = {},
   ): DynamicModule {
     const options = pinoHttpOptions(config);
     return {
@@ -28,7 +32,7 @@ export class AppModule {
         ConfigModule.register(config),
         DatabaseModule.register(config),
         ClockModule.register(clock),
-        AuthModule,
+        AuthModule.register(idTokenKeys),
         MeModule,
       ],
       controllers: [HealthController],

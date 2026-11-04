@@ -32,7 +32,7 @@ export const refreshTokenSchema = z.object({
   refreshToken: z.string().regex(OPAQUE_TOKEN_PATTERN),
 });
 
-type Tx = Parameters<Parameters<Database['transaction']>[0]>[0];
+export type Tx = Parameters<Parameters<Database['transaction']>[0]>[0];
 
 const INVALID_SESSION = 'Session invalide ou expirée';
 
@@ -53,10 +53,16 @@ export class SessionService {
   async login(email: string, password: string): Promise<SessionTokens> {
     const account = await this.auth.authenticate(email, password);
     const now = this.clock.now();
-    const refresh = await withTransaction(this.db, (tx) =>
-      this.insertRefreshToken(tx, account.id, newId(), now),
-    );
-    return this.tokens(account.id, refresh, now);
+    return withTransaction(this.db, (tx) => this.openSession(tx, account.id, now));
+  }
+
+  /**
+   * Ouvre une nouvelle famille (session d'un appareil) pour un compte déjà authentifié, dans la
+   * transaction de l'appelant (connexion par mot de passe ou Apple/Google, ADR-020).
+   */
+  async openSession(tx: Tx, userId: string, now: Date): Promise<SessionTokens> {
+    const refresh = await this.insertRefreshToken(tx, userId, newId(), now);
+    return this.tokens(userId, refresh, now);
   }
 
   /**

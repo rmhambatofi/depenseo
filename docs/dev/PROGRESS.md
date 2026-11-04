@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P1-08 (connexion Apple/Google, `IdTokenVerifier`, jose déjà présent). Les comptes sans mot de passe peuvent déjà demander un lien de réinitialisation (ADR-019).
-- Dernier commit : 9063983 feat(api): password reset by single-use 30-min email link, revoking all sessions (F-AUTH-03)
+- Prochaine tâche : P1-09 (carnets + `NotebookAccessGuard` + harnais « B ne voit pas A »). Le carnet personnel doit être créé sur **les deux** chemins de création de compte : `AuthService.register` et `SocialLoginService.resolve` (branche upsert).
+- Dernier commit : feat(api): Apple and Google sign-in (F-AUTH-02), voir git log
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 134 shared, 132 api), `pnpm test:tz` vert ; `test/auth test/jobs` stable sur 3 relances
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 134 shared, 188 api), `pnpm test:tz` vert ; `test/auth` stable sur 5 relances
 
 ## Pièges connus (à lire avant de coder)
 
@@ -58,6 +58,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - **Ne jamais lancer `tester` et `reviewer` en parallèle** : chacun lance vitest, dont le `globalSetup` vide `depenseo_test` → `ER_NO_SUCH_TABLE` et faux échecs (constaté en P1-07). Toujours en séquence (tester d'abord, puis reviewer), `pgrep -fl vitest` vide.
 - `depenseo_api` n'a pas le privilège PROCESS : `information_schema.INNODB_TRX` refusé. Barrière de verrou en test : sonder `information_schema.PROCESSLIST` (connexions du même compte) sur le texte de la requête en attente (cf. `password-reset.spec.ts`).
 - InnoDB sous READ COMMITTED : un `UPDATE … WHERE user_id = ?` attend le verrou implicite d'une ligne insérée non validée (constaté) ; la contre-épreuve du `FOR UPDATE` de confirmation ne mord donc pas (défense en profondeur, ADR-019).
+- Connexion Apple/Google (P1-08, ADR-020) : `POST /auth/social`, `IdTokenVerifier` (`src/auth/id-token-verifier.ts`, jeton `ID_TOKEN_VERIFIER`), `SocialLoginService`, table `user_identity` (SHA-256 du `sub`, migration 0003). Variables `APPLE_CLIENT_IDS`/`GOOGLE_CLIENT_IDS` (vides = 503). Tests : `test/support/id-tokens.ts` (`fakeProvider`, `signIdToken`), `startTestApp({ idTokenKeys })`. `SessionService.openSession(tx, userId, now)` ouvre une famille dans la transaction de l'appelant. `hasErrno(error, ER_DUP_ENTRY)` dans `src/db/transaction.ts`.
+- **Sonde PROCESSLIST de barrière** : ajouter `ID <> CONNECTION_ID()`, sinon la sonde se trouve elle-même (son texte contient le motif LIKE) et la barrière passe immédiatement (bug constaté et corrigé en P1-08 dans `password-reset.spec.ts`). Toujours `expect(waiting).toBe(true)` après la boucle.
+- Reliquats mineurs P1-08 : utilitaire `sha256` commun (empreinte du `sub`, `nonceHash`, tests), tests HTTP 503/500 de `/auth/social`, `retryableErrno` à réécrire sur `hasErrno` ; un seul rejeu sur course d'identité (500 si ≥ 3 adresses en course).
+- CryptoKey WebCrypto (jose `generateKeyPair`) liée à son hash : pour signer en plusieurs `alg` avec une même clé RSA de test, `generateKeyPairSync('rsa')` (KeyObject Node).
 
 ## Actions humaines (non bloquantes)
 
@@ -69,6 +73,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-04 session 9 — P1-08 fait : `POST /auth/social` (Apple/Google), vérification jose RS256 + iss/aud/exp/âge 10 min/nonce SHA-256, identité par (fournisseur, SHA-256 du `sub`), rattachement par adresse seulement si le fournisseur fait autorité (Apple ; Google : Gmail ou `hd`), reprise d'un compte non vérifié (mot de passe effacé, CGU redatées), 422 sans CGU, rejeu sur course d'identité ; ADR-020. Une relecture (0 bloquant, 4 importants corrigés) ; le tester a trouvé une course (compte orphelin), corrigée et couverte par barrière. Contre-épreuves faites.
 
 - 2026-11-04 session 8 — P1-07 fait : `POST /auth/password-reset/request` (202 toujours, ≤ 3 liens/h, verrou du compte) et `/confirm` (lien 30 min usage unique, autres liens invalidés, toutes familles de refresh révoquées sous verrou `user`, adresse réputée vérifiée) ; ADR-019. Une relecture (0 bloquant, 3 importants corrigés : verrou de la demande, test d'usage croisé, test à barrière). Contre-épreuves faites. Passation après 1 tâche (~16 fichiers lus).
 

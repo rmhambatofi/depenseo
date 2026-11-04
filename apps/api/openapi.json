@@ -116,6 +116,55 @@
         ]
       }
     },
+    "/api/v1/auth/social": {
+      "post": {
+        "operationId": "AuthController_social",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SocialLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionTokensDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Champs invalides"
+          },
+          "401": {
+            "description": "Jeton d’identité invalide"
+          },
+          "403": {
+            "description": "Adresse e-mail non vérifiée ou inutilisable"
+          },
+          "409": {
+            "description": "Compte existant non rattachable (adresse non garantie)"
+          },
+          "422": {
+            "description": "Acceptation des CGU requise"
+          },
+          "503": {
+            "description": "Fournisseur non configuré"
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/v1/auth/refresh": {
       "post": {
         "operationId": "AuthController_refresh",
@@ -392,6 +441,50 @@
           "expiresIn",
           "refreshToken",
           "refreshExpiresIn"
+        ]
+      },
+      "SocialLoginDto": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "apple",
+              "google"
+            ]
+          },
+          "idToken": {
+            "type": "string",
+            "description": "`id_token` (JWT) remis par Apple ou Google",
+            "maxLength": 8192
+          },
+          "nonce": {
+            "type": "string",
+            "description": "Nonce brut ; le fournisseur doit avoir reçu son SHA-256 hexadécimal",
+            "minLength": 16,
+            "maxLength": 128
+          },
+          "acceptTerms": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Requis pour créer un compte ou reprendre un compte non vérifié (sinon 422)"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "fr",
+              "en"
+            ],
+            "default": "fr",
+            "description": "Langue d’un compte créé"
+          }
+        },
+        "required": [
+          "provider",
+          "idToken",
+          "nonce"
         ]
       },
       "RefreshTokenDto": {
