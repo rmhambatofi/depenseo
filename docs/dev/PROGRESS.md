@@ -7,9 +7,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P2-02 (dépenses : `expense`, `tag`, `expense_tag`). Inclut le test reporté de P2-01 : dépense sur catégorie masquée acceptée. Harnais : ajouter `expenseId` à `RESOURCE_PARAMS`, les tables à `notebookRows`.
-- Dernier commit : feat(api): categories (F-CAT-01, F-CAT-02)
+- Dernier commit : 3dddcd8 feat(api): category plan per notebook, custom categories CRUD and hiding (F-CAT-01, F-CAT-02)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 235 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/me`, `test/access` stables sur 3 relances
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 235 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/categories`, `test/access`, `test/auth/register` stables sur 3 relances
 
 ## Pièges connus (à lire avant de coder)
 
@@ -102,8 +102,4 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - 2026-11-04 session 5 — P1-04 fait : file `job` (enqueue transactionnel, unicité, garde PII), `runJobs` (réclamation SKIP LOCKED en deux requêtes, bail 5 min, garde de clôture, délai gestionnaire, 1-2-4-8 min puis `failed`), planification sous `GET_LOCK` + purge par lots, `scripts/jobs-run.ts`, migration `0001_job_claim_indexes` ; ADR-016. Deux relectures (1 bloquant corrigé : verrouillage de toutes les lignes dues). Contre-épreuves faites (skipLocked, garde attempts). Passation après 1 tâche (~15 fichiers lus).
 
-- 2026-11-04 session 4 — P1-03 fait : 7 tables du socle (user, notebook, notebook_member, refresh_token, email_token, audit_log, job), migration drizzle-kit + `ALTER DATABASE` de collation, `runMigrations` sous `GET_LOCK`, test d'invariants information_schema avec contre-épreuve (table fautive) ; ADR-015. Passation après 1 tâche (~13 fichiers lus, P1-04 volumineuse).
-
-- 2026-11-04 session 3 — P1-02 fait : pool mysql2 réglé par connexion (+00:00, READ COMMITTED, utf8mb4_unicode_520_ci, échec → connexion détruite), `withTransaction` (1213/1205, interblocage réel testé), UUID v7 ↔ BINARY(16), `describeError` durci contre les messages Drizzle multilignes. Contre-épreuve faite (retrait des SET / du retry → tests rouges). Passation après 1 tâche (seuil de ~15 fichiers lus).
-
-- 2026-11-04 — Amorçage, sessions 1-2 (résumé) : kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013).
+- 2026-11-04 — Amorçage et socle, sessions 1-4 (résumé) : kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013), P1-02 (pool réglé par connexion, `withTransaction`, UUID ↔ BINARY(16), ADR-014), P1-03 (7 tables du socle, migrations sous `GET_LOCK`, test d'invariants, ADR-015).
