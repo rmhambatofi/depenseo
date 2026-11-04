@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P1-03 (migrations drizzle-kit + test d'invariants de schéma)
-- Dernier commit : feat(api): data layer … (P1-02)
+- Dernier commit : 08933f6 feat(api): data layer … (P1-02)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 51 vitest api), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ). Couverture shared 98,7 % (`pnpm --filter @depenseo/shared coverage`)
 
@@ -32,6 +32,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Couche données (P1-02, ADR-014) : `src/db/connection.ts` (`createDbPool(config, hooks)` pool **à rappels** mysql2, `createDatabase(pool)` → `drizzle(pool)` positionnel : `drizzle({client, mode})` casse en 0.45.4), `transaction.ts` (`withTransaction(db, fn)` sur le client racine seulement), `uuid.ts` (`newId`, `uuidToBinary`, `binaryToUuid`, colonne `uuidBinary`), `DatabaseModule` global (jetons `DB`, `DB_POOL`). Config : `DATABASE_URL` (obligatoire), `DB_POOL_SIZE`. Tests : `test/support/db.ts` (`TEST_DATABASE_URL`, `migratorConnection()`) ; tables jetables `zz_test_*` supprimées en fin de test — P1-03 doit les ignorer **ou** elles doivent toujours être supprimées (vérifier que le test d'invariants ne tombe pas dessus en cas de test interrompu).
 - À trancher en P1-03 : type des BIGINT (pilote `supportBigNumbers` → `number` ou `string` selon la valeur ; préférer `bigint({ mode: 'number' })` + contrôle `Number.isSafeInteger`). `session.tz.spec.ts` lit `@@session.tx_isolation` (MariaDB seulement ; MySQL 8 : `@@transaction_isolation`).
 - `DrizzleQueryError` met requête **et paramètres** dans son message (multiligne) : ne jamais journaliser `error.message` ; `describeError` le retire et remonte `code`/`errno` de la `cause`.
+- Sous-agent `tester` : vérifie déjà la stabilité des tests de verrous en les relançant 3 fois ; garder les tests d'interblocage avec barrière explicite (pas de `sleep`).
 - Vérifier qu'un test mord par contre-épreuve (mutation rapide du code puis restauration) : la relecture de P1-01 a trouvé un test de journal qui passait sans que la redaction serve.
 - **Avant le premier import de `@depenseo/shared` dans l'API** (pas encore fait en P1-02) : `@depenseo/shared` exporte du `.ts` (`main: ./src/index.ts`) ; le `dist` de l'API (tsc → `node dist/src/main.js`) cassera dès son premier import. Compiler `shared` (build + `exports` vers `dist`) ou équivalent.
 - Les remplacements par script échouent silencieusement après un passage de Prettier (tableaux reformatés) : toujours `grep` le résultat.
@@ -47,7 +48,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
-- 2026-11-04 session 3 — P1-02 fait : pool mysql2 réglé par connexion (+00:00, READ COMMITTED, utf8mb4_unicode_520_ci, échec → connexion détruite), `withTransaction` (1213/1205, interblocage réel testé), UUID v7 ↔ BINARY(16), `describeError` durci contre les messages Drizzle multilignes. Contre-épreuve faite (retrait des SET / du retry → tests rouges).
+- 2026-11-04 session 3 — P1-02 fait : pool mysql2 réglé par connexion (+00:00, READ COMMITTED, utf8mb4_unicode_520_ci, échec → connexion détruite), `withTransaction` (1213/1205, interblocage réel testé), UUID v7 ↔ BINARY(16), `describeError` durci contre les messages Drizzle multilignes. Contre-épreuve faite (retrait des SET / du retry → tests rouges). Passation après 1 tâche (seuil de ~15 fichiers lus).
 
 - 2026-11-04 — Session 2 : P0-05 (périodes + todayIn, ADR-012, coverage-v8 ajouté), P1-01 (squelette API, ADR-013).
 
