@@ -1,0 +1,42 @@
+# Dépendances et builds
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Secrets (NF-SEC-01) : uniquement en variables d'environnement
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+mobile/android/key.properties
+mobile/android/app/google-services.json
+mobile/ios/Runner/GoogleService-Info.plist
+
+# Fichiers chiffrés générés (exports, sauvegardes) : jamais dans le dépôt
+storage/
+
+# Journaux et systèmes
+*.log
+.DS_Store
+.idea/
+.vscode/
+
+# Marqueurs de session Claude Code (scripts/hooks)
+.claude/HANDOFF
+.claude/BLOCKED
+.claude/settings.local.json
+
+# Flutter
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/ios/Pods/
+mobile/android/.gradle/

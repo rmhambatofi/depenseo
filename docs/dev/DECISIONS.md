@@ -37,6 +37,7 @@ Conséquence : calcul simple côté API, pas de faux positifs sur un historique 
 Contexte : la cible est Node 22 (o2switch, §8.1), le poste de développement a Node 26 et aucun gestionnaire de versions.
 Décision : `.nvmrc` = 22, `engines.node` = `>=22`, `@types/node` 22.x épinglé (le typecheck refuse les API absentes de Node 22), CI exécutée en Node 22.
 Conséquence : la CI fait foi ; les écarts de comportement d'exécution 22/26 sont détectés en CI.
+Contrainte liée : TypeScript épinglé à 6.0.x, car typescript-eslint 8.72 exige `typescript <6.1.0` (TypeScript 7 natif non supporté). Monter TypeScript seulement après avoir vérifié ce peer.
 
 ## ADR-007 — Une migration par fonctionnalité plutôt qu'un schéma complet en P1-03 (2026-11-04)
 
