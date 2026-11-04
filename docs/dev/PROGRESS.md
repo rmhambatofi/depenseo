@@ -7,9 +7,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P1-10 (`GET/PATCH /me` : langue, fuseau IANA, devise, consentements). Ajouter les nouvelles routes au harnais `test/access/cross-tenant.spec.ts` (`ACCOUNT_ROUTES`), qui vérifie déjà que la ligne `user` de A reste inchangée.
-- Dernier commit : 5d14e31 feat(api): Apple and Google sign-in by verified id_token, linking by authoritative email (F-AUTH-02)
+- Dernier commit : e8b0388 feat(api): personal notebook at signup, NotebookAccessGuard and cross-tenant harness (NF-SEC-03)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 134 shared, 196 api), `pnpm test:tz` vert
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 134 shared, 196 api), `pnpm test:tz` vert ; `test/access`, `test/notebooks`, `test/auth` stables sur 3 relances
 
 ## Pièges connus (à lire avant de coder)
 
