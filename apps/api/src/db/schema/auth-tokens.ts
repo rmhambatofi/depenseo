@@ -26,6 +26,8 @@ export const refreshToken = mysqlTable(
     uniqueIndex('refresh_token_hash_uq').on(t.tokenHash),
     index('refresh_token_family_idx').on(t.familyId),
     index('refresh_token_user_idx').on(t.userId),
+    /** Purge périodique des jetons expirés (ADR-018). */
+    index('refresh_token_expires_idx').on(t.expiresAt),
   ],
 );
 

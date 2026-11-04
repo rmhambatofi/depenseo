@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P1-06 (connexion JWT 15 min, refresh opaque haché avec rotation et détection de réutilisation). Partir de `AuthService.authenticate` (401/403 déjà testés) ; le test de connexion attendu est `api/test/auth/login.spec.ts` (TRACEABILITY.md:11).
-- Dernier commit : e434d5d feat(api): email/password registration with argon2id and single-use email verification (F-AUTH-01)
+- Prochaine tâche : P1-07 (réinitialisation du mot de passe, lien 30 min, révocation des refresh). Réutiliser `email_token` (purpose `reset_password`), `generateOpaqueToken`, le modèle `mail.verify_email` ; révoquer **toutes** les familles du compte en prenant le verrou `user … FOR UPDATE` comme `SessionService.lockedTokenRow` (ADR-018).
+- Dernier commit : feat(api) P1-06 sessions (voir `git log -1`)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 107 vitest api ; suite api stable sur 4 relances), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ)
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 119+ vitest api), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ)
 
 ## Pièges connus (à lire avant de coder)
 
@@ -49,6 +49,11 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Suites qui exécutent `runJobs` en parallèle : une réclamation `SKIP LOCKED` verrouille transitoirement les lignes **d'autres types** parcourues dans l'index `(status, run_at)`, qu'un autre worker saute alors. Donner à chaque suite une plage `run_at` disjointe (auth : janvier 2026, file : 2026-11-04) ou boucler jusqu'à épuisement (cf. `sendMails` dans `test/auth/register.spec.ts`). En production, effet bénin (traité au passage suivant).
 - `@node-rs/argon2` : `Algorithm` est un `const enum` ambiant (inutilisable en valeur sous `isolatedModules`) : `2 as Algorithm.Argon2id`. Paquets nodemailer 10 : sources dans `dist/esm`, pas `lib/`.
 
+- Sessions (P1-06, ADR-018) : `SessionService` (`login/refresh/logout`), `AccessTokens` (`session-tokens.ts`, jose HS256, `currentDate` = horloge), garde **globale** `AccessTokenGuard` : toute nouvelle route est protégée ; `@Public()` **sur la méthode** seulement, et l'ajouter à la liste blanche de `test/auth/public-routes.spec.ts`. `@CurrentUser()` → `{ userId }`. Tests : `test/support/users.ts` (`createUser(db, now, {verified})`), jeton via `POST /auth/login`. `GET /me` minimal à compléter en P1-10. Sous `/admin`, la garde devra répondre 404 (pas 401).
+- `email-token.ts` renommé `opaque-token.ts` (`generateOpaqueToken`, `hashOpaqueToken`, `OPAQUE_TOKEN_PATTERN`).
+- Migrations : ne **jamais** passer Prettier sur `apps/api/drizzle/meta` (`npx prettier --write src test` seulement) ; un snapshot non suivi laissé par un essai fait croire à drizzle-kit qu'il n'y a rien à générer : le supprimer avant `db:generate`. Renommer le `.sql` généré **et** le `tag` dans `_journal.json` ; contrôler par `npx drizzle-kit check`.
+- Instabilité connue (vue 1 fois sur 5, P1-06) : `job-runner.spec.ts › écarte la clôture tardive…` expire à 5 s quand une autre suite réclame en parallèle dans la même plage `run_at` (2026-11-04, FakeClock par défaut) et que le `runJobs` interne saute la ligne (SKIP LOCKED, cf. piège ci-dessus). À corriger en donnant une plage `run_at` propre aux suites de la file ou en bouclant le `runJobs` interne.
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -59,6 +64,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-04 session 7 — P1-06 fait : `POST /auth/login|refresh|logout`, JWT HS256 15 min (jose 6.2.15), refresh opaque 30 j glissants à rotation, réutilisation → famille révoquée, verrou `user FOR UPDATE` contre la course révocation/rotation, purge des refresh expirés (migration 0002), garde globale + liste blanche testée, `GET /me` minimal ; ADR-018. Deux relectures (aucun bloquant ; 5 importants corrigés). Contre-épreuves faites (8 mutations).
 
 - 2026-11-04 session 6 — P1-05 fait : inscription (argon2id, 202 sans énumération, remplacement du mot de passe d'un compte non vérifié contre la pré-inscription), lien de vérification 24 h tiré par le gestionnaire `mail.verify_email` (≤ 3/h), `verify-email` usage unique sous concurrence, `Mailer` (SMTP nodemailer 15 s + faux mémoire), `authenticate` 401/403 ; ADR-017. Deux relectures (1 bloquant corrigé : pré-détournement). Contre-épreuves faites. Passation après 1 tâche (~20 fichiers lus).
 

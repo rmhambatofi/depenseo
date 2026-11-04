@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { Public } from '../auth/access-token.guard.js';
 
 export class HealthDto {
   @ApiProperty({ enum: ['ok'] })
@@ -10,6 +11,7 @@ export class HealthDto {
 @ApiTags('health')
 @Controller('health')
 export class HealthController {
+  @Public()
   @Get()
   @ApiOkResponse({ type: HealthDto })
   get(): HealthDto {

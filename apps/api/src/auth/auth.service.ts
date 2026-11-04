@@ -10,7 +10,7 @@ import { withTransaction } from '../db/transaction.js';
 import { newId } from '../db/uuid.js';
 import { ProblemException } from '../errors/problem.exception.js';
 import { JobQueue } from '../jobs/job-queue.js';
-import { EMAIL_TOKEN_PATTERN, hashEmailToken } from './email-token.js';
+import { OPAQUE_TOKEN_PATTERN, hashOpaqueToken } from './opaque-token.js';
 import {
   hashPassword,
   PASSWORD_MAX_LENGTH,
@@ -33,7 +33,7 @@ export const registerSchema = z.object({
 });
 export type RegisterInput = z.infer<typeof registerSchema>;
 
-export const verifyEmailSchema = z.object({ token: z.string().regex(EMAIL_TOKEN_PATTERN) });
+export const verifyEmailSchema = z.object({ token: z.string().regex(OPAQUE_TOKEN_PATTERN) });
 
 export interface AuthenticatedUser {
   id: string;
@@ -134,7 +134,7 @@ export class AuthService {
 
   /** Consomme un jeton de vérification (usage unique, non expiré) et marque l'adresse vérifiée. */
   async verifyEmail(token: string): Promise<void> {
-    const tokenHash = hashEmailToken(token);
+    const tokenHash = hashOpaqueToken(token);
     const now = this.clock.now();
     const ok = await withTransaction(this.db, async (tx) => {
       // Consommation conditionnelle : sous concurrence, une seule requête trouve encore la ligne

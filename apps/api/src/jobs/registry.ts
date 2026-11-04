@@ -1,5 +1,6 @@
 // Registre des tâches traitées par le cron : chaque fonctionnalité y ajoute son gestionnaire
 // (e-mails P1-05, récurrences P4…) et, au besoin, ses tâches périodiques.
+import { purgeExpiredRefreshTokens } from '../auth/refresh-token-purge.js';
 import {
   type VerificationEmailDeps,
   verificationEmailHandler,
@@ -13,5 +14,5 @@ export function jobHandlers(deps: VerificationEmailDeps): JobHandler<any>[] {
 }
 
 export function scheduledTasks(): ScheduledTask[] {
-  return [purgeFinishedJobs()];
+  return [purgeFinishedJobs(), purgeExpiredRefreshTokens()];
 }

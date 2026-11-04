@@ -9,7 +9,7 @@ import { newId } from '../db/uuid.js';
 import { defineJob } from '../jobs/job-queue.js';
 import type { JobHandler } from '../jobs/job-runner.js';
 import type { Mailer, MailMessage } from '../mail/mailer.js';
-import { generateEmailToken } from './email-token.js';
+import { generateOpaqueToken } from './opaque-token.js';
 
 /** Validité d'un lien de vérification (ADR-017). */
 export const VERIFY_EMAIL_TTL_MS = 24 * 3_600_000;
@@ -67,7 +67,7 @@ export function verificationEmailHandler(
       // Compte supprimé ou déjà vérifié entre-temps : rien à envoyer.
       if (!account || account.verifiedAt) return;
       const now = deps.clock.now();
-      const { token, tokenHash } = generateEmailToken();
+      const { token, tokenHash } = generateOpaqueToken();
       await deps.db.insert(emailToken).values({
         id: newId(),
         userId,

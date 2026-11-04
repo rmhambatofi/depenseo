@@ -36,6 +36,7 @@
     "@nestjs/swagger": "12.1.0",
     "@node-rs/argon2": "2.2.2",
     "drizzle-orm": "0.45.4",
+    "jose": "6.2.15",
     "mysql2": "3.24.6",
     "nestjs-pino": "5.3.1",
     "nodemailer": "10.3.1",

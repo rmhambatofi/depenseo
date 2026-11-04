@@ -4,10 +4,11 @@ import type { DestinationStream } from 'pino';
 import { AuthModule } from './auth/auth.module.js';
 import { type Clock, systemClock } from './clock.js';
 import { ClockModule } from './clock.module.js';
-import { APP_CONFIG } from './config/config.token.js';
+import { ConfigModule } from './config/config.module.js';
 import type { AppConfig } from './config/env.js';
 import { DatabaseModule } from './db/database.module.js';
 import { HealthController } from './health/health.controller.js';
+import { MeModule } from './me/me.module.js';
 import { pinoHttpOptions } from './logging/pino-options.js';
 
 @Module({})
@@ -24,13 +25,13 @@ export class AppModule {
         LoggerModule.forRoot({
           pinoHttp: logDestination ? [options, logDestination] : options,
         }),
+        ConfigModule.register(config),
         DatabaseModule.register(config),
         ClockModule.register(clock),
         AuthModule,
+        MeModule,
       ],
       controllers: [HealthController],
-      providers: [{ provide: APP_CONFIG, useValue: config }],
-      exports: [APP_CONFIG],
     };
   }
 }

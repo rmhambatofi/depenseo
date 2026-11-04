@@ -9,6 +9,7 @@ export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
       'API de suivi des dépenses. Montants en centimes, dates calendaires AAAA-MM-JJ.',
     )
     .setVersion('1')
+    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' })
     .build();
   return SwaggerModule.createDocument(app, config);
 }

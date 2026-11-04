@@ -15,6 +15,13 @@
       "when": 1793822202360,
       "tag": "0001_job_claim_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1793824809895,
+      "tag": "0002_refresh_token_expires_index",
+      "breakpoints": true
     }
   ]
 }
