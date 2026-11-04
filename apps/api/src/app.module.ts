@@ -3,6 +3,7 @@ import { LoggerModule } from 'nestjs-pino';
 import type { DestinationStream } from 'pino';
 import { APP_CONFIG } from './config/config.token.js';
 import type { AppConfig } from './config/env.js';
+import { DatabaseModule } from './db/database.module.js';
 import { HealthController } from './health/health.controller.js';
 import { pinoHttpOptions } from './logging/pino-options.js';
 
@@ -16,6 +17,7 @@ export class AppModule {
         LoggerModule.forRoot({
           pinoHttp: logDestination ? [options, logDestination] : options,
         }),
+        DatabaseModule.register(config),
       ],
       controllers: [HealthController],
       providers: [{ provide: APP_CONFIG, useValue: config }],

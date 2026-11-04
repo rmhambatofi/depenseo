@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P1-02 (couche données Drizzle + mysql2)
-- Dernier commit : 9526fa8 feat(api): NestJS skeleton … (P1-01)
+- Prochaine tâche : P1-03 (migrations drizzle-kit + test d'invariants de schéma)
+- Dernier commit : feat(api): data layer … (P1-02)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 21 vitest api), `pnpm test:tz` vert (suites `*.tz.test.ts` sous les 4 TZ). Couverture shared 98,7 % (`pnpm --filter @depenseo/shared coverage`)
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 51 vitest api), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ). Couverture shared 98,7 % (`pnpm --filter @depenseo/shared coverage`)
 
 ## Pièges connus (à lire avant de coder)
 
@@ -28,9 +28,12 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - `packages/shared` (P0-04, ADR-011) : `Cents`, `CurrencyCode`, `CalendarDate` (brands), `formatAmount` (chaîne décimale exacte vers Intl), `parseAmountInput` → `{ok,cents}|{ok:false,error}`. Décimales par devise = table ISO 4217 figée dans `currency.ts`, jamais Intl/ICU. Écrire les espaces insécables en `\u00a0`/`\u202f` dans le source (sinon `no-irregular-whitespace`) : un heredoc ou un éditeur peut les écrire littéralement, vérifier.
 - `packages/shared/src/period.ts` (P0-05, ADR-012) : `periodContaining/nextPeriod/previousPeriod` (règle `{kind:'month',startDay 1–31}` repli fin de mois, `{kind:'week',startDay? ISO 1–7}`), `todayIn(tz, Temporal.Instant)`, `toPlainDate/toCalendarDate`. Importer `Temporal` depuis `temporal-polyfill` (1.0.7), jamais le global (Node 26 l'a, Node 22 non). Convention : suites multi-fuseaux nommées `*.tz.test.ts`, lancées par `test:tz` de chaque paquet (racine : `pnpm test:tz`) ; l'API devra fournir son propre `test:tz`.
 - `apps/api` (P1-01, ADR-013) : NestJS **12** ESM, `createApp(config, {logDestination})` dans `src/app.ts` (partagé main/tests/openapi), `test/support/app.ts` (`startTestApp`, `http(app)` pour supertest typé, `LogCapture`). Nouvelle variable d'env → schéma zod `src/config/env.ts`. Nouvelle route → `pnpm --filter api openapi` sinon `test/openapi.spec.ts` échoue (fichier exclu de Prettier). `detail` client uniquement via `ProblemException`. Vitest émet les métadonnées de décorateurs sans SWC.
-- `pnpm --filter api …` résout `@depenseo/api` (portée omise). `test:tz` de l'API passe grâce à `--passWithNoTests` (aucun `*.tz.spec.ts` encore) : P1-02 doit créer le premier (`DATE` relu identique sous les 4 TZ).
+- `pnpm --filter api …` résout `@depenseo/api` (portée omise).
+- Couche données (P1-02, ADR-014) : `src/db/connection.ts` (`createDbPool(config, hooks)` pool **à rappels** mysql2, `createDatabase(pool)` → `drizzle(pool)` positionnel : `drizzle({client, mode})` casse en 0.45.4), `transaction.ts` (`withTransaction(db, fn)` sur le client racine seulement), `uuid.ts` (`newId`, `uuidToBinary`, `binaryToUuid`, colonne `uuidBinary`), `DatabaseModule` global (jetons `DB`, `DB_POOL`). Config : `DATABASE_URL` (obligatoire), `DB_POOL_SIZE`. Tests : `test/support/db.ts` (`TEST_DATABASE_URL`, `migratorConnection()`) ; tables jetables `zz_test_*` supprimées en fin de test — P1-03 doit les ignorer **ou** elles doivent toujours être supprimées (vérifier que le test d'invariants ne tombe pas dessus en cas de test interrompu).
+- À trancher en P1-03 : type des BIGINT (pilote `supportBigNumbers` → `number` ou `string` selon la valeur ; préférer `bigint({ mode: 'number' })` + contrôle `Number.isSafeInteger`). `session.tz.spec.ts` lit `@@session.tx_isolation` (MariaDB seulement ; MySQL 8 : `@@transaction_isolation`).
+- `DrizzleQueryError` met requête **et paramètres** dans son message (multiligne) : ne jamais journaliser `error.message` ; `describeError` le retire et remonte `code`/`errno` de la `cause`.
 - Vérifier qu'un test mord par contre-épreuve (mutation rapide du code puis restauration) : la relecture de P1-01 a trouvé un test de journal qui passait sans que la redaction serve.
-- **Avant P1-02** : `@depenseo/shared` exporte du `.ts` (`main: ./src/index.ts`) ; le `dist` de l'API (tsc → `node dist/src/main.js`) cassera dès son premier import. Compiler `shared` (build + `exports` vers `dist`) ou équivalent.
+- **Avant le premier import de `@depenseo/shared` dans l'API** (pas encore fait en P1-02) : `@depenseo/shared` exporte du `.ts` (`main: ./src/index.ts`) ; le `dist` de l'API (tsc → `node dist/src/main.js`) cassera dès son premier import. Compiler `shared` (build + `exports` vers `dist`) ou équivalent.
 - Les remplacements par script échouent silencieusement après un passage de Prettier (tableaux reformatés) : toujours `grep` le résultat.
 
 ## Actions humaines (non bloquantes)
@@ -43,6 +46,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-04 session 3 — P1-02 fait : pool mysql2 réglé par connexion (+00:00, READ COMMITTED, utf8mb4_unicode_520_ci, échec → connexion détruite), `withTransaction` (1213/1205, interblocage réel testé), UUID v7 ↔ BINARY(16), `describeError` durci contre les messages Drizzle multilignes. Contre-épreuve faite (retrait des SET / du retry → tests rouges).
 
 - 2026-11-04 — Session 2 : P0-05 (périodes + todayIn, ADR-012, coverage-v8 ajouté), P1-01 (squelette API, ADR-013).
 

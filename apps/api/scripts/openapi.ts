@@ -9,6 +9,8 @@ const config = loadConfig({
   NODE_ENV: 'development',
   LOG_LEVEL: 'silent',
   JWT_ACCESS_SECRET: 'x'.repeat(32),
+  // Aucune connexion n'est ouverte : le pool ne se connecte qu'à la première requête.
+  DATABASE_URL: 'mysql://openapi:unused@127.0.0.1:1/openapi',
 });
 const app = await createApp(config);
 await app.init();

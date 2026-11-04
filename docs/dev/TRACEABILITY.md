@@ -50,12 +50,12 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | Exigence | Tâche(s) PLAN | Test(s) prévus |
 | --- | --- | --- |
 | NF-FMT-01 Montants en centimes entiers, devise ISO 4217 | P0-04, P1-03, P2-02 | `shared/src/amount.test.ts`, `api/test/db/schema-invariants.spec.ts` (aucun FLOAT/DOUBLE) |
-| NF-FMT-02 Dates calendaires sans fuseau | P0-05, P1-02, P2-02, P6-14 | `api/test/db/date-strings.tz.spec.ts`, `api/test/expenses/expenses-crud.spec.ts` |
-| NF-FMT-03 Horodatages UTC, affichés en local | P1-02, P1-03, P6-14 | `api/test/db/connection-settings.spec.ts`, `mobile/test/dates/timestamps_test.dart` |
+| NF-FMT-02 Dates calendaires sans fuseau | P0-05, P1-02, P2-02, P6-14 | `api/test/db/session.tz.spec.ts`, `api/test/expenses/expenses-crud.spec.ts` |
+| NF-FMT-03 Horodatages UTC, affichés en local | P1-02, P1-03, P6-14 | `api/test/db/session.tz.spec.ts`, `mobile/test/dates/timestamps_test.dart` |
 | NF-FMT-04 Aujourd'hui, semaines, périodes dans le fuseau utilisateur | P0-05, P1-10, P3-02 | `shared/src/period.tz.test.ts`, `api/test/limits/period-summary.tz.spec.ts` |
 | NF-FMT-05 Tests 4 fuseaux + DST (API, mobile) | P0-05, P1-02, P3-02, P4-03, P6-14 | suites `*.tz.spec.ts` / `*.tz.test.ts` (commande `pnpm --filter api test:tz`), `mobile/test/dates/timezones_test.dart` |
 | NF-FMT-06 Format des nombres selon la langue, saisie tolérante | P0-04, P6-04 | `shared/src/amount.test.ts` (`formatAmount` fr → « 1 234,56 € »), `mobile/test/expenses/amount_input_test.dart` |
-| NF-FMT-07 `DATE` lu en chaîne, connexion en UTC | P1-02 | `api/test/db/date-strings.tz.spec.ts`, `api/test/db/connection-settings.spec.ts` |
+| NF-FMT-07 `DATE` lu en chaîne, connexion en UTC | P1-02 | `api/test/db/session.tz.spec.ts` |
 | NF-FMT-08 Pas de `new Date('AAAA-MM-JJ')`, `Intl.NumberFormat` | P0-01, P0-04 | `eslint-rules.test.ts` (fixture rejetée par `no-restricted-syntax`), `shared/src/amount.test.ts` |
 | NF-SEC-01 Chiffrement transit/repos, clés hors code, rotation | P4-05, P4-08, P7-03, P7-07 | `api/test/exports/encrypted-file.spec.ts`, `api/test/backup/export-restore.spec.ts`, `docs/dev/DEPLOY.md` (rotation) |
 | NF-SEC-02 Jetons 15 min, refresh révocables, stockage sécurisé | P1-06, P6-01, P6-02 | `api/test/auth/tokens.spec.ts`, `mobile/test/auth/token_storage_test.dart` |

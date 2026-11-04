@@ -4,10 +4,12 @@ import { Writable } from 'node:stream';
 import type { INestApplication } from '@nestjs/common';
 import { createApp } from '../../src/app.js';
 import { loadConfig } from '../../src/config/env.js';
+import { TEST_DATABASE_URL } from './db.js';
 
 export const TEST_ENV = {
   NODE_ENV: 'test',
   JWT_ACCESS_SECRET: 'test-secret-test-secret-test-secret-0123',
+  DATABASE_URL: TEST_DATABASE_URL,
 } as const;
 
 export class LogCapture extends Writable {

@@ -14,17 +14,31 @@ function isPlainObject(value: object): value is Record<string, unknown> {
 }
 
 /**
- * Erreur réduite à son type, son code et sa pile sans la ligne de message : les messages
- * de bibliothèques (ex. mysql2 « Duplicate entry 'a@b.fr' ») peuvent contenir des données personnelles.
+ * Erreur réduite à son type, son code et sa pile sans le message : les messages de bibliothèques
+ * (mysql2 « Duplicate entry 'a@b.fr' », Drizzle « Failed query … params: … » sur plusieurs lignes)
+ * peuvent contenir des données personnelles. Le message entier est retiré avant de garder les
+ * seules lignes « at … », pour qu'une valeur saisie contenant « \n    at » ne passe pas.
+ * `code`/`errno` sont repris de la première `cause` qui en porte (erreur du pilote sous Drizzle).
  */
 export function describeError(error: Error): Record<string, unknown> {
-  const code = (error as { code?: unknown }).code;
+  let code: unknown;
+  let errno: unknown;
+  for (let current: unknown = error, depth = 0; current instanceof Error && depth < 5; depth += 1) {
+    const fields = current as { code?: unknown; errno?: unknown };
+    code ??=
+      typeof fields.code === 'string' || typeof fields.code === 'number' ? fields.code : undefined;
+    errno ??= typeof fields.errno === 'number' ? fields.errno : undefined;
+    current = current.cause;
+  }
   const stack = error.stack ?? '';
-  const frames = stack.indexOf('\n    at ');
+  const header = `${error.name}: ${error.message}`;
+  const body = stack.startsWith(header) ? stack.slice(header.length) : '';
+  const frames = body.split('\n').filter((line) => /^\s+at /.test(line));
   return {
     type: error.name,
-    ...(typeof code === 'string' || typeof code === 'number' ? { code } : {}),
-    stack: frames === -1 ? undefined : stack.slice(frames + 1),
+    ...(code === undefined ? {} : { code }),
+    ...(errno === undefined ? {} : { errno }),
+    stack: frames.length === 0 ? undefined : frames.join('\n'),
   };
 }
 
