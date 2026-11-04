@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P1-09 (carnets + `NotebookAccessGuard` + harnais « B ne voit pas A »). Le carnet personnel doit être créé sur **les deux** chemins de création de compte : `AuthService.register` et `SocialLoginService.resolve` (branche upsert).
+- Prochaine tâche : P1-10 (`GET/PATCH /me` : langue, fuseau IANA, devise, consentements). Ajouter les nouvelles routes au harnais `test/access/cross-tenant.spec.ts` (`ACCOUNT_ROUTES`), qui vérifie déjà que la ligne `user` de A reste inchangée.
 - Dernier commit : 5d14e31 feat(api): Apple and Google sign-in by verified id_token, linking by authoritative email (F-AUTH-02)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 134 shared, 188 api), `pnpm test:tz` vert ; `test/auth` stable sur 5 relances
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 134 shared, 196 api), `pnpm test:tz` vert
 
 ## Pièges connus (à lire avant de coder)
 
@@ -64,6 +64,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Reliquats mineurs P1-08 : utilitaire `sha256` commun (empreinte du `sub`, `nonceHash`, tests), tests HTTP 503/500 de `/auth/social`, `retryableErrno` à réécrire sur `hasErrno` ; un seul rejeu sur course d'identité (500 si ≥ 3 adresses en course).
 - CryptoKey WebCrypto (jose `generateKeyPair`) liée à son hash : pour signer en plusieurs `alg` avec une même clé RSA de test, `generateKeyPairSync('rsa')` (KeyObject Node).
 
+- Carnets (P1-09, ADR-021) : `createPersonalNotebook(tx, {userId, language, now})` appelé dans `register` et `resolve` ; `createUser` (tests) renvoie aussi `notebookId`. Toute route de carnet : chemin `/notebooks/:notebookId/…` + `@UseGuards(NotebookAccessGuard)` + `@CurrentNotebook()` (→ `{notebookId, role}`), et **filtrer les ressources filles par `notebook_id`** dans la requête. Harnais `test/access/cross-tenant.spec.ts` : toute nouvelle route doit y être classée ; nouveau paramètre de chemin (`{expenseId}`) → fournir `RESOURCE_PARAMS`/`BODIES` et étendre le contrôle « inchangé » aux tables concernées. Liste publique partagée : `test/support/public-routes.ts`. `test/support/access.ts` : `createTenant(app, db, now)` (compte + carnet + jeton), `callAs`, `problemWithoutInstance` (le champ `instance` reprend l'URL).
+- Reliquats mineurs P1-09 : pas de test prouvant « même transaction » (création du carnet qui échoue → pas de `user`) ; `GET /notebooks/:id` relit la base après la garde (pourrait exposer `name/kind` via la garde) ; routes `@ApiExclude*` hors harnais (à traiter avec les routes admin).
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -74,6 +77,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-04 session 10 — P1-09 fait : carnet personnel (« Mon carnet »/« My notebook ») créé dans la transaction de création du compte (inscription e-mail et Apple/Google), `GET /notebooks`, `GET /notebooks/{notebookId}`, `NotebookAccessGuard` (adhésion active, carnet non supprimé, sinon même 404), harnais d'isolement sur toutes les routes protégées de l'OpenAPI ; ADR-021. Une relecture (0 bloquant, 2 importants corrigés : liste publique exacte partagée, attaque de ressource fille via le carnet de B). Contre-épreuves faites (garde sans filtre utilisateur, création sociale sans carnet). Passation après 1 tâche (~15 fichiers lus).
 
 - 2026-11-04 session 9 — P1-08 fait : `POST /auth/social` (Apple/Google), vérification jose RS256 + iss/aud/exp/âge 10 min/nonce SHA-256, identité par (fournisseur, SHA-256 du `sub`), rattachement par adresse seulement si le fournisseur fait autorité (Apple ; Google : Gmail ou `hd`), reprise d'un compte non vérifié (mot de passe effacé, CGU redatées), 422 sans CGU, rejeu sur course d'identité ; ADR-020. Une relecture (0 bloquant, 4 importants corrigés) ; le tester a trouvé une course (compte orphelin), corrigée et couverte par barrière. Contre-épreuves faites. Passation après 1 tâche (~17 fichiers lus).
 
@@ -91,6 +96,4 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - 2026-11-04 — Session 2 : P0-05 (périodes + todayIn, ADR-012, coverage-v8 ajouté), P1-01 (squelette API, ADR-013).
 
-- 2026-11-04 — Session 1 : P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011) ; handoff après 3 tâches.
-
-- 2026-11-04 — Initialisation du kit (CLAUDE.md, PLAN.md, hooks, agents) puis session d'amorçage : plan affiné (60 tâches renumérotées), `TRACEABILITY.md`, ADR-003 à 009, P0-01 (monorepo pnpm, TS strict, ESLint + règle dates, Prettier).
+- 2026-11-04 — Amorçage et session 1 (résumé) : kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011).

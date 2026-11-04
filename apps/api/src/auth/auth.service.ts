@@ -8,6 +8,7 @@ import { DB } from '../db/database.module.js';
 import { emailToken, user } from '../db/schema/index.js';
 import { withTransaction } from '../db/transaction.js';
 import { newId } from '../db/uuid.js';
+import { createPersonalNotebook } from '../notebooks/personal-notebook.js';
 import { ProblemException } from '../errors/problem.exception.js';
 import { scheduleThrottledMail } from './mail-throttle.js';
 import { OPAQUE_TOKEN_PATTERN, hashOpaqueToken } from './opaque-token.js';
@@ -89,6 +90,9 @@ export class AuthService {
         .from(user)
         .where(eq(user.email, input.email));
       if (!account) throw new Error('Compte introuvable après insertion');
+      if (account.id === id) {
+        await createPersonalNotebook(tx, { userId: id, language: input.language, now });
+      }
       if (account.verifiedAt) return;
       if (account.id !== id) {
         await tx

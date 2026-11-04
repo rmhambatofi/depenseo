@@ -17,6 +17,7 @@ import {
   type TokenOptions,
 } from '../support/id-tokens.js';
 import { testDb } from '../support/jobs.js';
+import { notebooksOf } from '../support/notebooks.js';
 import { createUser } from '../support/users.js';
 
 type Provider = TokenOptions['provider'];
@@ -95,6 +96,10 @@ describe('connexion Apple / Google (F-AUTH-02)', () => {
     expect(identities).toHaveLength(1);
     expect(identities[0]!.provider).toBe('google');
     expect(Buffer.from(identities[0]!.subjectHash).equals(subjectHash(sub))).toBe(true);
+    // Carnet personnel créé avec le compte (P1-09), nommé dans sa langue.
+    expect(await notebooksOf(db, account!.id)).toEqual([
+      expect.objectContaining({ name: 'My notebook', kind: 'personal', role: 'owner' }),
+    ]);
 
     const me = await request(http(app))
       .get('/api/v1/me')
@@ -281,6 +286,7 @@ describe('connexion Apple / Google (F-AUTH-02)', () => {
     expect(results.map((r) => r.status)).toEqual(Array(6).fill(200));
     const account = await accountByEmail(email);
     expect(await identitiesOf(account!.id)).toHaveLength(1);
+    expect(await notebooksOf(db, account!.id)).toHaveLength(1);
   });
 
   it.each([true, false])(
@@ -300,6 +306,8 @@ describe('connexion Apple / Google (F-AUTH-02)', () => {
       );
       expect(results.map((r) => r.status)).toEqual(Array(6).fill(200));
       expect(await identitiesOf(account.id)).toHaveLength(1);
+      // Rattachement : le compte garde son seul carnet.
+      expect(await notebooksOf(db, account.id)).toHaveLength(1);
     },
   );
 
@@ -315,6 +323,7 @@ describe('connexion Apple / Google (F-AUTH-02)', () => {
     const accounts = (await Promise.all(emails.map(accountByEmail))).filter(Boolean);
     expect(accounts).toHaveLength(1);
     expect(await identitiesOf(accounts[0]!.id)).toHaveLength(1);
+    expect(await notebooksOf(db, accounts[0]!.id)).toHaveLength(1);
   });
 
   it('identité rattachée par une autre requête pendant la création du compte : création annulée', async () => {

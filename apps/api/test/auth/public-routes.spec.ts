@@ -6,18 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { newId } from '../../src/db/uuid.js';
 import { buildOpenApiDocument } from '../../src/openapi.js';
 import { http, startTestApp } from '../support/app.js';
-
-const PUBLIC_ROUTES = [
-  'GET /api/v1/health',
-  'POST /api/v1/auth/register',
-  'POST /api/v1/auth/verify-email',
-  'POST /api/v1/auth/login',
-  'POST /api/v1/auth/refresh',
-  'POST /api/v1/auth/logout',
-  'POST /api/v1/auth/social',
-  'POST /api/v1/auth/password-reset/request',
-  'POST /api/v1/auth/password-reset/confirm',
-].sort();
+import { PUBLIC_ROUTES } from '../support/public-routes.js';
 
 const METHODS = ['get', 'post', 'put', 'patch', 'delete'] as const;
 

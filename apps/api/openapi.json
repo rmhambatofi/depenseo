@@ -311,6 +311,70 @@
           "me"
         ]
       }
+    },
+    "/api/v1/notebooks": {
+      "get": {
+        "operationId": "NotebooksController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotebookDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notebooks"
+        ]
+      }
+    },
+    "/api/v1/notebooks/{notebookId}": {
+      "get": {
+        "operationId": "NotebooksController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotebookDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet inexistant, supprimé ou d’un autre compte"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notebooks"
+        ]
+      }
     }
   },
   "info": {
@@ -545,6 +609,40 @@
         "required": [
           "id",
           "email"
+        ]
+      },
+      "NotebookDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "personal",
+              "shared"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "member"
+            ],
+            "description": "Rôle du compte connecté dans ce carnet"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "role"
         ]
       }
     }

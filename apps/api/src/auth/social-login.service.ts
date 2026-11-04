@@ -10,6 +10,7 @@ import { DB } from '../db/database.module.js';
 import { IDENTITY_PROVIDERS, user, userIdentity } from '../db/schema/index.js';
 import { ER_DUP_ENTRY, hasErrno, withTransaction } from '../db/transaction.js';
 import { newId } from '../db/uuid.js';
+import { createPersonalNotebook } from '../notebooks/personal-notebook.js';
 import { ProblemException } from '../errors/problem.exception.js';
 import { emailSchema, LANGUAGES } from './auth.service.js';
 import {
@@ -148,6 +149,9 @@ export class SocialLoginService {
       [account] = await lockAccount();
       if (!account) throw new Error('Compte introuvable après insertion');
       created = account.id === id;
+      if (created) {
+        await createPersonalNotebook(tx, { userId: id, language: input.language, now });
+      }
     }
 
     const raced = await this.linkedUser(tx, identity, subjectHash);

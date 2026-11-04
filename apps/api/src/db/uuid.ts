@@ -10,6 +10,10 @@ export function newId(): string {
   return v7();
 }
 
+export function isUuid(value: string): boolean {
+  return UUID_PATTERN.test(value);
+}
+
 export function uuidToBinary(id: string): Buffer {
   if (!UUID_PATTERN.test(id)) throw new TypeError('Identifiant UUID mal formé');
   return Buffer.from(id.replaceAll('-', ''), 'hex');

@@ -16,6 +16,7 @@ import { InMemoryMailer } from '../../src/mail/mailer.js';
 import { http, type LogCapture, startTestApp } from '../support/app.js';
 import { FakeClock } from '../support/clock.js';
 import { testDb } from '../support/jobs.js';
+import { notebooksOf } from '../support/notebooks.js';
 
 const PUBLIC_WEB_URL = 'https://app.depenseo.test';
 const PASSWORD = 'correct horse battery';
@@ -103,6 +104,15 @@ describe('inscription et vérification de l’e-mail (F-AUTH-01)', () => {
     expect(created!.emailVerifiedAt).toBeNull();
     expect(created!.termsAcceptedAt).toEqual(clock.now());
     expect(created!.privacyAcceptedAt).toEqual(clock.now());
+    // Carnet personnel créé dans la même transaction (P1-09), nommé dans la langue du compte.
+    expect(await notebooksOf(db, created!.id)).toEqual([
+      expect.objectContaining({
+        name: 'Mon carnet',
+        kind: 'personal',
+        ownerId: created!.id,
+        role: 'owner',
+      }),
+    ]);
 
     const jobs = await verifyJobsOf(created!.id);
     expect(jobs).toHaveLength(1);
@@ -248,6 +258,7 @@ describe('inscription et vérification de l’e-mail (F-AUTH-01)', () => {
     const rows = await db.select().from(user).where(eq(user.email, email.toLowerCase()));
     expect(rows).toHaveLength(1);
     expect(await verifyJobsOf(rows[0]!.id)).toHaveLength(1);
+    expect(await notebooksOf(db, rows[0]!.id)).toHaveLength(1);
   });
 
   it('un jeton présenté deux fois en même temps n’est consommé qu’une fois', async () => {
