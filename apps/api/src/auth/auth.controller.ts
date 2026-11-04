@@ -14,6 +14,11 @@ import { parseBody } from '../http/parse-body.js';
 import { Public } from './access-token.guard.js';
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from './password.js';
 import { AuthService, LANGUAGES, registerSchema, verifyEmailSchema } from './auth.service.js';
+import {
+  PasswordResetService,
+  passwordResetConfirmSchema,
+  passwordResetRequestSchema,
+} from './password-reset.service.js';
 import { loginSchema, refreshTokenSchema, SessionService } from './session.service.js';
 import { ACCESS_TOKEN_TTL_S, REFRESH_TOKEN_TTL_S, type SessionTokens } from './session-tokens.js';
 
@@ -37,6 +42,19 @@ export class RegisterDto {
 export class VerifyEmailDto {
   @ApiProperty({ description: 'Jeton reçu par e-mail (base64url, 43 caractères)' })
   readonly token!: string;
+}
+
+export class PasswordResetRequestDto {
+  @ApiProperty({ format: 'email', maxLength: 254 })
+  readonly email!: string;
+}
+
+export class PasswordResetConfirmDto {
+  @ApiProperty({ description: 'Jeton reçu par e-mail (base64url, 43 caractères)' })
+  readonly token!: string;
+
+  @ApiProperty({ minLength: PASSWORD_MIN_LENGTH, maxLength: PASSWORD_MAX_LENGTH })
+  readonly password!: string;
 }
 
 export class LoginDto {
@@ -81,6 +99,7 @@ export class AuthController {
   constructor(
     private readonly auth: AuthService,
     private readonly sessions: SessionService,
+    private readonly passwordReset: PasswordResetService,
   ) {}
 
   /** Réponse 202 identique que l'adresse soit nouvelle ou déjà inscrite (F-AUTH-01, ADR-017). */
@@ -141,5 +160,31 @@ export class AuthController {
   async logout(@Body() body: RefreshTokenDto): Promise<void> {
     const { refreshToken } = parseBody(refreshTokenSchema, body);
     await this.sessions.logout(refreshToken);
+  }
+
+  /** Réponse 202 identique que l'adresse soit inscrite ou non (F-AUTH-03, ADR-019). */
+  @Public()
+  @Post('password-reset/request')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiAcceptedResponse({
+    description: 'Demande prise en compte ; un e-mail suit si le compte existe',
+  })
+  @ApiBadRequestResponse({ description: 'Champs invalides' })
+  async requestPasswordReset(@Body() body: PasswordResetRequestDto): Promise<void> {
+    const { email } = parseBody(passwordResetRequestSchema, body);
+    await this.passwordReset.request(email);
+  }
+
+  /** Lien à usage unique de 30 min ; toutes les sessions du compte sont fermées (F-AUTH-03). */
+  @Public()
+  @Post('password-reset/confirm')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({ description: 'Mot de passe remplacé, sessions révoquées' })
+  @ApiBadRequestResponse({
+    description: 'Champs invalides, jeton invalide, expiré ou déjà utilisé',
+  })
+  async confirmPasswordReset(@Body() body: PasswordResetConfirmDto): Promise<void> {
+    const { token, password } = parseBody(passwordResetConfirmSchema, body);
+    await this.passwordReset.confirm(token, password);
   }
 }

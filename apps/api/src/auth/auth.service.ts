@@ -1,15 +1,15 @@
 // Inscription, vérification d'adresse et contrôle des identifiants (F-AUTH-01, ADR-017).
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, gt, isNull, like, sql } from 'drizzle-orm';
+import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { CLOCK, type Clock } from '../clock.js';
 import type { Database } from '../db/connection.js';
 import { DB } from '../db/database.module.js';
-import { emailToken, job, user } from '../db/schema/index.js';
+import { emailToken, user } from '../db/schema/index.js';
 import { withTransaction } from '../db/transaction.js';
 import { newId } from '../db/uuid.js';
 import { ProblemException } from '../errors/problem.exception.js';
-import { JobQueue } from '../jobs/job-queue.js';
+import { scheduleThrottledMail } from './mail-throttle.js';
 import { OPAQUE_TOKEN_PATTERN, hashOpaqueToken } from './opaque-token.js';
 import {
   hashPassword,
@@ -39,8 +39,6 @@ export interface AuthenticatedUser {
   id: string;
 }
 
-type Tx = Parameters<Parameters<Database['transaction']>[0]>[0];
-
 /** Clé d'unicité des tâches d'envoi : préfixe indexé pour retrouver les envois d'un compte. */
 const VERIFY_EMAIL_KEY_PREFIX = 'verify-email:';
 /** Plafond d'envois de liens par compte et par heure glissante, avant la limitation de débit (P7-03). */
@@ -50,14 +48,10 @@ const INVALID_TOKEN = 'Lien de vérification invalide ou expiré';
 
 @Injectable()
 export class AuthService {
-  private readonly jobs: JobQueue;
-
   constructor(
     @Inject(DB) private readonly db: Database,
     @Inject(CLOCK) private readonly clock: Clock,
-  ) {
-    this.jobs = new JobQueue(clock);
-  }
+  ) {}
 
   /**
    * Crée le compte et programme l'e-mail de vérification dans la même transaction. Réponse
@@ -66,7 +60,7 @@ export class AuthService {
    * - compte non vérifié : mot de passe, langue et consentements sont remplacés, pour qu'un tiers
    *   ne puisse pas pré-inscrire l'adresse d'autrui avec son propre mot de passe (ADR-017). Les
    *   liens déjà envoyés restent valides : ils ne sont pas liés au mot de passe et n'arrivent que
-   *   chez le titulaire de l'adresse. Un nouveau lien part (voir `scheduleVerificationEmail`).
+   *   chez le titulaire de l'adresse. Un nouveau lien part (voir `scheduleThrottledMail`).
    */
   async register(input: RegisterInput): Promise<void> {
     // Toujours calculé, même pour une adresse connue : temps de réponse homogène.
@@ -108,28 +102,12 @@ export class AuthService {
           })
           .where(eq(user.id, account.id));
       }
-      await this.scheduleVerificationEmail(tx, account.id, now);
+      await scheduleThrottledMail(tx, this.clock, verifyEmailJob, {
+        prefix: VERIFY_EMAIL_KEY_PREFIX,
+        userId: account.id,
+        perHour: VERIFY_EMAILS_PER_HOUR,
+      });
     });
-  }
-
-  /**
-   * Programme un lien de vérification, sauf si un envoi est déjà en attente (il tirera son jeton
-   * au moment de l'envoi, donc après ce remplacement) ou si le plafond horaire est atteint.
-   */
-  private async scheduleVerificationEmail(tx: Tx, userId: string, now: Date): Promise<void> {
-    const prefix = `${VERIFY_EMAIL_KEY_PREFIX}${userId}:`;
-    const recent = await tx
-      .select({ status: job.status })
-      .from(job)
-      .where(
-        and(
-          like(job.uniqueKey, `${prefix}%`),
-          gt(job.createdAt, new Date(now.getTime() - 3_600_000)),
-        ),
-      );
-    if (recent.some((row) => row.status === 'pending')) return;
-    if (recent.length >= VERIFY_EMAILS_PER_HOUR) return;
-    await this.jobs.enqueue(tx, verifyEmailJob, { userId }, { uniqueKey: `${prefix}${newId()}` });
   }
 
   /** Consomme un jeton de vérification (usage unique, non expiré) et marque l'adresse vérifiée. */

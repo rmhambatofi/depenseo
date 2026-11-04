@@ -14,6 +14,8 @@ const PUBLIC_ROUTES = [
   'POST /api/v1/auth/login',
   'POST /api/v1/auth/refresh',
   'POST /api/v1/auth/logout',
+  'POST /api/v1/auth/password-reset/request',
+  'POST /api/v1/auth/password-reset/confirm',
 ].sort();
 
 const METHODS = ['get', 'post', 'put', 'patch', 'delete'] as const;
