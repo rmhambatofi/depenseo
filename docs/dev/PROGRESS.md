@@ -6,8 +6,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P0-03
-- Dernier commit : feat(infra): MariaDB 10.6 docker-compose … (P0-02)
+- Prochaine tâche : P0-04
+- Dernier commit : chore(ci): GitHub Actions workflow … (P0-03)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm test` verts (9 tests scripts/ dont 7 base ; shared sans test)
 
@@ -26,12 +26,20 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Comptes : `depenseo_api`/`depenseo_admin` (DML seul, pas de TRUNCATE/DDL), `depenseo_migrator` (tout) sur `depenseo` et `depenseo_test` ; mots de passe dev `<compte>_dev` sauf root `depenseo_root_dev`. Nettoyer les tests avec le compte migrator.
 - Image épinglée `mariadb:10.6.28` ; la version réelle d'o2switch (`SELECT VERSION()`) reste à relever par l'humain.
 
+- CI : actions épinglées par SHA (checkout v7.0.1, setup-node v7.1.0, pnpm/action-setup v6.1.1, flutter-action v2.23.0) ; `pnpm lint:ci` = actionlint 1.7.12 via Docker. Ne pas pousser sans accord humain (dépôt public).
+
+## Actions humaines (non bloquantes)
+
+- Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
+- Relever `SELECT VERSION()` sur o2switch et ajuster l'image `mariadb:10.6.28` si besoin.
+
 ## BLOQUÉ
 
 (rien)
 
 ## Historique (plus récent en haut)
 
+- 2026-11-04 — Session 1 : P0-03 faite (ci.yml, actionlint ; run GitHub en attente de push humain).
 - 2026-11-04 — Session 1 : P0-02 faite (docker-compose MariaDB 10.6.28, db-wait.sh, 3 comptes, ADR-010 ; CI P0-03 réutilisera le compose).
 
 - 2026-11-04 — Session d'amorçage : plan affiné (60 tâches, renumérotées), `TRACEABILITY.md`, ADR-003 à 009 ; P0-01 faite (monorepo pnpm, TS strict, ESLint + règle dates, Prettier).

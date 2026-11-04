@@ -1,0 +1,93 @@
+# Intégration continue (NF-QUA-03) : même MariaDB 10.6 qu'en local, via docker-compose.yml (ADR-010).
+# Actions épinglées par SHA de commit (dépôt public) ; mettre à jour SHA et commentaire ensemble.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  node:
+    name: TypeScript (typecheck, lint, tests contre MariaDB)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Démarrer MariaDB 10.6 (en parallèle de l'installation)
+        run: docker compose up -d db
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1, version lue dans package.json › packageManager
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r typecheck
+      - run: pnpm lint
+      - run: pnpm format:check
+      - name: Valider les workflows (actionlint)
+        run: pnpm lint:ci
+
+      - name: Attendre MariaDB
+        run: scripts/db-wait.sh
+        env:
+          DB_WAIT_TIMEOUT: '120'
+
+      - run: pnpm test
+
+      - name: Journaux MariaDB en cas d'échec
+        if: failure()
+        run: docker compose logs db
+
+  mobile:
+    name: Flutter (analyze, test)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Détecter l'app mobile
+        id: detect
+        run: |
+          if [ -f mobile/pubspec.yaml ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "mobile/pubspec.yaml absent : étapes Flutter ignorées."
+          fi
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        if: steps.detect.outputs.present == 'true'
+        with:
+          flutter-version: 3.47.6
+          cache: true
+
+      - name: flutter pub get
+        if: steps.detect.outputs.present == 'true'
+        working-directory: mobile
+        run: flutter pub get
+
+      - name: flutter analyze
+        if: steps.detect.outputs.present == 'true'
+        working-directory: mobile
+        run: flutter analyze
+
+      - name: flutter test
+        if: steps.detect.outputs.present == 'true'
+        working-directory: mobile
+        run: flutter test
