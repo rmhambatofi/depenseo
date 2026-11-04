@@ -46,6 +46,8 @@ export const expense = mysqlTable(
     index('expense_sync_idx').on(t.notebookId, t.updatedAt, t.id),
     index('expense_date_idx').on(t.notebookId, t.spentOn, t.id),
     index('expense_category_idx').on(t.categoryId),
+    // Purge des suppressions de plus de 30 jours (ADR-026).
+    index('expense_deleted_idx').on(t.deletedAt),
   ],
 );
 
@@ -64,6 +66,7 @@ export const tag = mysqlTable(
   (t) => [
     index('tag_sync_idx').on(t.notebookId, t.updatedAt, t.id),
     uniqueIndex('tag_name_uq').on(t.notebookId, t.name),
+    index('tag_deleted_idx').on(t.deletedAt),
   ],
 );
 

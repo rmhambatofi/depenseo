@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P2-04 (synchronisation différentielle `GET /sync` + purge des suppressions > 30 jours).
-- Dernier commit : 3ca4735 feat(api): expense list with combinable search filters and keyset pagination (F-DEP-09)
+- Prochaine tâche : première `[ ]` de PLAN.md (phase 3).
+- Dernier commit : feat(api): differential sync and purge of deletions older than 30 days (NF-OFF-01)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 282 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/expenses`, `test/access` stables sur 3 relances
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 293 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/sync`, `test/access`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -87,6 +87,11 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Test de pagination : une ligne insérée **à la même date** avec un id v7 plus grand se classe *avant* le curseur (tri id décroissant) : ne pas l'attendre dans la page suivante (erreur faite en P2-03).
 - Reliquats mineurs P2-03 : paramètre inconnu → `detail` « (requête) » sans le nommer ; `q` borné à 100 avant NFC ; filtre catégorie exact (parents n'incluent pas les enfants) ; pas d'index plein texte.
 
+- Sync (P2-04, ADR-026) : `GET /notebooks/{id}/sync` (`src/sync/`), flux catégories → étiquettes → dépenses par (updated_at, id), curseur `v1~table~…` portant `since` et filigrane (`nextUpdatedSince` = now − 5 min au 1er appel), 410 si `updated_since` > 29 j. Étiquettes d'une dépense : `tagNamesByExpense` (`src/expenses/expense-tags.ts`). Purge `purge-deleted-sync-rows` (`src/sync/deleted-rows-purge.ts`), index `(deleted_at)` (migration 0006). Le client mobile (P6-05) doit tolérer une catégorie pendante (pas d'instantané commun aux pages).
+- **Plages d'horloge des suites à purge globale** : `tokens.spec` purge les refresh expirés avant 2025-06-01 ; `sync-purge.spec` vit en août 2025 ; les autres suites en 2026. Toute connexion (`createTenant`) crée un refresh à +30 j : une suite à horloge ancienne casse le compte de `tokens.spec` (vu en P2-04 avec 2019). Choisir une plage disjointe et la noter ici.
+- Jeton d'accès de 15 min : `clock.advance(DAY)` après `tenant()` → 401 ; écrire `deleted_at` directement en base pour simuler l'ancienneté.
+- Reliquats mineurs P2-04 : marge du filigrane non éprouvée par un test d'écriture validée en retard ; `tagNamesByExpense` ne filtre pas `tag.deleted_at` (sans effet tant qu'aucune étiquette n'est supprimée) ; `DELETE … LIMIT` sans `ORDER BY` (binlog STATEMENT).
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -97,6 +102,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-04 session 15 — P2-04 fait : `GET /notebooks/{id}/sync` (suppressions incluses, curseur (updated_at, id) stable sur horodatage partagé, filigrane −5 min, 410 au-delà de 29 j), purge périodique des suppressions > 30 j (dépenses, puis étiquettes/catégories non référencées, enfant avant parent), index `deleted_at` ; ADR-026. Une relecture (0 bloquant, 2 importants corrigés : référence pendante documentée, index de purge). Contre-épreuves faites (5 mutations). Collision d'horloge avec `tokens.spec` trouvée par le tester et corrigée.
 
 - 2026-11-04 session 14 — P2-03 fait : `GET /notebooks/{id}/expenses` (texte note/marchand sous collation, montant min/max, catégories répétables, période, curseur par clé (date, id) décroissant, 1–100 / 50), `parseQuery` strict ; ADR-025. Une relecture (0 bloquant, 1 important corrigé : échappement `!` non testé ; test d'insertion entre deux pages ajouté). Contre-épreuves faites (échappement, départage par id). Passation après 1 tâche (~13 fichiers lus).
 

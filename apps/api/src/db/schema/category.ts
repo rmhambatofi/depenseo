@@ -43,6 +43,8 @@ export const category = mysqlTable(
     index('category_sync_idx').on(t.notebookId, t.updatedAt, t.id),
     index('category_parent_idx').on(t.parentId),
     uniqueIndex('category_system_key_uq').on(t.notebookId, t.systemKey),
+    // Purge des suppressions de plus de 30 jours (ADR-026).
+    index('category_deleted_idx').on(t.deletedAt),
   ],
 );
 

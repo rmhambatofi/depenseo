@@ -7,6 +7,7 @@ import {
   verificationEmailHandler,
 } from '../auth/verification-email.job.js';
 import type { JobHandler } from './job-runner.js';
+import { purgeDeletedSyncRows } from '../sync/deleted-rows-purge.js';
 import { purgeFinishedJobs, type ScheduledTask } from './scheduler.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- registre hétérogène
@@ -15,5 +16,5 @@ export function jobHandlers(deps: VerificationEmailDeps): JobHandler<any>[] {
 }
 
 export function scheduledTasks(): ScheduledTask[] {
-  return [purgeFinishedJobs(), purgeExpiredRefreshTokens()];
+  return [purgeFinishedJobs(), purgeExpiredRefreshTokens(), purgeDeletedSyncRows()];
 }

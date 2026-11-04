@@ -13,6 +13,7 @@ import { MeModule } from './me/me.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { ExpensesModule } from './expenses/expenses.module.js';
 import { NotebooksModule } from './notebooks/notebooks.module.js';
+import { SyncModule } from './sync/sync.module.js';
 import { pinoHttpOptions } from './logging/pino-options.js';
 
 @Module({})
@@ -40,6 +41,7 @@ export class AppModule {
         NotebooksModule,
         CategoriesModule,
         ExpensesModule,
+        SyncModule,
       ],
       controllers: [HealthController],
     };

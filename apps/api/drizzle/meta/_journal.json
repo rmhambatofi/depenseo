@@ -43,6 +43,13 @@
       "when": 1793830447284,
       "tag": "0005_expense",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1793832429192,
+      "tag": "0006_deleted_at_indexes",
+      "breakpoints": true
     }
   ]
 }

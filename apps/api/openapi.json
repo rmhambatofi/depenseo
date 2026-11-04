@@ -1096,6 +1096,85 @@
           "expenses"
         ]
       }
+    },
+    "/api/v1/notebooks/{notebookId}/sync": {
+      "get": {
+        "operationId": "SyncController_changes",
+        "parameters": [
+          {
+            "name": "updated_since",
+            "required": false,
+            "in": "query",
+            "description": "Instant UTC (suffixe Z) inclus ; absent = synchronisation complète. Plus de 29 jours → 410",
+            "schema": {
+              "format": "date-time",
+              "example": "2026-11-04T08:55:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "`nextCursor` de la page précédente (exclut updated_since)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Lignes par page, toutes tables confondues",
+            "schema": {
+              "minimum": 1,
+              "maximum": 500,
+              "default": 200,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Catégories, étiquettes puis dépenses modifiées, suppressions incluses, par (updatedAt, id)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncPageDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Paramètre inconnu ou invalide"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet introuvable"
+          },
+          "410": {
+            "description": "updated_since trop ancien : synchronisation complète requise"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sync"
+        ]
+      }
     }
   },
   "info": {
@@ -1838,6 +1917,249 @@
             }
           }
         }
+      },
+      "SyncCategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "NULL : racine"
+          },
+          "systemKey": {
+            "type": "string",
+            "nullable": true,
+            "description": "Clé stable du plan par défaut (ex. `housing.rent`), NULL si personnalisée"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 32,
+            "description": "Emoji ou nom d’icône"
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9A-F]{6}$",
+            "example": "#43A047"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "position": {
+            "type": "integer",
+            "description": "Ordre parmi les sœurs"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deletedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Suppression logique ; NULL si active"
+          }
+        },
+        "required": [
+          "id",
+          "parentId",
+          "systemKey",
+          "name",
+          "icon",
+          "color",
+          "hidden",
+          "position",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
+      },
+      "SyncTagDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deletedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Suppression logique ; NULL si active"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "updatedAt",
+          "deletedAt"
+        ]
+      },
+      "SyncExpenseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 99999999999,
+            "description": "Montant en unités mineures (centimes), entier strictement positif"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR",
+              "CHF",
+              "GBP",
+              "USD",
+              "CAD",
+              "SEK",
+              "NOK",
+              "DKK",
+              "PLN",
+              "CZK",
+              "HUF",
+              "RON",
+              "ISK",
+              "MAD",
+              "TND",
+              "MGA",
+              "MUR",
+              "XOF",
+              "XAF",
+              "XPF",
+              "JPY"
+            ],
+            "description": "Code ISO 4217"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-03-29",
+            "description": "Date calendaire, sans fuseau"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "merchant": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100
+          },
+          "tags": {
+            "maxItems": 10,
+            "description": "Noms d’étiquettes (1 à 50 caractères), dédoublonnés à la casse et aux accents près",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "recurrence"
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deletedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Suppression logique ; NULL si active"
+          }
+        },
+        "required": [
+          "id",
+          "amount",
+          "currency",
+          "categoryId",
+          "date",
+          "note",
+          "merchant",
+          "tags",
+          "source",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
+      },
+      "SyncPageDto": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncCategoryDto"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncTagDto"
+            }
+          },
+          "expenses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncExpenseDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true,
+            "description": "Curseur de la page suivante du même parcours ; `null` en fin de parcours"
+          },
+          "nextUpdatedSince": {
+            "format": "date-time",
+            "type": "string",
+            "description": "`updated_since` du prochain parcours (identique sur toutes les pages)"
+          }
+        },
+        "required": [
+          "categories",
+          "tags",
+          "expenses",
+          "nextCursor",
+          "nextUpdatedSince"
+        ]
       }
     }
   }

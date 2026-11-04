@@ -3,7 +3,7 @@
 // identifiant. Les écritures verrouillent la ligne `notebook` (catégorie supprimée en parallèle,
 // étiquettes créées en parallèle, futures alertes de limite).
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, desc, eq, gte, inArray, isNull, lt, lte, or, type SQL, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, inArray, isNull, lt, lte, or, type SQL, sql } from 'drizzle-orm';
 import type { Tx } from '../auth/session.service.js';
 import { CLOCK, type Clock } from '../clock.js';
 import type { Database } from '../db/connection.js';
@@ -14,6 +14,7 @@ import { isUuid, newId } from '../db/uuid.js';
 import { ProblemException } from '../errors/problem.exception.js';
 import { lockNotebook } from '../notebooks/notebook-lock.js';
 import type { CreateExpense, UpdateExpense } from './expense-input.js';
+import { tagNamesByExpense } from './expense-tags.js';
 import { encodeCursor, type ExpenseSearch } from './expense-query.js';
 
 export interface ExpenseView {
@@ -103,7 +104,7 @@ export class ExpensesService {
       .orderBy(desc(expense.spentOn), desc(expense.id))
       .limit(query.limit + 1);
     const items = rows.slice(0, query.limit);
-    const tags = await this.tagsOf(
+    const tags = await tagNamesByExpense(
       this.db,
       items.map((r) => r.id),
     );
@@ -230,24 +231,8 @@ export class ExpensesService {
         and(eq(expense.id, id), eq(expense.notebookId, notebookId), isNull(expense.deletedAt)),
       );
     if (!row) return undefined;
-    const tags = await this.tagsOf(tx, [id]);
+    const tags = await tagNamesByExpense(tx, [id]);
     return { ...row, tags: tags.get(id) ?? [] };
-  }
-
-  /** Noms d'étiquettes par dépense, triés selon la collation. */
-  private async tagsOf(tx: Tx | Database, expenseIds: string[]): Promise<Map<string, string[]>> {
-    const byExpense = new Map<string, string[]>();
-    if (expenseIds.length === 0) return byExpense;
-    const rows = await tx
-      .select({ expenseId: expenseTag.expenseId, name: tag.name })
-      .from(expenseTag)
-      .innerJoin(tag, eq(tag.id, expenseTag.tagId))
-      .where(inArray(expenseTag.expenseId, expenseIds))
-      .orderBy(asc(tag.name), asc(tag.id));
-    for (const { expenseId, name } of rows) {
-      byExpense.set(expenseId, [...(byExpense.get(expenseId) ?? []), name]);
-    }
-    return byExpense;
   }
 
   /** Catégorie non supprimée du carnet ; masquée acceptée (ADR-023). */

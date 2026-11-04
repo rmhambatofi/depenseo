@@ -1,0 +1,98 @@
+// Paramètres de la synchronisation différentielle (NF-OFF-01, §8.2, ADR-026). Objet strict ;
+// `updated_since` et `cursor` sont exclusifs : le curseur porte déjà le point de départ du parcours.
+import { z } from 'zod';
+import { isUuid } from '../db/uuid.js';
+
+export const DEFAULT_SYNC_PAGE_SIZE = 200;
+export const MAX_SYNC_PAGE_SIZE = 500;
+/** Ordre de parcours : les références (catégories, étiquettes) avant les dépenses. */
+export const SYNC_TABLES = ['categories', 'tags', 'expenses'] as const;
+export type SyncTable = (typeof SYNC_TABLES)[number];
+
+/** Position dans un parcours de synchronisation. */
+export interface SyncCursor {
+  /** Index dans `SYNC_TABLES`. */
+  table: number;
+  /** Dernière ligne servie de cette table ; absente = début de la table. */
+  after?: { updatedAt: Date; id: string };
+  /** `updated_since` du premier appel du parcours. */
+  since?: Date;
+  /** Filigrane fixé au premier appel, renvoyé dans `nextUpdatedSince`. */
+  watermark: Date;
+}
+
+const ms = (d: Date | undefined) => (d === undefined ? '' : String(d.getTime()));
+
+/** Curseur opaque : base64url de `v1~table~updated_at ms~id~since ms~watermark ms`. */
+export function encodeSyncCursor(c: SyncCursor): string {
+  const fields = ['v1', c.table, ms(c.after?.updatedAt), c.after?.id ?? '', ms(c.since)];
+  return Buffer.from([...fields, ms(c.watermark)].join('~'), 'utf8').toString('base64url');
+}
+
+const millis = (v: string | undefined) =>
+  v !== undefined && /^\d{1,15}$/.test(v) ? new Date(Number(v)) : undefined;
+
+export function decodeSyncCursor(value: string): SyncCursor | undefined {
+  if (!/^[A-Za-z0-9_-]{1,200}$/.test(value)) return undefined;
+  const parts = Buffer.from(value, 'base64url').toString('utf8').split('~');
+  if (parts.length !== 6 || parts[0] !== 'v1') return undefined;
+  const [, table, updatedAt, id, since, watermark] = parts;
+  const tableIndex = Number(table);
+  if (!/^\d$/.test(table!) || tableIndex >= SYNC_TABLES.length) return undefined;
+  const wm = millis(watermark);
+  if (!wm) return undefined;
+  const cursor: SyncCursor = { table: tableIndex, watermark: wm };
+  if (since !== '') {
+    cursor.since = millis(since);
+    if (!cursor.since) return undefined;
+  }
+  if (updatedAt !== '' || id !== '') {
+    const at = millis(updatedAt);
+    if (!at || !isUuid(id!)) return undefined;
+    cursor.after = { updatedAt: at, id: id!.toLowerCase() };
+  }
+  return cursor;
+}
+
+/** Instant UTC ISO 8601 à la milliseconde au plus, suffixe `Z` obligatoire. */
+const INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
+
+export const syncQuerySchema = z
+  .strictObject({
+    updated_since: z
+      .string()
+      .regex(INSTANT)
+      .transform((v, ctx) => {
+        const instant = new Date(v);
+        // `new Date` normalise les dates impossibles (31 février) : refuser tout aller-retour inexact.
+        if (
+          Number.isNaN(instant.getTime()) ||
+          instant.toISOString().slice(0, 19) !== v.slice(0, 19)
+        ) {
+          ctx.addIssue({ code: 'custom', message: 'Instant invalide' });
+          return z.NEVER;
+        }
+        return instant;
+      })
+      .optional(),
+    cursor: z
+      .string()
+      .transform((v, ctx) => {
+        const cursor = decodeSyncCursor(v);
+        if (!cursor) ctx.addIssue({ code: 'custom', message: 'Curseur invalide' });
+        return cursor ?? z.NEVER;
+      })
+      .optional(),
+    limit: z
+      .string()
+      .regex(/^\d{1,4}$/)
+      .transform(Number)
+      .pipe(z.number().int().min(1).max(MAX_SYNC_PAGE_SIZE))
+      .default(DEFAULT_SYNC_PAGE_SIZE),
+  })
+  .superRefine((q, ctx) => {
+    if (q.updated_since !== undefined && q.cursor !== undefined) {
+      ctx.addIssue({ code: 'custom', path: ['cursor'], message: 'cursor exclut updated_since' });
+    }
+  });
+export type SyncQuery = z.infer<typeof syncQuerySchema>;
