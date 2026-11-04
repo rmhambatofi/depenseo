@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P1-02 (couche données Drizzle + mysql2)
-- Dernier commit : feat(api): NestJS skeleton … (P1-01)
+- Dernier commit : 9526fa8 feat(api): NestJS skeleton … (P1-01)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 21 vitest api), `pnpm test:tz` vert (suites `*.tz.test.ts` sous les 4 TZ). Couverture shared 98,7 % (`pnpm --filter @depenseo/shared coverage`)
 
@@ -28,6 +28,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - `packages/shared` (P0-04, ADR-011) : `Cents`, `CurrencyCode`, `CalendarDate` (brands), `formatAmount` (chaîne décimale exacte vers Intl), `parseAmountInput` → `{ok,cents}|{ok:false,error}`. Décimales par devise = table ISO 4217 figée dans `currency.ts`, jamais Intl/ICU. Écrire les espaces insécables en `\u00a0`/`\u202f` dans le source (sinon `no-irregular-whitespace`) : un heredoc ou un éditeur peut les écrire littéralement, vérifier.
 - `packages/shared/src/period.ts` (P0-05, ADR-012) : `periodContaining/nextPeriod/previousPeriod` (règle `{kind:'month',startDay 1–31}` repli fin de mois, `{kind:'week',startDay? ISO 1–7}`), `todayIn(tz, Temporal.Instant)`, `toPlainDate/toCalendarDate`. Importer `Temporal` depuis `temporal-polyfill` (1.0.7), jamais le global (Node 26 l'a, Node 22 non). Convention : suites multi-fuseaux nommées `*.tz.test.ts`, lancées par `test:tz` de chaque paquet (racine : `pnpm test:tz`) ; l'API devra fournir son propre `test:tz`.
 - `apps/api` (P1-01, ADR-013) : NestJS **12** ESM, `createApp(config, {logDestination})` dans `src/app.ts` (partagé main/tests/openapi), `test/support/app.ts` (`startTestApp`, `http(app)` pour supertest typé, `LogCapture`). Nouvelle variable d'env → schéma zod `src/config/env.ts`. Nouvelle route → `pnpm --filter api openapi` sinon `test/openapi.spec.ts` échoue (fichier exclu de Prettier). `detail` client uniquement via `ProblemException`. Vitest émet les métadonnées de décorateurs sans SWC.
+- `pnpm --filter api …` résout `@depenseo/api` (portée omise). `test:tz` de l'API passe grâce à `--passWithNoTests` (aucun `*.tz.spec.ts` encore) : P1-02 doit créer le premier (`DATE` relu identique sous les 4 TZ).
+- Vérifier qu'un test mord par contre-épreuve (mutation rapide du code puis restauration) : la relecture de P1-01 a trouvé un test de journal qui passait sans que la redaction serve.
 - **Avant P1-02** : `@depenseo/shared` exporte du `.ts` (`main: ./src/index.ts`) ; le `dist` de l'API (tsc → `node dist/src/main.js`) cassera dès son premier import. Compiler `shared` (build + `exports` vers `dist`) ou équivalent.
 - Les remplacements par script échouent silencieusement après un passage de Prettier (tableaux reformatés) : toujours `grep` le résultat.
 
