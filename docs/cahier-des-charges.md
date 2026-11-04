@@ -1,6 +1,6 @@
 # Cahier des charges — Depenseo, application de suivi des dépenses (France et Europe)
 
-Version du 4 novembre 2026
+Version du 4 novembre 2026, révision 2 : base de données MySQL (voir section 12)
 
 ## 1. Contexte et objectifs
 
@@ -219,12 +219,13 @@ Les montants et les dates sont les deux points où une erreur détruit la confia
 
 | ID | Exigence |
 | --- | --- |
-| NF-FMT-01 | Montants stockés en entiers de centimes (ou décimal exact), jamais en nombre à virgule flottante ; devise ISO 4217 stockée avec chaque montant. |
+| NF-FMT-01 | Montants stockés en entiers de centimes (ou décimal exact), jamais en nombre à virgule flottante ; devise ISO 4217 stockée avec chaque montant. En base : `BIGINT` pour les centimes, `DECIMAL` pour les taux de change, jamais `FLOAT` ni `DOUBLE`. |
 | NF-FMT-02 | Une date de dépense, d'échéance ou de début de période est une **date calendaire sans heure ni fuseau** (format AAAA-MM-JJ). Elle n'est jamais convertie en UTC. |
 | NF-FMT-03 | Les horodatages techniques (création, modification) sont stockés en UTC et affichés dans le fuseau de l'appareil. |
 | NF-FMT-04 | « Aujourd'hui », les semaines (du lundi au dimanche en France), les mois et les périodes de limite sont calculés dans le fuseau de l'utilisateur. |
 | NF-FMT-05 | Tests automatisés des calculs de dates dans au moins 4 fuseaux (Paris, Lisbonne, Montréal, La Réunion) et autour des changements d'heure. |
 | NF-FMT-06 | Format des nombres selon la langue (1 234,56 € en français) ; saisie tolérante (virgule ou point acceptés comme séparateur décimal). |
+| NF-FMT-07 | La base et son pilote respectent NF-FMT-02 et 03 : une colonne `DATE` est lue comme une chaîne AAAA-MM-JJ, jamais comme un objet date ; serveur et connexions MySQL en UTC (section 8.2). |
 
 ### 7.2 Sécurité
 
@@ -243,7 +244,7 @@ Les montants et les dates sont les deux points où une erreur détruit la confia
 | --- | --- |
 | NF-PERF-01 | Ouverture de l'app jusqu'à l'accueil affiché en moins de 2 s sur un téléphone milieu de gamme de 2023. |
 | NF-PERF-02 | 95 % des appels d'API en moins de 300 ms (hors génération de rapports). |
-| NF-DISP-01 | Disponibilité mensuelle de l'API ≥ 99,5 % ; sauvegarde quotidienne, perte de données maximale 1 h, reprise en moins de 4 h. |
+| NF-DISP-01 | Disponibilité mensuelle de l'API ≥ 99,5 % ; sauvegarde quotidienne, perte de données maximale 1 h, reprise en moins de 4 h. La perte maximale de 1 h suppose, en plus de la sauvegarde quotidienne, la conservation des journaux binaires MySQL (restauration à un instant donné). |
 | NF-OFF-01 | Consultation hors connexion des données déjà chargées ; saisie hors ligne synchronisée au retour du réseau, sans doublon. |
 
 ### 7.4 Qualité et exploitation
@@ -252,12 +253,12 @@ Les montants et les dates sont les deux points où une erreur détruit la confia
 | --- | --- |
 | NF-QUA-01 | Couverture de tests automatisés ≥ 70 % sur la logique métier (totaux de période, limites, projections, récurrences, dédoublonnage). |
 | NF-QUA-02 | Taux de sessions sans plantage ≥ 99,5 %, mesuré par un outil de suivi des erreurs hébergé dans l'UE. |
-| NF-QUA-03 | Intégration et déploiement continus ; environnements de développement, recette et production séparés, avec données fictives hors production. |
+| NF-QUA-03 | Intégration et déploiement continus ; environnements de développement, recette et production séparés, avec données fictives hors production. Même version de MySQL (8.4) partout, tests automatisés compris (conteneur Docker en CI) : jamais SQLite ni un autre moteur pour simuler la base. |
 | NF-QUA-04 | Accessibilité WCAG 2.1 AA vérifiée à chaque version sur les parcours clés. |
 
 ## 8. Architecture et stack technique
 
-L'architecture est volontairement sobre pour qu'un développeur seul puisse la construire et l'exploiter : Flutter pour le mobile (comme BilliTime), une API TypeScript et une seule base PostgreSQL, qui sert aussi de file de tâches. Tout est hébergé dans l'UE.
+L'architecture est volontairement sobre pour qu'un développeur seul puisse la construire et l'exploiter : Flutter pour le mobile (comme BilliTime), une API TypeScript et une seule base MySQL, qui sert aussi de file de tâches. Tout est hébergé dans l'UE.
 
 ![Architecture cible : 2 clients, 1 API, 3 services externes](images/architecture.png)
 
@@ -271,32 +272,67 @@ L'application ne parle qu'à l'API. Aucun service ne contacte une banque : les s
 | Graphiques | fl_chart | Déjà éprouvé dans BilliTime |
 | Back-office | Application web légère (Next.js ou AdminJS) | Séparée de l'app publique (F-ADM-02) |
 | API | Node.js 22, NestJS, TypeScript, contrat OpenAPI | Typage de bout en bout, structure claire pour un développeur seul |
-| Base de données | PostgreSQL 16 géré, chiffrement au repos, sauvegardes quotidiennes | Fiabilité transactionnelle |
-| Tâches de fond | pg-boss (file de tâches dans PostgreSQL) | Pas de Redis à exploiter |
+| Base de données | MySQL 8.4 LTS géré (InnoDB), chiffrement au repos, sauvegardes quotidiennes et restauration à un instant donné | Fiabilité transactionnelle, version maintenue jusqu'en 2032 |
+| Accès aux données | Drizzle ORM sur le pilote mysql2, migrations SQL versionnées | Requêtes typées ; dates calendaires lues en chaînes (NF-FMT-07) |
+| Tâches de fond | File de tâches dans MySQL (table `job`, verrouillage `SKIP LOCKED`), planification par @nestjs/schedule | pg-boss ne fonctionne qu'avec PostgreSQL ; pas de Redis à exploiter |
 | Fichiers | Stockage objet compatible S3, chiffré | Pièces jointes, exports |
-| Hébergement | Scaleway, OVHcloud ou Clever Cloud (France), conteneurs gérés | Données dans l'UE, peu d'administration système |
+| Hébergement | Scaleway, OVHcloud ou Clever Cloud (France), conteneurs gérés et MySQL 8.4 géré (offre à confirmer chez l'hébergeur retenu) | Données dans l'UE, peu d'administration système |
 | Authentification | Module intégré à l'API (e-mail, Apple, Google) | Pas de service tiers hors UE |
 | Abonnements | Vérification directe des reçus App Store et Google Play, ou RevenueCat | Gain de temps ; RevenueCat à encadrer (sous-traitant hors UE) |
 | Notifications | APNs et Firebase Cloud Messaging (contenu sans montant) | Seul moyen d'envoyer un push sur iOS et Android |
 | Suivi des erreurs et audience | Sentry (hébergement UE) ; mesure d'audience exemptée de consentement | Conformité CNIL |
 | CI/CD | GitHub Actions et Fastlane | Publications reproductibles |
 
-### 8.2 Modèle de données principal
+### 8.2 Contraintes liées à MySQL
+
+MySQL est retenu à la place de PostgreSQL. Ce choix ne change ni les fonctions ni l'application mobile, dont la base locale reste SQLite (Drift et SQLCipher). Il change la façon d'écrire le schéma, les requêtes et la file de tâches. Les règles ci-dessous évitent que le changement de moteur réintroduise les défauts de dates et de montants relevés dans BilliTime (section 9).
+
+| Sujet | Règle |
+| --- | --- |
+| Version et moteur | MySQL 8.4 LTS, moteur InnoDB. Ni MySQL 8.0, en fin de support depuis avril 2026, ni MariaDB, dont le JSON, les fonctions UUID et certains comportements diffèrent. |
+| Encodage | `utf8mb4` et collation `utf8mb4_0900_ai_ci` pour toute la base : accents et emojis (icônes de catégories) stockés sans perte, recherche F-DEP-09 insensible à la casse et aux accents (« energie » trouve « Énergie »). Jamais `utf8`, qui désigne l'ancien encodage sur 3 octets. |
+| Montants | `BIGINT` en centimes, `DECIMAL(18,8)` pour les taux de change, `CHAR(3)` pour la devise (NF-FMT-01). |
+| Dates calendaires | Type `DATE`. Par défaut, le pilote mysql2 transforme un `DATE` en objet `Date` JavaScript à minuit dans le fuseau du serveur : c'est le décalage d'un jour observé dans BilliTime. Le mode chaîne (`dateStrings: ['DATE']`, ou `mode: 'string'` dans Drizzle) est obligatoire et vérifié par la suite multi-fuseaux (NF-FMT-05). |
+| Horodatages | `DATETIME(3)` en UTC. Serveur réglé sur `default_time_zone = '+00:00'`, connexions ouvertes avec `timezone: 'Z'`. Pas de `TIMESTAMP`, limité à 2038 et converti selon le fuseau de la session. |
+| Identifiants | UUID v7 générés par l'application, y compris hors ligne, stockés en `BINARY(16)`. MySQL n'a ni type UUID ni clause `RETURNING` : l'identifiant est connu avant l'insertion. |
+| Saisie hors ligne sans doublon | L'identifiant créé sur le téléphone rend l'envoi idempotent : `INSERT … ON DUPLICATE KEY UPDATE`, équivalent de `ON CONFLICT` (NF-OFF-01). |
+| Synchronisation différentielle | Colonne `updated_at` sur chaque table synchronisée, index `(notebook_id, updated_at, id)`. Le curseur porte sur le couple `(updated_at, id)`, car plusieurs lignes peuvent partager un horodatage. Les suppressions sont logiques (`deleted_at`) pour atteindre les autres appareils, purgées après 30 jours, et immédiatement à la suppression du compte (F-AUTH-07). |
+| Types structurés | Pas de type tableau : étiquettes et membres de carnet en tables de liaison. `JSON` réservé aux données jamais filtrées en SQL (charges utiles des tâches, réglages). |
+| Unicité conditionnelle | Pas d'index partiel. Exemple : une limite globale a une catégorie vide, et deux `NULL` ne se gênent pas dans un index unique. Une colonne générée (catégorie ou valeur fixe pour « globale ») entre dans l'index unique `(carnet, période, catégorie, date d'effet)`. |
+| Transactions et verrous | Isolation `READ COMMITTED` pour les connexions de l'API (InnoDB est en `REPEATABLE READ` par défaut, avec plus de verrous de plage et d'interblocages). Nouvelle tentative automatique sur interblocage (erreur 1213) et sur attente de verrou dépassée (1205). |
+| Migrations | Une instruction de schéma valide implicitement la transaction en cours : une migration interrompue ne s'annule pas d'elle-même. Une migration par changement, rejouée en recette avant la production, avec `ALGORITHM=INSTANT` ou `INPLACE` quand c'est possible pour ne pas bloquer les tables. |
+| Sécurité | `require_secure_transport = ON` (TLS obligatoire), chiffrement au repos de l'offre gérée, sauvegardes et journaux binaires compris. Comptes séparés : API (lecture et écriture, sans droit sur le schéma), migrations, back-office (NF-SEC-06). |
+| Sauvegardes | Sauvegarde complète quotidienne, journaux binaires conservés au moins 7 jours pour restaurer à un instant donné (NF-DISP-01). Une restauration est testée avant le lancement, puis chaque trimestre. |
+
+**File de tâches.** pg-boss, prévu dans la version précédente, ne fonctionne qu'avec PostgreSQL. BullMQ imposerait Redis, que l'architecture veut éviter. La file reste donc dans la base, sous la forme d'un petit module de l'API :
+
+- une table `job` : type, charge utile JSON (sans montant ni donnée personnelle superflue, NF-SEC-06), date d'exécution en UTC, nombre de tentatives, statut, clé d'unicité ;
+- la tâche est créée dans la même transaction que la donnée qui la motive (une récurrence, une demande d'export) : pas de tâche orpheline ni de tâche perdue ;
+- les workers prennent les tâches dues par `SELECT … FOR UPDATE SKIP LOCKED`, disponible depuis MySQL 8.0, ce qui permet plusieurs conteneurs sans double traitement ;
+- la clé d'unicité (par exemple `occurrence:<id>`) empêche de planifier deux fois la même échéance ou le même rappel ;
+- en cas d'échec, nouvelle tentative avec délai croissant, puis statut « en échec » visible dans le back-office après 5 essais ;
+- la planification périodique (échéances du jour, rappels à l'heure locale, résumés de période) passe par @nestjs/schedule, protégée par `GET_LOCK()` pour qu'une seule instance planifie à la fois ;
+- les tâches terminées sont purgées après 7 jours.
+
+### 8.3 Modèle de données principal
+
+Tous les identifiants sont des UUID v7 (section 8.2).
 
 | Entité | Champs clés |
 | --- | --- |
 | User | id, e-mail, langue, fuseau horaire, devise, plan, dates de consentement |
 | Notebook | carnet de dépenses : id, nom, propriétaire, membres et rôles (personnel par défaut, partagé en option) |
-| Expense | id, carnet, auteur, montant en centimes, devise d'origine, montant converti, date calendaire, catégorie, note, marchand, moyen de paiement (libellé), source (saisie, récurrence, import), dépense remboursée liée |
+| Expense | id, carnet, auteur, montant en centimes, devise d'origine, montant converti, date calendaire, catégorie, note, marchand, moyen de paiement (libellé), étiquettes (table de liaison), source (saisie, récurrence, import), dépense remboursée liée, dates de modification et de suppression logique |
 | Category / Rule | catégorie (nom, icône, couleur, parent) ; règle (motif de note ou de marchand → catégorie) |
 | RecurringExpense / Occurrence | modèle (fréquence, jour, montant, enregistrement automatique ou non) ; échéance (date, statut, dépense liée) |
 | SpendingLimit | carnet, période (mois ou semaine), jour de début, montant, catégorie (vide = limite globale), inclut les récurrences, date d'effet |
 | Attachment | dépense, type, taille, clé de stockage |
 | Subscription | store, identifiant d'achat, plan, début, fin, statut de renouvellement |
+| Job | file de tâches : type, charge utile, date d'exécution, tentatives, statut, clé d'unicité |
 
-### 8.3 API
+### 8.4 API
 
-API REST versionnée (`/v1`), décrite en OpenAPI, avec pagination par curseur et synchronisation différentielle (`updated_since`) pour la saisie hors ligne. Ressources principales : `/auth`, `/me`, `/notebooks`, `/expenses`, `/categories`, `/rules`, `/recurring-expenses`, `/limits`, `/imports`, `/exports`, `/attachments`, `/subscriptions`. Les notifications des stores arrivent sur des points d'entrée dédiés, signés et vérifiés.
+API REST versionnée (`/v1`), décrite en OpenAPI, avec pagination par curseur et synchronisation différentielle (`updated_since`, curseur `(updated_at, id)`, section 8.2) pour la saisie hors ligne. Ressources principales : `/auth`, `/me`, `/notebooks`, `/expenses`, `/categories`, `/rules`, `/recurring-expenses`, `/limits`, `/imports`, `/exports`, `/attachments`, `/subscriptions`. Les notifications des stores arrivent sur des points d'entrée dédiés, signés et vérifiés.
 
 ## 9. Enseignements de l'analyse de BilliTime
 
@@ -304,7 +340,7 @@ L'analyse de BilliTime 1.1.7 (analyse statique de l'APK et tests sur un Xiaomi 1
 
 | Défaut observé dans BilliTime | Effet pour l'utilisateur | Réponse de Depenseo |
 | --- | --- | --- |
-| Dates décalées d'un jour en UTC+1 (achat du 3 nov. affiché le 2, relevé du 15 affiché le 14) | Rappels un jour trop tôt, historique faux | NF-FMT-02 à 05 |
+| Dates décalées d'un jour en UTC+1 (achat du 3 nov. affiché le 2, relevé du 15 affiché le 14) | Rappels un jour trop tôt, historique faux | NF-FMT-02 à 05 et 07, section 8.2 |
 | « 42.50 » saisi devient 4 250 (point lu comme séparateur de milliers) | Montants décuplés sans avertissement | F-DEP-02, NF-FMT-06 |
 | Module publicitaire chargé même pour un abonné, identifiants de test Google en production, aucun recueil de consentement | Non-conformité RGPD et ePrivacy en Europe, aucun revenu publicitaire réel | Aucune publicité (section 5), règles sur les traceurs (section 6) |
 | Console d'administration embarquée dans l'app publique | Surface d'attaque inutile, révèle les routes internes | F-ADM-01 et 02 |
@@ -318,7 +354,7 @@ L'analyse de BilliTime 1.1.7 (analyse statique de l'APK et tests sur un Xiaomi 1
 
 ## 10. Planning, charge et budget indicatif
 
-Un développeur seul peut sortir le MVP en France environ 6 mois après le démarrage, pour environ 110 jours de travail et 1 100 à 6 500 € de frais externes la première année. Ces chiffres sont des estimations.
+Un développeur seul peut sortir le MVP en France environ 6 mois après le démarrage, pour environ 113 jours de travail et 1 100 à 6 500 € de frais externes la première année. Ces chiffres sont des estimations.
 
 ![Feuille de route : 5 phases, 2 jalons de décision](images/feuille-de-route.png)
 
@@ -330,12 +366,12 @@ Deux jalons conditionnent la suite : le développement ne démarre qu'avec les m
 | --- | --- |
 | Cadrage, maquettes et système de design | 15 |
 | Application mobile Flutter (saisie, limites, récurrences, graphiques, hors ligne) | 45 |
-| API, base de données, back-office | 30 |
+| API, base de données MySQL (dont file de tâches), back-office | 33 |
 | Tests automatisés, recette, corrections | 15 |
 | Publication sur les stores, documents juridiques, conformité | 5 |
-| **Total** | **110** |
+| **Total** | **113** |
 
-À temps plein, 110 jours représentent environ 5 mois ; à mi-temps, compter 10 à 11 mois et décaler la feuille de route d'autant.
+La file de tâches écrite dans l'API (section 8.2) ajoute environ 3 jours par rapport à pg-boss. À temps plein, 113 jours représentent environ 5 mois ; à mi-temps, compter 10 à 11 mois et décaler la feuille de route d'autant.
 
 ### 10.2 Frais externes de la première année
 
@@ -343,7 +379,7 @@ Deux jalons conditionnent la suite : le développement ne démarre qu'avec les m
 | --- | --- |
 | Programme développeur Apple | 99 $ par an |
 | Compte développeur Google Play | 25 $, une seule fois |
-| Hébergement UE (API, base, stockage, sauvegardes) | 20 à 50 € par mois |
+| Hébergement UE (API, base MySQL gérée, stockage, sauvegardes) | 20 à 50 € par mois |
 | Nom de domaine et e-mail professionnel | 30 à 80 € par an |
 | Dépôt de la marque Depenseo à l'INPI (une classe) | environ 190 € |
 | Relecture des CGU, CGV et politique de confidentialité par un avocat | 500 à 1 500 € |
@@ -364,6 +400,8 @@ Le MVP est accepté quand toutes les exigences « M » passent leurs tests et qu
 - [ ] Catégorie proposée correcte pour au moins 80 % de 500 dépenses de test
 - [ ] Aucun écart de date, de période ni de montant sur la suite de tests multi-fuseaux (NF-FMT-05)
 - [ ] Limites mensuelles et hebdomadaires justes aux changements de période, de mois et d'heure
+- [ ] Suite multi-fuseaux et tests de l'API exécutés contre MySQL 8.4, avec la configuration de production (UTC, dates en chaînes, `utf8mb4`)
+- [ ] Migrations rejouées depuis une base vide et sur la base de recette sans erreur ; restauration d'une sauvegarde à un instant donné réussie
 - [ ] Auto-évaluation OWASP MASVS sans point critique ouvert
 - [ ] Vérification d'accessibilité (VoiceOver, TalkBack, contrastes) sur les parcours clés
 - [ ] Validation par Apple et Google en production
@@ -373,7 +411,7 @@ Le MVP est accepté quand toutes les exigences « M » passent leurs tests et qu
 | Livrable | Contenu |
 | --- | --- |
 | Code source | Application mobile, API, back-office, scripts d'infrastructure, versionnés sur GitHub |
-| Documentation | Ce cahier des charges, architecture, API (OpenAPI), modèle de données, procédures de sauvegarde et de reprise |
+| Documentation | Ce cahier des charges, architecture, API (OpenAPI), modèle de données et migrations MySQL, procédures de sauvegarde et de reprise |
 | Design | Maquettes Figma, système de design |
 | Tests | Tests automatisés, rapport de recette |
 | Conformité | Registre des traitements, AIPD, mentions légales, CGU et CGV, fiches de confidentialité des stores |
@@ -387,6 +425,7 @@ Le MVP est accepté quand toutes les exigences « M » passent leurs tests et qu
 | Concurrence d'applications plus complètes (avec synchronisation bancaire) | Élevée | Moyen | Positionnement assumé : simplicité, limite de dépense, aucune donnée bancaire demandée |
 | Faible conversion vers le Premium | Moyenne | Moyen | Test de prix, essai de 14 jours, valeur Premium visible (partage, limites par catégorie) |
 | Demande forte de synchronisation bancaire | Moyenne | Moyen | Import de relevés en V1 ; agrégation via un prestataire agréé étudiée seulement si les revenus le justifient |
+| Erreurs propres à MySQL : dates converties par le pilote, interblocages, migration interrompue à moitié, file de tâches écrite à la main | Moyenne | Élevé | Règles de la section 8.2, tests contre MySQL 8.4 en CI, migrations répétées en recette, échecs de tâches visibles dans le back-office |
 
 ### 11.4 Questions ouvertes
 
@@ -395,3 +434,11 @@ Le MVP est accepté quand toutes les exigences « M » passent leurs tests et qu
 - Faut-il un mode sans compte (F-AUTH-09) dès le MVP pour réduire la friction à l'installation ?
 - Le code de l'application sera-t-il public (open source) comme ce cahier des charges, ou privé ?
 - Quel budget et quels canaux d'acquisition au lancement ?
+- L'hébergeur retenu propose-t-il MySQL 8.4 géré dans l'UE, avec chiffrement au repos et restauration à un instant donné ? Sinon, quel hébergeur choisir ?
+
+## 12. Historique des versions
+
+| Version | Date | Changement |
+| --- | --- | --- |
+| 1 | 4 novembre 2026 | Première version, base PostgreSQL 16 et file de tâches pg-boss |
+| 2 | 4 novembre 2026 | Base de données MySQL 8.4 à la place de PostgreSQL : stack (8.1), nouvelles contraintes et file de tâches dans MySQL (8.2), entité Job (8.3), NF-FMT-01, NF-FMT-07, NF-DISP-01, NF-QUA-03, charge (+3 jours), recette, risques, questions ouvertes, schéma d'architecture |
