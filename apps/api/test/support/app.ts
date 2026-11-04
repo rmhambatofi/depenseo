@@ -1,0 +1,34 @@
+// Démarre l'application complète (préfixe, filtres, journal) avec un flux de journal capturé.
+import type { Server } from 'node:http';
+import { Writable } from 'node:stream';
+import type { INestApplication } from '@nestjs/common';
+import { createApp } from '../../src/app.js';
+import { loadConfig } from '../../src/config/env.js';
+
+export const TEST_ENV = {
+  NODE_ENV: 'test',
+  JWT_ACCESS_SECRET: 'test-secret-test-secret-test-secret-0123',
+} as const;
+
+export class LogCapture extends Writable {
+  readonly lines: string[] = [];
+  override _write(chunk: Buffer, _enc: BufferEncoding, done: () => void): void {
+    this.lines.push(...chunk.toString('utf8').split('\n').filter(Boolean));
+    done();
+  }
+  get text(): string {
+    return this.lines.join('\n');
+  }
+}
+
+export async function startTestApp(): Promise<{ app: INestApplication; logs: LogCapture }> {
+  const logs = new LogCapture();
+  const app = await createApp(loadConfig(TEST_ENV), { logDestination: logs });
+  await app.init();
+  return { app, logs };
+}
+
+/** Serveur HTTP typé pour supertest (`getHttpServer` renvoie `any`). */
+export function http(app: INestApplication): Server {
+  return app.getHttpServer() as Server;
+}

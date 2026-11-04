@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P1-01 (squelette NestJS `apps/api`)
-- Dernier commit : feat(shared): limit periods … (P0-05)
+- Prochaine tâche : P1-02 (couche données Drizzle + mysql2)
+- Dernier commit : feat(api): NestJS skeleton … (P1-01)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared), `pnpm test:tz` vert (suites `*.tz.test.ts` sous les 4 TZ). Couverture shared 98,7 % (`pnpm --filter @depenseo/shared coverage`)
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 21 vitest api), `pnpm test:tz` vert (suites `*.tz.test.ts` sous les 4 TZ). Couverture shared 98,7 % (`pnpm --filter @depenseo/shared coverage`)
 
 ## Pièges connus (à lire avant de coder)
 
@@ -27,6 +27,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - CI : actions épinglées par SHA (checkout v7.0.1, setup-node v7.1.0, pnpm/action-setup v6.1.1, flutter-action v2.23.0) ; `pnpm lint:ci` = actionlint 1.7.12 via Docker. Ne pas pousser sans accord humain (dépôt public). Vérifier les entrées d'une action sur son README à la version épinglée (`gh api repos/<o>/<r>/contents/README.md?ref=<tag>`, URL entre guillemets sous zsh).
 - `packages/shared` (P0-04, ADR-011) : `Cents`, `CurrencyCode`, `CalendarDate` (brands), `formatAmount` (chaîne décimale exacte vers Intl), `parseAmountInput` → `{ok,cents}|{ok:false,error}`. Décimales par devise = table ISO 4217 figée dans `currency.ts`, jamais Intl/ICU. Écrire les espaces insécables en `\u00a0`/`\u202f` dans le source (sinon `no-irregular-whitespace`) : un heredoc ou un éditeur peut les écrire littéralement, vérifier.
 - `packages/shared/src/period.ts` (P0-05, ADR-012) : `periodContaining/nextPeriod/previousPeriod` (règle `{kind:'month',startDay 1–31}` repli fin de mois, `{kind:'week',startDay? ISO 1–7}`), `todayIn(tz, Temporal.Instant)`, `toPlainDate/toCalendarDate`. Importer `Temporal` depuis `temporal-polyfill` (1.0.7), jamais le global (Node 26 l'a, Node 22 non). Convention : suites multi-fuseaux nommées `*.tz.test.ts`, lancées par `test:tz` de chaque paquet (racine : `pnpm test:tz`) ; l'API devra fournir son propre `test:tz`.
+- `apps/api` (P1-01, ADR-013) : NestJS **12** ESM, `createApp(config, {logDestination})` dans `src/app.ts` (partagé main/tests/openapi), `test/support/app.ts` (`startTestApp`, `http(app)` pour supertest typé, `LogCapture`). Nouvelle variable d'env → schéma zod `src/config/env.ts`. Nouvelle route → `pnpm --filter api openapi` sinon `test/openapi.spec.ts` échoue (fichier exclu de Prettier). `detail` client uniquement via `ProblemException`. Vitest émet les métadonnées de décorateurs sans SWC.
+- **Avant P1-02** : `@depenseo/shared` exporte du `.ts` (`main: ./src/index.ts`) ; le `dist` de l'API (tsc → `node dist/src/main.js`) cassera dès son premier import. Compiler `shared` (build + `exports` vers `dist`) ou équivalent.
 - Les remplacements par script échouent silencieusement après un passage de Prettier (tableaux reformatés) : toujours `grep` le résultat.
 
 ## Actions humaines (non bloquantes)
@@ -40,7 +42,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
-- 2026-11-04 — Session 2 : P0-05 (périodes + todayIn, ADR-012, coverage-v8 ajouté).
+- 2026-11-04 — Session 2 : P0-05 (périodes + todayIn, ADR-012, coverage-v8 ajouté), P1-01 (squelette API, ADR-013).
 
 - 2026-11-04 — Session 1 : P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011) ; handoff après 3 tâches.
 

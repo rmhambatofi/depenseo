@@ -5,3 +5,5 @@ coverage
 mobile
 docs
 *.md
+# Généré par `pnpm --filter api openapi` (comparé octet à octet par test/openapi.spec.ts)
+apps/api/openapi.json

@@ -1,0 +1,18 @@
+import { Controller, Get } from '@nestjs/common';
+import { ApiOkResponse, ApiProperty, ApiTags } from '@nestjs/swagger';
+
+export class HealthDto {
+  @ApiProperty({ enum: ['ok'] })
+  readonly status!: 'ok';
+}
+
+/** Sonde appelée chaque minute par cron pour garder Passenger éveillé (§8.5). */
+@ApiTags('health')
+@Controller('health')
+export class HealthController {
+  @Get()
+  @ApiOkResponse({ type: HealthDto })
+  get(): HealthDto {
+    return { status: 'ok' };
+  }
+}
