@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P3-04 (dépense inhabituellement élevée, ADR-005, F-NOT-01).
-- Dernier commit : feat(api): spending limit alerts (F-LIM-04, F-NOT-01)
+- Dernier commit : f865670 feat(api): spending limit alerts (F-LIM-04, F-NOT-01)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 395 api), `pnpm test:tz` vert (api : 22 par fuseau), `pnpm --filter api build` vert ; `test/sync`, `test/access`, `test/limits`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
@@ -131,7 +131,4 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - 2026-11-04 session 10 — P1-09 fait : carnet personnel (« Mon carnet »/« My notebook ») créé dans la transaction de création du compte (inscription e-mail et Apple/Google), `GET /notebooks`, `GET /notebooks/{notebookId}`, `NotebookAccessGuard` (adhésion active, carnet non supprimé, sinon même 404), harnais d'isolement sur toutes les routes protégées de l'OpenAPI ; ADR-021. Une relecture (0 bloquant, 2 importants corrigés : liste publique exacte partagée, attaque de ressource fille via le carnet de B). Contre-épreuves faites (garde sans filtre utilisateur, création sociale sans carnet). Passation après 1 tâche (~15 fichiers lus).
 
-- 2026-11-04 session 9 — P1-08 fait : `POST /auth/social` (Apple/Google), vérification jose RS256 + iss/aud/exp/âge 10 min/nonce SHA-256, identité par (fournisseur, SHA-256 du `sub`), rattachement par adresse seulement si le fournisseur fait autorité (Apple ; Google : Gmail ou `hd`), reprise d'un compte non vérifié (mot de passe effacé, CGU redatées), 422 sans CGU, rejeu sur course d'identité ; ADR-020. Une relecture (0 bloquant, 4 importants corrigés) ; le tester a trouvé une course (compte orphelin), corrigée et couverte par barrière. Contre-épreuves faites. Passation après 1 tâche (~17 fichiers lus).
-
-
-- 2026-11-04 — Amorçage et socle, sessions 1-8 (résumé) : P1-07 (réinitialisation du mot de passe, ADR-019) ; P1-06 (sessions JWT 15 min + refresh rotatif, garde globale, ADR-018) ; P1-05 (inscription argon2id, vérification e-mail, ADR-017) ; P1-04 (file `job`, `runJobs` SKIP LOCKED, ADR-016) ; kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013), P1-02 (pool réglé par connexion, `withTransaction`, UUID ↔ BINARY(16), ADR-014), P1-03 (7 tables du socle, migrations sous `GET_LOCK`, test d'invariants, ADR-015).
+- 2026-11-04 — Amorçage et socle, sessions 1-9 (résumé) : P1-08 (connexion Apple/Google, ADR-020) ; P1-07 (réinitialisation du mot de passe, ADR-019) ; P1-06 (sessions JWT 15 min + refresh rotatif, garde globale, ADR-018) ; P1-05 (inscription argon2id, vérification e-mail, ADR-017) ; P1-04 (file `job`, `runJobs` SKIP LOCKED, ADR-016) ; kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013), P1-02 (pool réglé par connexion, `withTransaction`, UUID ↔ BINARY(16), ADR-014), P1-03 (7 tables du socle, migrations sous `GET_LOCK`, test d'invariants, ADR-015).
