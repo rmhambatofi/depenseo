@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P1-09 (carnets + `NotebookAccessGuard` + harnais « B ne voit pas A »). Le carnet personnel doit être créé sur **les deux** chemins de création de compte : `AuthService.register` et `SocialLoginService.resolve` (branche upsert).
-- Dernier commit : feat(api): Apple and Google sign-in (F-AUTH-02), voir git log
+- Dernier commit : 5d14e31 feat(api): Apple and Google sign-in by verified id_token, linking by authoritative email (F-AUTH-02)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 134 shared, 188 api), `pnpm test:tz` vert ; `test/auth` stable sur 5 relances
 
@@ -60,6 +60,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - InnoDB sous READ COMMITTED : un `UPDATE … WHERE user_id = ?` attend le verrou implicite d'une ligne insérée non validée (constaté) ; la contre-épreuve du `FOR UPDATE` de confirmation ne mord donc pas (défense en profondeur, ADR-019).
 - Connexion Apple/Google (P1-08, ADR-020) : `POST /auth/social`, `IdTokenVerifier` (`src/auth/id-token-verifier.ts`, jeton `ID_TOKEN_VERIFIER`), `SocialLoginService`, table `user_identity` (SHA-256 du `sub`, migration 0003). Variables `APPLE_CLIENT_IDS`/`GOOGLE_CLIENT_IDS` (vides = 503). Tests : `test/support/id-tokens.ts` (`fakeProvider`, `signIdToken`), `startTestApp({ idTokenKeys })`. `SessionService.openSession(tx, userId, now)` ouvre une famille dans la transaction de l'appelant. `hasErrno(error, ER_DUP_ENTRY)` dans `src/db/transaction.ts`.
 - **Sonde PROCESSLIST de barrière** : ajouter `ID <> CONNECTION_ID()`, sinon la sonde se trouve elle-même (son texte contient le motif LIKE) et la barrière passe immédiatement (bug constaté et corrigé en P1-08 dans `password-reset.spec.ts`). Toujours `expect(waiting).toBe(true)` après la boucle.
+- Une relecture via `SendMessage` (agent repris) tourne **en arrière-plan** : le hook Stop rebondit tant que le diff n'est pas committé. Préférer relancer `reviewer` en premier plan (`run_in_background: false`) pour la relecture des corrections.
 - Reliquats mineurs P1-08 : utilitaire `sha256` commun (empreinte du `sub`, `nonceHash`, tests), tests HTTP 503/500 de `/auth/social`, `retryableErrno` à réécrire sur `hasErrno` ; un seul rejeu sur course d'identité (500 si ≥ 3 adresses en course).
 - CryptoKey WebCrypto (jose `generateKeyPair`) liée à son hash : pour signer en plusieurs `alg` avec une même clé RSA de test, `generateKeyPairSync('rsa')` (KeyObject Node).
 
@@ -74,7 +75,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
-- 2026-11-04 session 9 — P1-08 fait : `POST /auth/social` (Apple/Google), vérification jose RS256 + iss/aud/exp/âge 10 min/nonce SHA-256, identité par (fournisseur, SHA-256 du `sub`), rattachement par adresse seulement si le fournisseur fait autorité (Apple ; Google : Gmail ou `hd`), reprise d'un compte non vérifié (mot de passe effacé, CGU redatées), 422 sans CGU, rejeu sur course d'identité ; ADR-020. Une relecture (0 bloquant, 4 importants corrigés) ; le tester a trouvé une course (compte orphelin), corrigée et couverte par barrière. Contre-épreuves faites.
+- 2026-11-04 session 9 — P1-08 fait : `POST /auth/social` (Apple/Google), vérification jose RS256 + iss/aud/exp/âge 10 min/nonce SHA-256, identité par (fournisseur, SHA-256 du `sub`), rattachement par adresse seulement si le fournisseur fait autorité (Apple ; Google : Gmail ou `hd`), reprise d'un compte non vérifié (mot de passe effacé, CGU redatées), 422 sans CGU, rejeu sur course d'identité ; ADR-020. Une relecture (0 bloquant, 4 importants corrigés) ; le tester a trouvé une course (compte orphelin), corrigée et couverte par barrière. Contre-épreuves faites. Passation après 1 tâche (~17 fichiers lus).
 
 - 2026-11-04 session 8 — P1-07 fait : `POST /auth/password-reset/request` (202 toujours, ≤ 3 liens/h, verrou du compte) et `/confirm` (lien 30 min usage unique, autres liens invalidés, toutes familles de refresh révoquées sous verrou `user`, adresse réputée vérifiée) ; ADR-019. Une relecture (0 bloquant, 3 importants corrigés : verrou de la demande, test d'usage croisé, test à barrière). Contre-épreuves faites. Passation après 1 tâche (~16 fichiers lus).
 
@@ -92,6 +93,4 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - 2026-11-04 — Session 1 : P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011) ; handoff après 3 tâches.
 
-- 2026-11-04 — Session d'amorçage : plan affiné (60 tâches, renumérotées), `TRACEABILITY.md`, ADR-003 à 009 ; P0-01 faite (monorepo pnpm, TS strict, ESLint + règle dates, Prettier).
-
-- 2026-11-04 — Initialisation du kit : CLAUDE.md, PLAN.md, hooks, agents. Aucun code applicatif encore.
+- 2026-11-04 — Initialisation du kit (CLAUDE.md, PLAN.md, hooks, agents) puis session d'amorçage : plan affiné (60 tâches renumérotées), `TRACEABILITY.md`, ADR-003 à 009, P0-01 (monorepo pnpm, TS strict, ESLint + règle dates, Prettier).
