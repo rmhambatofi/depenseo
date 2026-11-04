@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P0-04
-- Dernier commit : chore(ci): GitHub Actions workflow … (P0-03)
+- Prochaine tâche : P0-05 (périodes + todayIn, installer `temporal-polyfill` selon ADR-002)
+- Dernier commit : feat(shared): cents, currency codes, calendar dates … (P0-04)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm test` verts (9 tests scripts/ dont 7 base ; shared sans test)
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 84 vitest shared). Couverture non mesurable : `@vitest/coverage-v8` absent (à ajouter, même majeure que vitest 5.1.0)
 
 ## Pièges connus (à lire avant de coder)
 
@@ -28,6 +28,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - CI : actions épinglées par SHA (checkout v7.0.1, setup-node v7.1.0, pnpm/action-setup v6.1.1, flutter-action v2.23.0) ; `pnpm lint:ci` = actionlint 1.7.12 via Docker. Ne pas pousser sans accord humain (dépôt public).
 
+- `packages/shared` (P0-04, ADR-011) : `Cents`, `CurrencyCode`, `CalendarDate` (brands), `formatAmount` (chaîne décimale exacte vers Intl), `parseAmountInput` → `{ok,cents}|{ok:false,error}`. Décimales par devise = table ISO 4217 figée dans `currency.ts`, jamais Intl/ICU. Écrire les espaces insécables en `\u00a0`/`\u202f` dans le source (sinon `no-irregular-whitespace`).
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -39,6 +41,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
+- 2026-11-04 — Session 1 : P0-04 faite (types montants/devises/dates, ADR-011) ; handoff après 3 tâches.
 - 2026-11-04 — Session 1 : P0-03 faite (ci.yml, actionlint ; run GitHub en attente de push humain).
 - 2026-11-04 — Session 1 : P0-02 faite (docker-compose MariaDB 10.6.28, db-wait.sh, 3 comptes, ADR-010 ; CI P0-03 réutilisera le compose).
 
