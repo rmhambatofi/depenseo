@@ -1,6 +1,6 @@
 # Cahier des charges — Depenseo, application de suivi des dépenses (France et Europe)
 
-Version du 4 novembre 2026, révision 3 : hébergement o2switch, version web et back-office (voir section 12)
+Version du 4 novembre 2026, révision 4 : React et TypeScript pour le web (voir section 12)
 
 ## 1. Contexte et objectifs
 
@@ -188,6 +188,7 @@ La version web sert à consulter ses dépenses sur un ordinateur. La saisie rest
 | F-WEB-03 | Connexion avec le même compte (e-mail et mot de passe, Apple, Google), déconnexion automatique après 30 minutes d'inactivité | C |
 | F-WEB-04 | Jeton de rafraîchissement dans un cookie `HttpOnly`, `Secure`, `SameSite=Strict` ; aucun jeton dans le stockage local du navigateur | C |
 | F-WEB-05 | Affichage adapté aux écrans d'ordinateur et de tablette, accessible WCAG 2.1 AA | C |
+| F-WEB-06 | Totaux de période, limites et projections lus depuis l'API, jamais recalculés dans le navigateur : la version web affiche les mêmes chiffres que l'application mobile | C |
 
 ## 5. Offre et monétisation
 
@@ -236,9 +237,10 @@ Les montants et les dates sont les deux points où une erreur détruit la confia
 | NF-FMT-02 | Une date de dépense, d'échéance ou de début de période est une **date calendaire sans heure ni fuseau** (format AAAA-MM-JJ). Elle n'est jamais convertie en UTC. |
 | NF-FMT-03 | Les horodatages techniques (création, modification) sont stockés en UTC et affichés dans le fuseau de l'appareil. |
 | NF-FMT-04 | « Aujourd'hui », les semaines (du lundi au dimanche en France), les mois et les périodes de limite sont calculés dans le fuseau de l'utilisateur. |
-| NF-FMT-05 | Tests automatisés des calculs de dates dans au moins 4 fuseaux (Paris, Lisbonne, Montréal, La Réunion) et autour des changements d'heure. |
+| NF-FMT-05 | Tests automatisés des calculs de dates dans au moins 4 fuseaux (Paris, Lisbonne, Montréal, La Réunion) et autour des changements d'heure, sur l'API, l'application mobile et le web (navigateur lancé dans chaque fuseau). |
 | NF-FMT-06 | Format des nombres selon la langue (1 234,56 € en français) ; saisie tolérante (virgule ou point acceptés comme séparateur décimal). |
 | NF-FMT-07 | La base et son pilote respectent NF-FMT-02 et 03 : une colonne `DATE` est lue comme une chaîne AAAA-MM-JJ, jamais comme un objet date ; chaque connexion à la base est réglée en UTC (section 8.2). |
+| NF-FMT-08 | Dans le code web (React, TypeScript), une date calendaire reste une chaîne AAAA-MM-JJ ou un `Temporal.PlainDate` (avec polyfill si le navigateur ne le propose pas). Jamais `new Date('2026-11-03')`, que JavaScript lit comme minuit UTC et qui s'affiche le 2 novembre à Montréal. Montants formatés par `Intl.NumberFormat` selon la langue. |
 
 ### 7.2 Sécurité
 
@@ -271,7 +273,7 @@ Les montants et les dates sont les deux points où une erreur détruit la confia
 
 ## 8. Architecture et stack technique
 
-L'architecture est volontairement sobre pour qu'un développeur seul puisse la construire et l'exploiter : Flutter pour le mobile (comme BilliTime), une API TypeScript et une seule base MySQL, qui sert aussi de file de tâches. Tout est hébergé en France chez o2switch, sur un seul domaine.
+L'architecture est volontairement sobre pour qu'un développeur seul puisse la construire et l'exploiter : Flutter pour le mobile (comme BilliTime), React et TypeScript pour le web, une API TypeScript et une seule base MySQL, qui sert aussi de file de tâches. Tout est hébergé en France chez o2switch, sur un seul domaine.
 
 ![Architecture cible : 3 clients, 1 API, 3 services externes](images/architecture.png)
 
@@ -282,9 +284,10 @@ L'application mobile, la version web et le back-office ne parlent qu'à l'API. A
 | Couche | Choix recommandé | Raison |
 | --- | --- | --- |
 | Application mobile | Flutter 3 (Dart), gestion d'état Riverpod, base locale chiffrée (Drift + SQLCipher) | Une base de code pour iOS et Android ; saisie hors ligne |
-| Graphiques | fl_chart | Déjà éprouvé dans BilliTime |
-| Back-office | Application web légère (Next.js ou AdminJS), servie sous `/admin`, réservée au rôle administrateur | Séparée des applications publiques (F-ADM-01 à 03) |
-| Version web (V2) | Flutter Web : fichiers statiques servis par o2switch, consultation seule | Réutilise le code de l'application mobile |
+| Graphiques | fl_chart (mobile), Recharts (web) | fl_chart déjà éprouvé dans BilliTime ; Recharts, bibliothèque React courante |
+| Frontend web | React 19 et TypeScript, construits avec Vite en fichiers statiques ; TanStack Query pour les appels à l'API ; client d'API TypeScript généré depuis le contrat OpenAPI ; Vitest, Testing Library et Playwright pour les tests | Même langage que l'API, types partagés de bout en bout ; pas de serveur Node.js de plus à faire tourner chez o2switch |
+| Back-office | Application React et TypeScript distincte, sur React-admin, servie sous `/admin`, réservée au rôle administrateur | Écrans de gestion (listes, fiches, filtres) fournis par React-admin ; séparée des applications publiques (F-ADM-01 à 03) |
+| Version web (V2) | Application React et TypeScript distincte, consultation seule (section 4.11) | Rendu HTML natif, plus simple à rendre accessible (WCAG 2.1 AA) qu'un rendu sur canevas |
 | API | Node.js 22, NestJS, TypeScript, contrat OpenAPI, exécutée par Phusion Passenger (applications Node.js de cPanel) | Typage de bout en bout, structure claire pour un développeur seul |
 | Base de données | Base « MySQL » d'o2switch (MariaDB 10.6 annoncée, InnoDB), SQL compatible MySQL 8 ; sauvegardes JetBackup et export horaire | Incluse dans l'hébergement ; règles en section 8.2 |
 | Accès aux données | Drizzle ORM sur le pilote mysql2, migrations SQL versionnées | Requêtes typées ; dates calendaires lues en chaînes (NF-FMT-07) |
@@ -359,8 +362,9 @@ API REST versionnée (`/api/v1` sur le domaine principal), décrite en OpenAPI, 
 | Hébergeur | o2switch, hébergement mutualisé cPanel (offre exacte à choisir), datacenters propres à Clermont-Ferrand : données, traitements et sauvegardes principales en France. |
 | Domaine | Un seul domaine (nom encore à choisir, section 11.4), en HTTPS avec certificat renouvelé automatiquement par cPanel. |
 | Chemins | `/api/v1` : API. `/admin` : back-office. `/` : version web consultative à partir de la V2, page de présentation d'ici là. |
-| Back-office | Même domaine, chemin `/admin`, accessible aux seuls comptes ayant le rôle administrateur, avec double authentification (F-ADM-01 à 03). Cookie de session propre au back-office (`HttpOnly`, `Secure`, `SameSite=Strict`, chemin `/admin`), distinct de celui de la version web. Le back-office est construit et publié à part : aucun de ses fichiers n'est servi aux utilisateurs ordinaires. |
-| Version web | Faisable chez o2switch, donc retenue pour la V2 : Flutter Web produit des fichiers statiques servis par Apache, qui appellent l'API du même domaine (section 4.11). |
+| Back-office | Même domaine, chemin `/admin`, accessible aux seuls comptes ayant le rôle administrateur, avec double authentification (F-ADM-01 à 03). Cookie de session propre au back-office (`HttpOnly`, `Secure`, `SameSite=Strict`, chemin `/admin`), distinct de celui de la version web. Application React construite à part. Seule la page de connexion, sans code d'administration, est publique ; l'API ne sert les fichiers de l'application d'administration qu'à une session administrateur. |
+| Version web | Faisable chez o2switch, donc retenue pour la V2 : l'application React est construite par Vite en fichiers statiques servis par Apache, qui appellent l'API du même domaine (section 4.11). Une règle `.htaccess` renvoie les adresses de l'application vers `index.html`. |
+| Organisation du code | Un dépôt à plusieurs paquets (espaces de travail pnpm) : API, version web, back-office et client d'API généré, tous en TypeScript ; l'application Flutter dans son propre dossier. |
 
 **Conséquences de l'hébergement mutualisé**
 
@@ -427,7 +431,7 @@ La file de tâches écrite dans l'API et l'adaptation à l'hébergement mutualis
 | Audit de sécurité léger (optionnel) | 2 000 à 4 000 € |
 | **Total première année** | **environ 900 à 6 200 €** |
 
-La V1 et la V2 demandent ensuite environ 80 jours de développement supplémentaires, traductions comprises (traducteurs relecteurs : environ 0,10 € par mot).
+La V1 et la V2 demandent ensuite environ 87 jours de développement supplémentaires, dont 7 pour la version web en React, qui ne reprend pas le code Flutter de l'application mobile, traductions comprises (traducteurs relecteurs : environ 0,10 € par mot).
 
 ## 11. Recette, livrables, risques et questions ouvertes
 
@@ -453,7 +457,7 @@ Le MVP est accepté quand toutes les exigences « M » passent leurs tests et qu
 
 | Livrable | Contenu |
 | --- | --- |
-| Code source | Application mobile, API, back-office, scripts d'infrastructure, versionnés sur GitHub |
+| Code source | Application mobile (Flutter), API, back-office et version web (React et TypeScript), scripts d'infrastructure, versionnés sur GitHub |
 | Documentation | Ce cahier des charges, architecture, API (OpenAPI), modèle de données et migrations MySQL, procédures de sauvegarde et de reprise |
 | Design | Maquettes Figma, système de design |
 | Tests | Tests automatisés, rapport de recette |
@@ -465,6 +469,7 @@ Le MVP est accepté quand toutes les exigences « M » passent leurs tests et qu
 | --- | --- | --- | --- |
 | La saisie manuelle lasse les utilisateurs, qui abandonnent | Élevée | Élevé | Saisie en 10 s, modèles rapides, dépenses récurrentes automatiques, rappel quotidien, widget, import de relevés |
 | Projet dépendant d'une seule personne | Élevée | Élevé | Architecture simple, tests automatisés, documentation, déploiement automatisé |
+| Deux langages côté interface (Dart pour le mobile, TypeScript pour le web) : travail en double et chiffres divergents | Moyenne | Moyen | Calculs dans l'API seulement (F-WEB-06), client d'API généré, version web limitée à la consultation, suite multi-fuseaux sur les deux (NF-FMT-05) |
 | Concurrence d'applications plus complètes (avec synchronisation bancaire) | Élevée | Moyen | Positionnement assumé : simplicité, limite de dépense, aucune donnée bancaire demandée |
 | Faible conversion vers le Premium | Moyenne | Moyen | Test de prix, essai de 14 jours, valeur Premium visible (partage, limites par catégorie) |
 | Demande forte de synchronisation bancaire | Moyenne | Moyen | Import de relevés en V1 ; agrégation via un prestataire agréé étudiée seulement si les revenus le justifient |
@@ -487,3 +492,4 @@ Le MVP est accepté quand toutes les exigences « M » passent leurs tests et qu
 | 1 | 4 novembre 2026 | Première version, base PostgreSQL 16 et file de tâches pg-boss |
 | 2 | 4 novembre 2026 | Base de données MySQL 8.4 à la place de PostgreSQL : stack (8.1), nouvelles contraintes et file de tâches dans MySQL (8.2), entité Job (8.3), NF-FMT-01, NF-FMT-07, NF-DISP-01, NF-QUA-03, charge (+3 jours), recette, risques, questions ouvertes, schéma d'architecture |
 | 3 | 4 novembre 2026 | Hébergement chez o2switch (France) : base MySQL servie par MariaDB, file de tâches par cron, fichiers chiffrés sur disque, export horaire (8.1, 8.2, 8.5) ; version web consultative en V2 (4.11) ; back-office sous `/admin` du même domaine, réservé aux administrateurs (F-ADM-01 à 03) ; exigences NF, charge (+2 jours), budget, recette, risques, questions ouvertes, schéma d'architecture |
+| 4 | 4 novembre 2026 | Frontend web en React et TypeScript à la place de Flutter Web et de Next.js ou AdminJS : stack (8.1), organisation du code (8.5), F-WEB-06, NF-FMT-05, NF-FMT-08, charge V1/V2 (+7 jours), livrables, risques, schéma d'architecture |
