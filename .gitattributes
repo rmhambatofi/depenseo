@@ -1,0 +1,17 @@
+# Normalise toutes les fins de ligne en LF (dépôt et copie de travail),
+# indispensable pour les scripts bash exécutés par les hooks et la CI.
+* text=auto eol=lf
+
+# Fichiers binaires
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.pdf binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.jar binary
