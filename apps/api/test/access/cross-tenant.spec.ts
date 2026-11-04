@@ -4,10 +4,10 @@
 //   un carnet inexistant ; A n'est pas refusé (le test mord) ; rien n'est modifié chez A ;
 // - route de compte (liste blanche ci-dessous) : la réponse faite à B ne contient rien de A.
 import type { INestApplication } from '@nestjs/common';
-import { asc, eq } from 'drizzle-orm';
+import { and, asc, eq, isNotNull } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Database } from '../../src/db/connection.js';
-import { category, user } from '../../src/db/schema/index.js';
+import { category, expense, expenseTag, tag, user } from '../../src/db/schema/index.js';
 import { newId } from '../../src/db/uuid.js';
 import {
   callAs,
@@ -40,6 +40,18 @@ const BODIES: Record<string, (owner: Tenant) => object> = {
     name: 'Renommée',
     hidden: true,
   }),
+  'POST /api/v1/notebooks/{notebookId}/expenses': () => ({
+    id: newId(),
+    amount: 666,
+    categoryId: newId(),
+    date: '2026-04-07',
+    tags: ['intrus'],
+  }),
+  'PATCH /api/v1/notebooks/{notebookId}/expenses/{expenseId}': () => ({
+    amount: 1,
+    note: 'modifiée',
+    tags: ['intrus'],
+  }),
 };
 
 /** Identifiants de ressources de A autres que le carnet, par nom de paramètre de chemin. */
@@ -60,11 +72,58 @@ const RESOURCE_PARAMS: Record<string, (owner: Tenant, db: Database) => Promise<s
     });
     return id;
   },
+  // Dépense active de A avec une étiquette : modification, suppression, étiquetage observables.
+  expenseId: async (owner, db) => {
+    const id = newId();
+    const tagId = newId();
+    const now = new Date();
+    const [cat] = await db
+      .select({ id: category.id })
+      .from(category)
+      .where(and(eq(category.notebookId, owner.notebookId), isNotNull(category.systemKey)))
+      .limit(1);
+    await db.insert(expense).values({
+      id,
+      notebookId: owner.notebookId,
+      amount: 4200,
+      currency: 'EUR',
+      categoryId: cat!.id,
+      spentOn: '2026-04-07',
+      createdAt: now,
+      updatedAt: now,
+    });
+    await db.insert(tag).values({
+      id: tagId,
+      notebookId: owner.notebookId,
+      name: `A-${id}`,
+      createdAt: now,
+      updatedAt: now,
+    });
+    await db.insert(expenseTag).values({ id: newId(), expenseId: id, tagId });
+    return id;
+  },
 };
 
 /** Tables filles du carnet, relues après chaque appel de B : rien ne doit changer chez A. */
-const notebookRows = (db: Database, notebookId: string) =>
-  db.select().from(category).where(eq(category.notebookId, notebookId)).orderBy(asc(category.id));
+const notebookRows = async (db: Database, notebookId: string) => ({
+  categories: await db
+    .select()
+    .from(category)
+    .where(eq(category.notebookId, notebookId))
+    .orderBy(asc(category.id)),
+  expenses: await db
+    .select()
+    .from(expense)
+    .where(eq(expense.notebookId, notebookId))
+    .orderBy(asc(expense.id)),
+  tags: await db.select().from(tag).where(eq(tag.notebookId, notebookId)).orderBy(asc(tag.id)),
+  expenseTags: await db
+    .select({ expenseId: expenseTag.expenseId, tagId: expenseTag.tagId })
+    .from(expenseTag)
+    .innerJoin(expense, eq(expense.id, expenseTag.expenseId))
+    .where(eq(expense.notebookId, notebookId))
+    .orderBy(asc(expenseTag.expenseId), asc(expenseTag.tagId)),
+});
 
 describe('isolement entre comptes (NF-SEC-03)', () => {
   const clock = new FakeClock(Date.UTC(2026, 3, 7, 9, 0, 0));

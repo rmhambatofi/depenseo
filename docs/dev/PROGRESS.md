@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P2-02 (dépenses : `expense`, `tag`, `expense_tag`). Inclut le test reporté de P2-01 : dépense sur catégorie masquée acceptée. Harnais : ajouter `expenseId` à `RESOURCE_PARAMS`, les tables à `notebookRows`.
-- Dernier commit : 3dddcd8 feat(api): category plan per notebook, custom categories CRUD and hiding (F-CAT-01, F-CAT-02)
+- Prochaine tâche : P2-03 (recherche et filtres des dépenses + `GET /notebooks/{id}/expenses` paginé par curseur : la liste n'existe pas encore, ADR-024).
+- Dernier commit : feat(api): expenses with idempotent create, tags, soft delete and restore (F-DEP-03, F-DEP-10)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 235 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/categories`, `test/access`, `test/auth/register` stables sur 3 relances
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 261 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/expenses`, `test/access`, `test/categories` stables sur 3 relances
 
 ## Pièges connus (à lire avant de coder)
 
@@ -75,6 +75,11 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - `grep 'sql`${…}`'` : `$` est une ancre, utiliser `grep -F` ; un `&&` qui suit un grep sans résultat interrompt la chaîne (fichier non écrit, vu en P2-01). BSD sed ne connaît pas `\b` : utiliser `perl -pi -e`.
 - Reliquats mineurs P2-01 : pas de FK composite `(notebook_id, parent_id)` (garde applicative seulement) ; pas de test de concurrence sur la hiérarchie (verrou non éprouvé) ; rejeu de création avec `parentId` différent non testé.
 
+- Dépenses (P2-02, ADR-024) : `ExpensesService` (`src/expenses/`), corps `expense-input.ts` (montant entier 1…99 999 999 999, devise par défaut du compte, `date` AAAA-MM-JJ, NFC). `uuidV7`/`uuid` zod communs : `src/http/uuid-schemas.ts`. `lockNotebook(tx, id)` commun : `src/notebooks/notebook-lock.ts`. Tests : `test/support/expenses.ts` (`expenseClient(() => app, db, clock)`, `json`). Harnais : `expenseId` dans `RESOURCE_PARAMS`, `notebookRows` couvre `expense`, `tag`, `expense_tag`.
+- FK `expense.category_id` et `expense_tag.tag_id` **sans cascade** : `DELETE notebook` direct → 1451 dès qu'il y a des dépenses. Suppression physique d'un carnet = `purgeNotebook(tx, id)` (P4-06). Purge P2-04 : ne purger une catégorie/étiquette que si non référencée.
+- Toute table doit avoir une clé primaire `id` (test d'invariants), y compris une table de liaison : `id` + index unique sur le couple.
+- Réactivation d'étiquette supprimée et filtre `tag.deleted_at` dans la jointure des étiquettes : à traiter si P2-04 introduit la suppression d'étiquettes.
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -85,6 +90,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-04 session 13 — P2-02 fait : tables `expense`, `tag`, `expense_tag` (migration 0005), `POST/GET/PATCH/DELETE /notebooks/{id}/expenses[/{expenseId}]` + `POST …/restore`, création idempotente (rejeu → ligne existante ; supprimée → 409 « restaurer »), catégorie masquée acceptée, étiquettes par nom à la collation près, harnais étendu ; ADR-024. Deux relectures (1 bloquant corrigé : FK catégorie en cascade → RESTRICT + `purgeNotebook` ; fichier de test > 400 lignes découpé). Contre-épreuves faites (filtres `notebook_id`, catégorie supprimée, PATCH catégorie).
 
 - 2026-11-04 session 12 — P2-01 fait : table `category` (migration 0004), plan par défaut de 14 racines + 50 sous-catégories (emoji, couleur, fr/en) créé avec le carnet, CRUD `/notebooks/{id}/categories` (création idempotente par UUID v7, 2 niveaux, masquage du sous-arbre, suppression logique des seules personnalisées), harnais étendu ; ADR-023. Une relecture (0 bloquant, 4 importants corrigés : OpenAPI `notebookId`, test d'inscription en anglais, traçabilité, test reporté en P2-02). Contre-épreuves faites (filtre `notebook_id`, langue d'inscription).
 

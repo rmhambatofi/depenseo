@@ -18,7 +18,7 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | F-DEP-02 Clavier localisé, virgule/point | P0-04, P6-04 | `shared/src/amount.test.ts` (`parseAmountInput`), `mobile/test/expenses/amount_input_test.dart` |
 | F-DEP-03 Champs montant, catégorie, date, note, marchand, étiquettes | P2-02, P6-04 | `api/test/expenses/expenses-crud.spec.ts`, `mobile/test/expenses/quick_entry_test.dart` |
 | F-DEP-09 Recherche texte/montant/catégorie/période | P2-03, P6-06 | `api/test/expenses/expenses-search.spec.ts` (« energie » → « Énergie »), `mobile/test/expenses/expense_list_test.dart` |
-| F-DEP-10 Modification, suppression, annulation 5 s | P2-02, P6-06 | `api/test/expenses/expenses-crud.spec.ts` (suppression logique + restauration), `mobile/test/expenses/undo_delete_test.dart` |
+| F-DEP-10 Modification, suppression, annulation 5 s | P2-02, P6-06 | `api/test/expenses/expenses-lifecycle.spec.ts` (suppression logique + restauration), `mobile/test/expenses/undo_delete_test.dart` |
 | F-CAT-01 Plan de catégories français | P2-01, P6-07 | `api/test/categories/categories.spec.ts` (14 racines, langue d’inscription), `mobile/test/categories/categories_test.dart` |
 | F-CAT-02 Catégories personnalisées, masquables | P2-01, P6-07 | `api/test/categories/categories.spec.ts` (emoji, masquage, suppression logique), `mobile/test/categories/categories_test.dart` |
 | F-REC-01 Récurrence : nom, montant, fréquence, jour, catégorie | P4-01, P6-09 | `api/test/recurring/recurring-schedule.spec.ts` (31 → 30/28/29), `mobile/test/recurring/recurring_form_test.dart` |
@@ -66,7 +66,7 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | NF-PERF-01 Accueil < 2 s | P7-06 | `mobile/integration_test/startup_perf_test.dart` (mesure consignée dans `docs/dev/PERF.md`) |
 | NF-PERF-02 p95 API < 300 ms | P7-06 | `apps/api/bench/p95.bench.ts` (autocannon, seuil en CI) |
 | NF-DISP-01 Sauvegarde, RPO 1 h, RTO 4 h | P4-08, P7-07 | `api/test/backup/export-restore.spec.ts`, `docs/dev/BACKUP.md` |
-| NF-OFF-01 Hors ligne, synchro sans doublon | P2-02, P2-04, P6-05 | `api/test/expenses/idempotent-create.spec.ts`, `api/test/sync/sync-cursor.spec.ts`, `mobile/test/sync/offline_sync_test.dart` |
+| NF-OFF-01 Hors ligne, synchro sans doublon | P2-02, P2-04, P6-05 | `api/test/expenses/expenses-crud.spec.ts` (double envoi, simultané), `api/test/sync/sync-cursor.spec.ts`, `mobile/test/sync/offline_sync_test.dart` |
 | NF-QUA-01 Couverture ≥ 70 % logique métier | P7-02 | seuil `coverage.thresholds` vitest + `flutter test --coverage` vérifié en CI |
 | NF-QUA-02 ≥ 99,5 % sessions sans plantage (Sentry UE) | P7-05 | `api/test/observability/sentry-scrub.spec.ts`, `mobile/test/observability/sentry_config_test.dart` |
 | NF-QUA-03 CI, environnements séparés, même moteur partout | P0-01, P0-02, P0-03, P7-07 | `.github/workflows/ci.yml` (service MariaDB 10.6), `api/test/db/server-version.spec.ts` |

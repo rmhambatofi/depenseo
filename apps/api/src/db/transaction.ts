@@ -5,6 +5,8 @@ export const ER_LOCK_WAIT_TIMEOUT = 1205;
 export const ER_LOCK_DEADLOCK = 1213;
 /** Doublon sur un index unique. */
 export const ER_DUP_ENTRY = 1062;
+/** Suppression d’une ligne parente encore référencée (FK sans cascade). */
+export const ER_ROW_IS_REFERENCED_2 = 1451;
 const RETRYABLE = new Set<number>([ER_LOCK_WAIT_TIMEOUT, ER_LOCK_DEADLOCK]);
 
 export interface Transactional<Tx> {

@@ -11,6 +11,7 @@ import { DatabaseModule } from './db/database.module.js';
 import { HealthController } from './health/health.controller.js';
 import { MeModule } from './me/me.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
+import { ExpensesModule } from './expenses/expenses.module.js';
 import { NotebooksModule } from './notebooks/notebooks.module.js';
 import { pinoHttpOptions } from './logging/pino-options.js';
 
@@ -38,6 +39,7 @@ export class AppModule {
         MeModule,
         NotebooksModule,
         CategoriesModule,
+        ExpensesModule,
       ],
       controllers: [HealthController],
     };

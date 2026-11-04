@@ -9,10 +9,11 @@ import type { Tx } from '../auth/session.service.js';
 import { CLOCK, type Clock } from '../clock.js';
 import type { Database } from '../db/connection.js';
 import { DB } from '../db/database.module.js';
-import { CUSTOM_CATEGORY_POSITION, category, notebook } from '../db/schema/index.js';
+import { CUSTOM_CATEGORY_POSITION, category } from '../db/schema/index.js';
 import { withTransaction } from '../db/transaction.js';
 import { isUuid } from '../db/uuid.js';
 import { ProblemException } from '../errors/problem.exception.js';
+import { lockNotebook } from '../notebooks/notebook-lock.js';
 import type { CreateCategory, UpdateCategory } from './category-input.js';
 
 export interface CategoryView {
@@ -87,7 +88,7 @@ export class CategoriesService {
   async create(notebookId: string, input: CreateCategory): Promise<CategoryView> {
     const now = this.clock.now();
     return withTransaction(this.db, async (tx) => {
-      await this.lockNotebook(tx, notebookId);
+      await lockNotebook(tx, notebookId);
       const [existing] = await tx
         .select({ notebookId: category.notebookId, deletedAt: category.deletedAt })
         .from(category)
@@ -121,7 +122,7 @@ export class CategoriesService {
   async update(notebookId: string, id: string, patch: UpdateCategory): Promise<CategoryView> {
     const now = this.clock.now();
     return withTransaction(this.db, async (tx) => {
-      await this.lockNotebook(tx, notebookId);
+      await lockNotebook(tx, notebookId);
       if (!(await this.find(tx, notebookId, id))) {
         throw new ProblemException(404, CATEGORY_NOT_FOUND);
       }
@@ -142,7 +143,7 @@ export class CategoriesService {
     if (!isUuid(id)) throw new ProblemException(404, CATEGORY_NOT_FOUND);
     const now = this.clock.now();
     await withTransaction(this.db, async (tx) => {
-      await this.lockNotebook(tx, notebookId);
+      await lockNotebook(tx, notebookId);
       const [row] = await tx
         .select({ systemKey: category.systemKey, deletedAt: category.deletedAt })
         .from(category)
@@ -174,14 +175,6 @@ export class CategoriesService {
         and(eq(category.id, id), eq(category.notebookId, notebookId), isNull(category.deletedAt)),
       );
     return row;
-  }
-
-  private async lockNotebook(tx: Tx, notebookId: string): Promise<void> {
-    await tx
-      .select({ id: notebook.id })
-      .from(notebook)
-      .where(eq(notebook.id, notebookId))
-      .for('update');
   }
 
   /** Parent = racine non supprimée du même carnet, autre que la catégorie elle-même. */

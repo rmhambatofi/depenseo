@@ -699,6 +699,271 @@
           "categories"
         ]
       }
+    },
+    "/api/v1/notebooks/{notebookId}/expenses": {
+      "post": {
+        "operationId": "ExpensesController_create",
+        "parameters": [
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExpenseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Créée, ou existante si rejeu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Corps invalide (montant non entier, date…)"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou dépense introuvable"
+          },
+          "409": {
+            "description": "Identifiant déjà utilisé ailleurs, ou dépense supprimée"
+          },
+          "422": {
+            "description": "Catégorie invalide"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "expenses"
+        ]
+      }
+    },
+    "/api/v1/notebooks/{notebookId}/expenses/{expenseId}": {
+      "get": {
+        "operationId": "ExpensesController_get",
+        "parameters": [
+          {
+            "name": "expenseId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou dépense introuvable, ou supprimée"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "expenses"
+        ]
+      },
+      "patch": {
+        "operationId": "ExpensesController_update",
+        "parameters": [
+          {
+            "name": "expenseId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExpenseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Corps vide ou invalide"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou dépense introuvable, ou supprimée"
+          },
+          "422": {
+            "description": "Catégorie invalide"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "expenses"
+        ]
+      },
+      "delete": {
+        "operationId": "ExpensesController_remove",
+        "parameters": [
+          {
+            "name": "expenseId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Supprimée (logiquement), ou déjà supprimée"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou dépense introuvable"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "expenses"
+        ]
+      }
+    },
+    "/api/v1/notebooks/{notebookId}/expenses/{expenseId}/restore": {
+      "post": {
+        "operationId": "ExpensesController_restore",
+        "parameters": [
+          {
+            "name": "expenseId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Restaurée, ou déjà active",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou dépense introuvable"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "expenses"
+        ]
+      }
     }
   },
   "info": {
@@ -1175,6 +1440,250 @@
           },
           "hidden": {
             "type": "boolean"
+          }
+        }
+      },
+      "CreateExpenseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID v7 généré par le client (idempotence)"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 99999999999,
+            "description": "Montant en unités mineures (centimes), entier strictement positif"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR",
+              "CHF",
+              "GBP",
+              "USD",
+              "CAD",
+              "SEK",
+              "NOK",
+              "DKK",
+              "PLN",
+              "CZK",
+              "HUF",
+              "RON",
+              "ISK",
+              "MAD",
+              "TND",
+              "MGA",
+              "MUR",
+              "XOF",
+              "XAF",
+              "XPF",
+              "JPY"
+            ],
+            "description": "Défaut : devise du compte"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Catégorie du carnet, masquée acceptée"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-03-29",
+            "description": "Date calendaire, sans fuseau"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "merchant": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100
+          },
+          "tags": {
+            "maxItems": 10,
+            "description": "Noms d’étiquettes (1 à 50 caractères), dédoublonnés à la casse et aux accents près",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "amount",
+          "categoryId",
+          "date"
+        ]
+      },
+      "ExpenseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 99999999999,
+            "description": "Montant en unités mineures (centimes), entier strictement positif"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR",
+              "CHF",
+              "GBP",
+              "USD",
+              "CAD",
+              "SEK",
+              "NOK",
+              "DKK",
+              "PLN",
+              "CZK",
+              "HUF",
+              "RON",
+              "ISK",
+              "MAD",
+              "TND",
+              "MGA",
+              "MUR",
+              "XOF",
+              "XAF",
+              "XPF",
+              "JPY"
+            ],
+            "description": "Code ISO 4217"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-03-29",
+            "description": "Date calendaire, sans fuseau"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "merchant": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100
+          },
+          "tags": {
+            "maxItems": 10,
+            "description": "Noms d’étiquettes (1 à 50 caractères), dédoublonnés à la casse et aux accents près",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "recurrence"
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "amount",
+          "currency",
+          "categoryId",
+          "date",
+          "note",
+          "merchant",
+          "tags",
+          "source",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdateExpenseDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 99999999999,
+            "description": "Montant en unités mineures (centimes), entier strictement positif"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR",
+              "CHF",
+              "GBP",
+              "USD",
+              "CAD",
+              "SEK",
+              "NOK",
+              "DKK",
+              "PLN",
+              "CZK",
+              "HUF",
+              "RON",
+              "ISK",
+              "MAD",
+              "TND",
+              "MGA",
+              "MUR",
+              "XOF",
+              "XAF",
+              "XPF",
+              "JPY"
+            ]
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-03-29",
+            "description": "Date calendaire, sans fuseau"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "merchant": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100
+          },
+          "tags": {
+            "maxItems": 10,
+            "description": "Noms d’étiquettes (1 à 50 caractères), dédoublonnés à la casse et aux accents près ; remplace la liste",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }
