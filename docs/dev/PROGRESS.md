@@ -7,9 +7,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P2-01 (catégories : plan par défaut créé à l'inscription, CRUD, masquage). Routes de carnet → `NotebookAccessGuard` + harnais (`BODIES`, `RESOURCE_PARAMS` pour `{categoryId}`, contrôle « inchangé » sur `category`).
-- Dernier commit : e8b0388 feat(api): personal notebook at signup, NotebookAccessGuard and cross-tenant harness (NF-SEC-03)
+- Dernier commit : 9d6f97a feat(api): GET/PATCH /me with language, IANA time zone and currency preferences (NF-FMT-04)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, ~228 api), `pnpm test:tz` vert ; `test/access`, `test/notebooks`, `test/auth` stables sur 3 relances
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 225 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/me`, `test/access` stables sur 3 relances
 
 ## Pièges connus (à lire avant de coder)
 
@@ -68,6 +68,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Reliquats mineurs P1-09 : pas de test prouvant « même transaction » (création du carnet qui échoue → pas de `user`) ; `GET /notebooks/:id` relit la base après la garde (pourrait exposer `name/kind` via la garde) ; routes `@ApiExclude*` hors harnais (à traiter avec les routes admin).
 
 - Profil (P1-10, ADR-022) : `PATCH /me` = `profilePatchSchema` strict (`src/me/profile.ts`). Fuseau : **toujours** `normalizeTimeZone` de `@depenseo/shared` (Temporal, casse corrigée, alias conservés) ; ne jamais utiliser `Intl.DateTimeFormat().resolvedOptions().timeZone` pour normaliser (`America/Montreal` → `America/Toronto`). Lire `user.time_zone` pour tout calcul de période (P3-02). Devises : `SUPPORTED_CURRENCIES`/`isCurrencyCode`.
+- Tester un refus de clé inconnue (objet zod strict) **avec un champ valide en plus** : un corps ne contenant que la clé inconnue est refusé par la règle « au moins un champ » même sans `strictObject` (contre-épreuve P1-10 qui ne mordait pas).
 
 ## Actions humaines (non bloquantes)
 
@@ -80,7 +81,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
-- 2026-11-04 session 11 — P1-10 fait : `GET/PATCH /me` (langue, fuseau IANA via Temporal, devise de la table shared, consentements en lecture seule, objet strict), `@depenseo/shared` compilé vers `dist` (premier import dans l'API), `PATCH /me` ajouté au harnais d'isolement ; ADR-022. Deux relectures (0 bloquant ; 2 importants et 4 mineurs corrigés : casse des alias → Temporal au lieu d’Intl, Etc/GMT±N refusés, `utc`, cas null). Reliquats mineurs : `Etc/GMT0` accepté (≡ UTC), `start`/`jobs:run` ne recompilent pas shared. Contre-épreuves faites (forme du fuseau, objet strict).
+- 2026-11-04 session 11 — P1-10 fait : `GET/PATCH /me` (langue, fuseau IANA via Temporal, devise de la table shared, consentements en lecture seule, objet strict), `@depenseo/shared` compilé vers `dist` (premier import dans l'API), `PATCH /me` ajouté au harnais d'isolement ; ADR-022. Deux relectures (0 bloquant ; 2 importants et 4 mineurs corrigés : casse des alias → Temporal au lieu d’Intl, Etc/GMT±N refusés, `utc`, cas null). Reliquats mineurs : `Etc/GMT0` accepté (≡ UTC), `start`/`jobs:run` ne recompilent pas shared. Contre-épreuves faites (forme du fuseau, objet strict). Passation après 1 tâche (~15 fichiers lus).
 
 - 2026-11-04 session 10 — P1-09 fait : carnet personnel (« Mon carnet »/« My notebook ») créé dans la transaction de création du compte (inscription e-mail et Apple/Google), `GET /notebooks`, `GET /notebooks/{notebookId}`, `NotebookAccessGuard` (adhésion active, carnet non supprimé, sinon même 404), harnais d'isolement sur toutes les routes protégées de l'OpenAPI ; ADR-021. Une relecture (0 bloquant, 2 importants corrigés : liste publique exacte partagée, attaque de ressource fille via le carnet de B). Contre-épreuves faites (garde sans filtre utilisateur, création sociale sans carnet). Passation après 1 tâche (~15 fichiers lus).
 
@@ -98,6 +99,4 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - 2026-11-04 session 3 — P1-02 fait : pool mysql2 réglé par connexion (+00:00, READ COMMITTED, utf8mb4_unicode_520_ci, échec → connexion détruite), `withTransaction` (1213/1205, interblocage réel testé), UUID v7 ↔ BINARY(16), `describeError` durci contre les messages Drizzle multilignes. Contre-épreuve faite (retrait des SET / du retry → tests rouges). Passation après 1 tâche (seuil de ~15 fichiers lus).
 
-- 2026-11-04 — Session 2 : P0-05 (périodes + todayIn, ADR-012, coverage-v8 ajouté), P1-01 (squelette API, ADR-013).
-
-- 2026-11-04 — Amorçage et session 1 (résumé) : kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011).
+- 2026-11-04 — Amorçage, sessions 1-2 (résumé) : kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013).
