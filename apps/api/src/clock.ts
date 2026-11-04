@@ -5,3 +5,6 @@ export interface Clock {
 }
 
 export const systemClock: Clock = { now: () => new Date() };
+
+/** Jeton d'injection Nest de l'horloge (`ClockModule`). */
+export const CLOCK = Symbol('CLOCK');

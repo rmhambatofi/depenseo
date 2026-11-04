@@ -34,6 +34,30 @@ const workerSchema = schema.pick({
 });
 export type WorkerConfig = Readonly<z.infer<typeof workerSchema>>;
 
+/**
+ * Envoi d'e-mails par le script cron (ADR-017) : requis par `jobs-run`, pas par l'API HTTP.
+ * `SMTP_URL` = smtps://compte:mot_de_passe@hôte:465 ; `PUBLIC_WEB_URL` = origine des liens envoyés.
+ */
+const mailSchema = z.object({
+  SMTP_URL: z.string().refine((value) => {
+    if (!URL.canParse(value)) return false;
+    return ['smtp:', 'smtps:'].includes(new URL(value).protocol);
+  }),
+  MAIL_FROM: z.string().min(3).max(254),
+  PUBLIC_WEB_URL: z.string().refine((value) => {
+    if (!URL.canParse(value)) return false;
+    const url = new URL(value);
+    return (
+      url.protocol === 'https:' && url.pathname === '/' && url.search === '' && url.hash === ''
+    );
+  }),
+});
+export type MailConfig = Readonly<z.infer<typeof mailSchema>>;
+
+export function loadMailConfig(env: Readonly<Record<string, string | undefined>>): MailConfig {
+  return parseEnv(mailSchema, env);
+}
+
 export function loadConfig(env: Readonly<Record<string, string | undefined>>): AppConfig {
   return parseEnv(schema, env);
 }

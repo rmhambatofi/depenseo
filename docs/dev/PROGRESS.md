@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P1-05 (inscription e-mail + mot de passe, vérification e-mail, `Mailer` via la file de tâches)
-- Dernier commit : 4f051bf feat(api): job queue with transactional enqueue, skip-locked claims, retries and GET_LOCK scheduled purge (P1-04)
+- Prochaine tâche : P1-06 (connexion JWT 15 min, refresh opaque haché avec rotation et détection de réutilisation)
+- Dernier commit : feat(api): email/password registration with argon2id and single-use email verification (P1-05)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 84 vitest api), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ)
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 107 vitest api), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ)
 
 ## Pièges connus (à lire avant de coder)
 
@@ -44,6 +44,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Un client Drizzle sur le pool ne doit pas être utilisé pendant qu'on tient une connexion dédiée (`GET_LOCK`) : avec `DB_POOL_SIZE=1`, interblocage. Utiliser `drizzle(poolConnection.connection)`.
 - mysql2 active `CLIENT_FOUND_ROWS` : `affectedRows` compte les lignes **trouvées** (ON DUPLICATE KEY sans changement → 1). Ne pas s'en servir pour distinguer insertion et doublon.
 - `sed`/remplacements Python sur un fichier déjà passé par Prettier : les imports longs sont reformatés, vérifier par `grep` (encore piégé en P1-04).
+- Auth (P1-05, ADR-017) : `AuthService` (`src/auth/`) : `register` (202 toujours, réinscription d'un compte non vérifié = remplacement du mot de passe), `verifyEmail` (UPDATE conditionnel + `affectedRows`), `authenticate(email, pwd)` → 401/403 **à réutiliser en P1-06** pour la route de connexion. Horloge Nest : `@Inject(CLOCK)`, tests `startTestApp({ clock })`. Corps validés par `parseBody(zodSchema, body)` (`src/http/parse-body.ts`). Le cron exige `SMTP_URL`, `MAIL_FROM`, `PUBLIC_WEB_URL` (`loadMailConfig`) ; `jobHandlers(deps)` prend désormais ses dépendances.
+- Clés de charge utile de tâche : `SENSITIVE_KEY` refuse toute clé contenant `token`, `password`, `mail`… (ex. `tokenId` interdit) : nommer autrement (`userId`, `requestId`).
+- Suites qui exécutent `runJobs` en parallèle : une réclamation `SKIP LOCKED` verrouille transitoirement les lignes **d'autres types** parcourues dans l'index `(status, run_at)`, qu'un autre worker saute alors. Donner à chaque suite une plage `run_at` disjointe (auth : janvier 2026, file : 2026-11-04) ou boucler jusqu'à épuisement (cf. `sendMails` dans `test/auth/register.spec.ts`). En production, effet bénin (traité au passage suivant).
+- `@node-rs/argon2` : `Algorithm` est un `const enum` ambiant (inutilisable en valeur sous `isolatedModules`) : `2 as Algorithm.Argon2id`. Paquets nodemailer 10 : sources dans `dist/esm`, pas `lib/`.
 
 ## Actions humaines (non bloquantes)
 
@@ -55,6 +59,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-04 session 6 — P1-05 fait : inscription (argon2id, 202 sans énumération, remplacement du mot de passe d'un compte non vérifié contre la pré-inscription), lien de vérification 24 h tiré par le gestionnaire `mail.verify_email` (≤ 3/h), `verify-email` usage unique sous concurrence, `Mailer` (SMTP nodemailer 15 s + faux mémoire), `authenticate` 401/403 ; ADR-017. Deux relectures (1 bloquant corrigé : pré-détournement). Contre-épreuves faites.
 
 - 2026-11-04 session 5 — P1-04 fait : file `job` (enqueue transactionnel, unicité, garde PII), `runJobs` (réclamation SKIP LOCKED en deux requêtes, bail 5 min, garde de clôture, délai gestionnaire, 1-2-4-8 min puis `failed`), planification sous `GET_LOCK` + purge par lots, `scripts/jobs-run.ts`, migration `0001_job_claim_indexes` ; ADR-016. Deux relectures (1 bloquant corrigé : verrouillage de toutes les lignes dues). Contre-épreuves faites (skipLocked, garde attempts). Passation après 1 tâche (~15 fichiers lus).
 

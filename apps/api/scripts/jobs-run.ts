@@ -1,17 +1,19 @@
 // `pnpm --filter api jobs:run` : passage cron de la file de tâches (§8.2), lancé chaque minute
 // par la crontab o2switch (pas de processus permanent sous Passenger). Durée totale ≤ 50 s.
-// Variables : DATABASE_URL (compte API), DB_POOL_SIZE, LOG_LEVEL.
+// Variables : DATABASE_URL (compte API), DB_POOL_SIZE, LOG_LEVEL, SMTP_URL, MAIL_FROM, PUBLIC_WEB_URL.
 import { pino } from 'pino';
 import { systemClock } from '../src/clock.js';
-import { loadWorkerConfig } from '../src/config/env.js';
+import { loadMailConfig, loadWorkerConfig } from '../src/config/env.js';
 import { createDatabase, createDbPool } from '../src/db/connection.js';
 import { RUN_DEADLINE_MS, runJobs } from '../src/jobs/job-runner.js';
 import { jobHandlers, scheduledTasks } from '../src/jobs/registry.js';
 import { runScheduledTasks } from '../src/jobs/scheduler.js';
 import { describeError } from '../src/logging/redact.js';
+import { SmtpMailer } from '../src/mail/mailer.js';
 
 const startedAt = Date.now();
 const config = loadWorkerConfig(process.env);
+const mail = loadMailConfig(process.env);
 const logger = pino({ level: config.LOG_LEVEL, base: { process: 'jobs-run' } });
 const pool = createDbPool(config, {
   onSessionError: ({ code, errno }) =>
@@ -27,7 +29,12 @@ try {
     db,
     clock: systemClock,
     logger,
-    handlers: jobHandlers(),
+    handlers: jobHandlers({
+      db,
+      clock: systemClock,
+      mailer: SmtpMailer.fromUrl(mail.SMTP_URL, mail.MAIL_FROM),
+      publicWebUrl: mail.PUBLIC_WEB_URL,
+    }),
     deadlineMs: RUN_DEADLINE_MS - (Date.now() - startedAt),
   });
   logger.info(summary, 'jobs run finished');

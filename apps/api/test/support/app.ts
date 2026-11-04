@@ -2,7 +2,7 @@
 import type { Server } from 'node:http';
 import { Writable } from 'node:stream';
 import type { INestApplication } from '@nestjs/common';
-import { createApp } from '../../src/app.js';
+import { createApp, type CreateAppOptions } from '../../src/app.js';
 import { loadConfig } from '../../src/config/env.js';
 import { TEST_DATABASE_URL } from './db.js';
 
@@ -23,9 +23,11 @@ export class LogCapture extends Writable {
   }
 }
 
-export async function startTestApp(): Promise<{ app: INestApplication; logs: LogCapture }> {
+export async function startTestApp(
+  options: Pick<CreateAppOptions, 'clock'> = {},
+): Promise<{ app: INestApplication; logs: LogCapture }> {
   const logs = new LogCapture();
-  const app = await createApp(loadConfig(TEST_ENV), { logDestination: logs });
+  const app = await createApp(loadConfig(TEST_ENV), { ...options, logDestination: logs });
   await app.init();
   return { app, logs };
 }

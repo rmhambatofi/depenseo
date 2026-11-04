@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ConfigError, loadConfig, loadWorkerConfig } from '../src/config/env.js';
+import { ConfigError, loadConfig, loadMailConfig, loadWorkerConfig } from '../src/config/env.js';
 import { TEST_ENV } from './support/app.js';
 
 describe('loadConfig', () => {
@@ -61,5 +61,35 @@ describe('loadWorkerConfig', () => {
       DB_POOL_SIZE: 5,
     });
     expect(() => loadWorkerConfig({})).toThrow(/DATABASE_URL/);
+  });
+});
+
+describe('loadMailConfig', () => {
+  const valid = {
+    SMTP_URL: 'smtps://compte:motdepasse-smtp@mail.example.test:465',
+    MAIL_FROM: 'Depenseo <no-reply@depenseo.test>',
+    PUBLIC_WEB_URL: 'https://app.depenseo.test',
+  };
+
+  it('accepte une configuration SMTP complète', () => {
+    expect(loadMailConfig(valid)).toEqual(valid);
+  });
+
+  it('refuse une URL SMTP ou web invalide sans afficher de secret', () => {
+    let message = '';
+    try {
+      loadMailConfig({ ...valid, SMTP_URL: 'http://compte:motdepasse-smtp@h' });
+    } catch (error) {
+      message = (error as Error).message;
+    }
+    expect(message).toMatch(/SMTP_URL : invalide/);
+    expect(message).not.toContain('motdepasse-smtp');
+    expect(() => loadMailConfig({ ...valid, PUBLIC_WEB_URL: 'http://app.depenseo.test' })).toThrow(
+      /PUBLIC_WEB_URL/,
+    );
+    expect(() =>
+      loadMailConfig({ ...valid, PUBLIC_WEB_URL: 'https://app.depenseo.test/chemin' }),
+    ).toThrow(/PUBLIC_WEB_URL/);
+    expect(() => loadMailConfig({})).toThrow(/SMTP_URL.*MAIL_FROM.*PUBLIC_WEB_URL/);
   });
 });

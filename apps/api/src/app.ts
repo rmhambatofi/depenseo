@@ -5,6 +5,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger } from 'nestjs-pino';
 import type { DestinationStream } from 'pino';
 import { AppModule } from './app.module.js';
+import type { Clock } from './clock.js';
 import type { AppConfig } from './config/env.js';
 import { ProblemDetailsFilter } from './errors/problem-details.filter.js';
 
@@ -13,6 +14,8 @@ export const API_PREFIX = 'api/v1';
 export interface CreateAppOptions {
   /** Flux de journal (tests) ; sortie standard par défaut. */
   logDestination?: DestinationStream;
+  /** Horloge applicative (tests) ; horloge système par défaut. */
+  clock?: Clock;
 }
 
 export async function createApp(
@@ -21,7 +24,7 @@ export async function createApp(
 ): Promise<INestApplication> {
   // Pas de CORS : web, back-office et API partagent le même domaine (§8.4).
   const app = await NestFactory.create<NestExpressApplication>(
-    AppModule.register(config, options.logDestination),
+    AppModule.register(config, options.logDestination, options.clock),
     { bufferLogs: true, cors: false },
   );
   app.useLogger(app.get(Logger));
