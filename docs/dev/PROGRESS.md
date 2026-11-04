@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P1-05 (inscription e-mail + mot de passe, vérification e-mail, `Mailer` via la file de tâches)
-- Dernier commit : feat(api): job queue … (P1-04)
+- Dernier commit : 4f051bf feat(api): job queue with transactional enqueue, skip-locked claims, retries and GET_LOCK scheduled purge (P1-04)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 84 vitest api), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ)
 
@@ -34,7 +34,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - `DrizzleQueryError` met requête **et paramètres** dans son message (multiligne) : ne jamais journaliser `error.message` ; `describeError` le retire et remonte `code`/`errno` de la `cause`.
 - Sous-agent `tester` : vérifie déjà la stabilité des tests de verrous en les relançant 3 fois ; garder les tests d'interblocage avec barrière explicite (pas de `sleep`).
 - Vérifier qu'un test mord par contre-épreuve (mutation rapide du code puis restauration) : la relecture de P1-01 a trouvé un test de journal qui passait sans que la redaction serve.
-- **Avant le premier import de `@depenseo/shared` dans l'API** (pas encore fait en P1-03) : `@depenseo/shared` exporte du `.ts` (`main: ./src/index.ts`) ; le `dist` de l'API (tsc → `node dist/src/main.js`) cassera dès son premier import. Compiler `shared` (build + `exports` vers `dist`) ou équivalent.
+- **Avant le premier import de `@depenseo/shared` dans l'API** (toujours pas fait après P1-04) : `@depenseo/shared` exporte du `.ts` (`main: ./src/index.ts`) ; le `dist` de l'API (tsc → `node dist/src/main.js`) cassera dès son premier import. Compiler `shared` (build + `exports` vers `dist`) ou équivalent.
 - Les remplacements par script échouent silencieusement après un passage de Prettier (tableaux reformatés) : toujours `grep` le résultat.
 - Migrations (P1-03, ADR-015) : schéma `src/db/schema/*.ts` → `pnpm --filter api db:generate` (drizzle-kit) → `apps/api/drizzle/NNNN_*.sql` committé ; appliquer par `runMigrations(url)` / `MIGRATOR_DATABASE_URL=… pnpm --filter api migrate`. Ne jamais modifier une migration appliquée. Pas de colonne JSON (utf8mb4_bin sous MariaDB) ni `binary()` Drizzle (décode en UTF-8 : utiliser `sha256Binary`/`uuidBinary`). Horodatages fournis par l'app.
 - `vitest` a un `globalSetup` qui **vide** `depenseo_test`, la passe en latin1 puis la remigre : un test ne doit rien attendre d'un lancement précédent. Le test d'invariants (`test/support/schema-invariants.ts`) parcourt toutes les tables sauf `__drizzle_migrations`/`zz_test_*` ; règles par nom (`*_id`, `*amount*`, `*currency`, `*rate`) — un identifiant externe ne doit pas finir en `_id`.
