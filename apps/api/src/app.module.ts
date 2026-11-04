@@ -12,6 +12,7 @@ import { HealthController } from './health/health.controller.js';
 import { MeModule } from './me/me.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { ExpensesModule } from './expenses/expenses.module.js';
+import { LimitsModule } from './limits/limits.module.js';
 import { NotebooksModule } from './notebooks/notebooks.module.js';
 import { SyncModule } from './sync/sync.module.js';
 import { pinoHttpOptions } from './logging/pino-options.js';
@@ -41,6 +42,7 @@ export class AppModule {
         NotebooksModule,
         CategoriesModule,
         ExpensesModule,
+        LimitsModule,
         SyncModule,
       ],
       controllers: [HealthController],

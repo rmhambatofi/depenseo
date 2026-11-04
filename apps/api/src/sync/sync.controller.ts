@@ -14,6 +14,7 @@ import {
 } from '@nestjs/swagger';
 import { CategoryDto } from '../categories/categories.controller.js';
 import { ExpenseDto } from '../expenses/expenses.controller.js';
+import { LIMIT_PERIOD_KINDS, type LimitPeriodKind } from '../db/schema/index.js';
 import { parseQuery } from '../http/parse-query.js';
 import {
   CurrentNotebook,
@@ -24,6 +25,7 @@ import { DEFAULT_SYNC_PAGE_SIZE, MAX_SYNC_PAGE_SIZE, syncQuerySchema } from './s
 import {
   type SyncCategory,
   type SyncExpense,
+  type SyncLimit,
   type SyncPage,
   SyncService,
   type SyncTag,
@@ -69,6 +71,42 @@ export class SyncExpenseDto extends ExpenseDto implements SyncExpense {
   readonly deletedAt!: Date | null;
 }
 
+export class SyncLimitDto implements SyncLimit {
+  @ApiProperty({ format: 'uuid' })
+  readonly id!: string;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'Unités mineures ; NULL = aucune limite',
+  })
+  readonly amount!: number | null;
+
+  @ApiProperty({ example: 'EUR' })
+  readonly currency!: string;
+
+  @ApiProperty({ enum: LIMIT_PERIOD_KINDS })
+  readonly periodKind!: LimitPeriodKind;
+
+  @ApiProperty({ minimum: 1, maximum: 31 })
+  readonly startDay!: number;
+
+  @ApiProperty()
+  readonly includeRecurring!: boolean;
+
+  @ApiProperty({ format: 'date' })
+  readonly effectiveDate!: string;
+
+  @ApiProperty({ format: 'date-time' })
+  readonly createdAt!: Date;
+
+  @ApiProperty({ format: 'date-time' })
+  readonly updatedAt!: Date;
+
+  @ApiProperty(DELETED_AT)
+  readonly deletedAt!: Date | null;
+}
+
 export class SyncPageDto implements SyncPage {
   @ApiProperty({ type: [SyncCategoryDto] })
   readonly categories!: SyncCategoryDto[];
@@ -78,6 +116,9 @@ export class SyncPageDto implements SyncPage {
 
   @ApiProperty({ type: [SyncExpenseDto] })
   readonly expenses!: SyncExpenseDto[];
+
+  @ApiProperty({ type: [SyncLimitDto], description: 'Versions de la limite globale (ADR-027)' })
+  readonly limits!: SyncLimitDto[];
 
   @ApiProperty({
     type: String,

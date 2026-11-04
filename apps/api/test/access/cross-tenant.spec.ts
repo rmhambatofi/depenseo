@@ -7,7 +7,14 @@ import type { INestApplication } from '@nestjs/common';
 import { and, asc, eq, isNotNull } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Database } from '../../src/db/connection.js';
-import { category, expense, expenseTag, tag, user } from '../../src/db/schema/index.js';
+import {
+  category,
+  expense,
+  expenseTag,
+  spendingLimit,
+  tag,
+  user,
+} from '../../src/db/schema/index.js';
 import { newId } from '../../src/db/uuid.js';
 import {
   callAs,
@@ -47,6 +54,8 @@ const BODIES: Record<string, (owner: Tenant) => object> = {
     date: '2026-04-07',
     tags: ['intrus'],
   }),
+  'POST /api/v1/notebooks/{notebookId}/limits': () => ({ id: newId(), amount: 666 }),
+  'PATCH /api/v1/notebooks/{notebookId}/limits/{limitId}': () => ({ amount: 1 }),
   'PATCH /api/v1/notebooks/{notebookId}/expenses/{expenseId}': () => ({
     amount: 1,
     note: 'modifiée',
@@ -102,6 +111,29 @@ const RESOURCE_PARAMS: Record<string, (owner: Tenant, db: Database) => Promise<s
     await db.insert(expenseTag).values({ id: newId(), expenseId: id, tagId });
     return id;
   },
+  // Version de limite du jour de A (modifiable : seule la garde de carnet peut la protéger).
+  // Une seule version par jour : réutilisée d'une route à l'autre.
+  limitId: async (owner, db) => {
+    const [existing] = await db
+      .select({ id: spendingLimit.id })
+      .from(spendingLimit)
+      .where(eq(spendingLimit.notebookId, owner.notebookId));
+    if (existing) return existing.id;
+    const id = newId();
+    const now = new Date();
+    await db.insert(spendingLimit).values({
+      id,
+      notebookId: owner.notebookId,
+      periodKind: 'month',
+      startDay: 1,
+      amount: 50_000,
+      currency: 'EUR',
+      effectiveDate: '2026-04-07',
+      createdAt: now,
+      updatedAt: now,
+    });
+    return id;
+  },
 };
 
 /** Tables filles du carnet, relues après chaque appel de B : rien ne doit changer chez A. */
@@ -116,6 +148,11 @@ const notebookRows = async (db: Database, notebookId: string) => ({
     .from(expense)
     .where(eq(expense.notebookId, notebookId))
     .orderBy(asc(expense.id)),
+  limits: await db
+    .select()
+    .from(spendingLimit)
+    .where(eq(spendingLimit.notebookId, notebookId))
+    .orderBy(asc(spendingLimit.id)),
   tags: await db.select().from(tag).where(eq(tag.notebookId, notebookId)).orderBy(asc(tag.id)),
   expenseTags: await db
     .select({ expenseId: expenseTag.expenseId, tagId: expenseTag.tagId })

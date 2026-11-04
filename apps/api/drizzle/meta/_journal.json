@@ -50,6 +50,13 @@
       "when": 1793832429192,
       "tag": "0006_deleted_at_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1793832930065,
+      "tag": "0007_spending_limit",
+      "breakpoints": true
     }
   ]
 }

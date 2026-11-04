@@ -1097,6 +1097,171 @@
         ]
       }
     },
+    "/api/v1/notebooks/{notebookId}/limits": {
+      "get": {
+        "operationId": "LimitsController_list",
+        "parameters": [
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historique, plus récente d’abord",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LimitDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou limite introuvable"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "limits"
+        ]
+      },
+      "post": {
+        "operationId": "LimitsController_create",
+        "parameters": [
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLimitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Nouvelle version, ou existante si rejeu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LimitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Corps invalide"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou limite introuvable"
+          },
+          "409": {
+            "description": "Identifiant déjà utilisé, ou version déjà créée ce jour"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "limits"
+        ]
+      }
+    },
+    "/api/v1/notebooks/{notebookId}/limits/{limitId}": {
+      "patch": {
+        "operationId": "LimitsController_update",
+        "parameters": [
+          {
+            "name": "limitId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLimitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LimitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Corps vide ou invalide"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou limite introuvable"
+          },
+          "409": {
+            "description": "Version passée : créer une nouvelle version"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "limits"
+        ]
+      }
+    },
     "/api/v1/notebooks/{notebookId}/sync": {
       "get": {
         "operationId": "SyncController_changes",
@@ -1918,6 +2083,137 @@
           }
         }
       },
+      "LimitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Unités mineures de `currency` ; NULL = aucune limite"
+          },
+          "currency": {
+            "type": "string",
+            "example": "EUR",
+            "description": "Devise du compte à la création (ISO 4217)"
+          },
+          "periodKind": {
+            "type": "string",
+            "enum": [
+              "month",
+              "week"
+            ]
+          },
+          "startDay": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 31,
+            "description": "Mois : 1–31 ; semaine : 1 = lundi … 7"
+          },
+          "includeRecurring": {
+            "type": "boolean",
+            "description": "Les dépenses récurrentes comptent dans la limite"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Jour de création, fuseau du compte"
+          },
+          "appliesFrom": {
+            "type": "string",
+            "format": "date",
+            "description": "Début de la première période couverte"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "amount",
+          "currency",
+          "periodKind",
+          "startDay",
+          "includeRecurring",
+          "effectiveDate",
+          "appliesFrom",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateLimitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID v7 généré par le client (idempotence)"
+          },
+          "amount": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 99999999999,
+            "description": "Unités mineures ; NULL = supprimer la limite à partir d’aujourd’hui"
+          },
+          "periodKind": {
+            "type": "string",
+            "enum": [
+              "month",
+              "week"
+            ],
+            "default": "month"
+          },
+          "startDay": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 31,
+            "default": 1
+          },
+          "includeRecurring": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": [
+          "id",
+          "amount"
+        ]
+      },
+      "UpdateLimitDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 99999999999
+          },
+          "periodKind": {
+            "type": "string",
+            "enum": [
+              "month",
+              "week"
+            ]
+          },
+          "startDay": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 31
+          },
+          "includeRecurring": {
+            "type": "boolean"
+          }
+        }
+      },
       "SyncCategoryDto": {
         "type": "object",
         "properties": {
@@ -2121,6 +2417,69 @@
           "deletedAt"
         ]
       },
+      "SyncLimitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Unités mineures ; NULL = aucune limite"
+          },
+          "currency": {
+            "type": "string",
+            "example": "EUR"
+          },
+          "periodKind": {
+            "type": "string",
+            "enum": [
+              "month",
+              "week"
+            ]
+          },
+          "startDay": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 31
+          },
+          "includeRecurring": {
+            "type": "boolean"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deletedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Suppression logique ; NULL si active"
+          }
+        },
+        "required": [
+          "id",
+          "amount",
+          "currency",
+          "periodKind",
+          "startDay",
+          "includeRecurring",
+          "effectiveDate",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
+      },
       "SyncPageDto": {
         "type": "object",
         "properties": {
@@ -2142,6 +2501,13 @@
               "$ref": "#/components/schemas/SyncExpenseDto"
             }
           },
+          "limits": {
+            "description": "Versions de la limite globale (ADR-027)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncLimitDto"
+            }
+          },
           "nextCursor": {
             "type": "string",
             "nullable": true,
@@ -2157,6 +2523,7 @@
           "categories",
           "tags",
           "expenses",
+          "limits",
           "nextCursor",
           "nextUpdatedSince"
         ]

@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P3-01 (limite globale, migration `spending_limit`, F-LIM-01/02/05/09).
-- Dernier commit : 4b7e685 feat(api): differential sync and purge of deletions older than 30 days (NF-OFF-01)
+- Prochaine tâche : P3-02 (`PeriodSummary`, `GET /limits/current`, F-LIM-03/05, suite multi-fuseaux).
+- Dernier commit : feat(api): global spending limit with dated versions (F-LIM-01, 02, 05, 09)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 293 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/sync`, `test/access`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 328 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/sync`, `test/access`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -92,6 +92,11 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Jeton d'accès de 15 min : `clock.advance(DAY)` après `tenant()` → 401 ; écrire `deleted_at` directement en base pour simuler l'ancienneté.
 - Reliquats mineurs P2-04 : marge du filigrane non éprouvée par un test d'écriture validée en retard ; `tagNamesByExpense` ne filtre pas `tag.deleted_at` (sans effet tant qu'aucune étiquette n'est supprimée) ; `DELETE … LIMIT` sans `ORDER BY` (binlog STATEMENT).
 
+- Limites (P3-01, ADR-027) : `spending_limit` = versions datées (date d'effet = aujourd'hui **serveur**, fuseau du compte ; `amount` NULL = aucune limite), unicité `(notebook_id, category_key générée, effective_date)`. `withAppliesFrom`/`versionInForce` (`src/limits/limit-history.ts`) : **à réutiliser en P3-02** pour la version en vigueur ; périodes de bord tronquées quand les règles changent (ADR-027). Routes `GET/POST …/limits`, `PATCH …/limits/{limitId}` (version du jour seulement). `limits` en fin de `SYNC_TABLES`. `temporal-polyfill` 1.0.7 ajouté à l'API.
+- MariaDB refuse `NOT NULL` sur une colonne générée : pas de `.notNull()` sur `generatedAlwaysAs`. Pas d'IODKU quand un index unique secondaire doit produire un 409.
+- `perl -pi -e 's|…|…|'` avec des `|` dans le motif : le `|` devient une alternative vide et corrompt **chaque ligne** (TRACEABILITY.md, rattrapé par `git checkout`). Utiliser Python avec `assert old in s`.
+- Reliquats mineurs P3-01 : pas de test du repli `ER_DUP_ENTRY` → 409 (course non sérialisée, couverte par le verrou du carnet) ; la version « de demain » (fuseau vers l'ouest) n'est pas modifiable avant son jour ; `appliesFrom` absent de la sync.
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -102,6 +107,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- Session 16 (2026-11-05) : P3-01 limite globale (versions datées, historique immuable, sync). Relecture : bug de réécriture de périodes closes lors d'un changement de règles corrigé ; date d'effet antérieure à la dernière → 409.
 
 - 2026-11-04 session 15 — P2-04 fait : `GET /notebooks/{id}/sync` (suppressions incluses, curseur (updated_at, id) stable sur horodatage partagé, filigrane −5 min, 410 au-delà de 29 j), purge périodique des suppressions > 30 j (dépenses, puis étiquettes/catégories non référencées, enfant avant parent), index `deleted_at` ; ADR-026. Une relecture (0 bloquant, 2 importants corrigés : référence pendante documentée, index de purge). Contre-épreuves faites (5 mutations). Collision d'horloge avec `tokens.spec` trouvée par le tester et corrigée.
 
