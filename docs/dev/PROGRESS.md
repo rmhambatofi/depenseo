@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P1-06 (connexion JWT 15 min, refresh opaque haché avec rotation et détection de réutilisation)
+- Prochaine tâche : P1-06 (connexion JWT 15 min, refresh opaque haché avec rotation et détection de réutilisation). Partir de `AuthService.authenticate` (401/403 déjà testés) ; le test de connexion attendu est `api/test/auth/login.spec.ts` (TRACEABILITY.md:11).
 - Dernier commit : e434d5d feat(api): email/password registration with argon2id and single-use email verification (F-AUTH-01)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 107 vitest api), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ)
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 107 vitest api ; suite api stable sur 4 relances), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ)
 
 ## Pièges connus (à lire avant de coder)
 
@@ -60,7 +60,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
-- 2026-11-04 session 6 — P1-05 fait : inscription (argon2id, 202 sans énumération, remplacement du mot de passe d'un compte non vérifié contre la pré-inscription), lien de vérification 24 h tiré par le gestionnaire `mail.verify_email` (≤ 3/h), `verify-email` usage unique sous concurrence, `Mailer` (SMTP nodemailer 15 s + faux mémoire), `authenticate` 401/403 ; ADR-017. Deux relectures (1 bloquant corrigé : pré-détournement). Contre-épreuves faites.
+- 2026-11-04 session 6 — P1-05 fait : inscription (argon2id, 202 sans énumération, remplacement du mot de passe d'un compte non vérifié contre la pré-inscription), lien de vérification 24 h tiré par le gestionnaire `mail.verify_email` (≤ 3/h), `verify-email` usage unique sous concurrence, `Mailer` (SMTP nodemailer 15 s + faux mémoire), `authenticate` 401/403 ; ADR-017. Deux relectures (1 bloquant corrigé : pré-détournement). Contre-épreuves faites. Passation après 1 tâche (~20 fichiers lus).
 
 - 2026-11-04 session 5 — P1-04 fait : file `job` (enqueue transactionnel, unicité, garde PII), `runJobs` (réclamation SKIP LOCKED en deux requêtes, bail 5 min, garde de clôture, délai gestionnaire, 1-2-4-8 min puis `failed`), planification sous `GET_LOCK` + purge par lots, `scripts/jobs-run.ts`, migration `0001_job_claim_indexes` ; ADR-016. Deux relectures (1 bloquant corrigé : verrouillage de toutes les lignes dues). Contre-épreuves faites (skipLocked, garde attempts). Passation après 1 tâche (~15 fichiers lus).
 
