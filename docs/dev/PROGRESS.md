@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P2-03 (recherche et filtres des dépenses + `GET /notebooks/{id}/expenses` paginé par curseur : la liste n'existe pas encore, ADR-024).
-- Dernier commit : feat(api): expenses with idempotent create, tags, soft delete and restore (F-DEP-03, F-DEP-10)
+- Dernier commit : 7ce1360 feat(api): expenses with idempotent create, tags, soft delete and restore (F-DEP-03, F-DEP-10)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 261 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/expenses`, `test/access`, `test/categories` stables sur 3 relances
 
@@ -80,6 +80,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Toute table doit avoir une clé primaire `id` (test d'invariants), y compris une table de liaison : `id` + index unique sur le couple.
 - Réactivation d'étiquette supprimée et filtre `tag.deleted_at` dans la jointure des étiquettes : à traiter si P2-04 introduit la suppression d'étiquettes.
 
+- Régénérer une migration **non committée** : `rm drizzle/NNNN_*.sql drizzle/meta/NNNN_snapshot.json && git checkout drizzle/meta/_journal.json`, puis `db:generate`, renommer le `.sql` et le `tag`, `npx drizzle-kit check` (fait 3 fois en P2-02).
+- Une remarque du relecteur « non testé » peut être fausse : la vérifier par mutation avant d'ajouter un test (P2-02 : PATCH catégorie déjà couvert).
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -91,7 +94,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
-- 2026-11-04 session 13 — P2-02 fait : tables `expense`, `tag`, `expense_tag` (migration 0005), `POST/GET/PATCH/DELETE /notebooks/{id}/expenses[/{expenseId}]` + `POST …/restore`, création idempotente (rejeu → ligne existante ; supprimée → 409 « restaurer »), catégorie masquée acceptée, étiquettes par nom à la collation près, harnais étendu ; ADR-024. Deux relectures (1 bloquant corrigé : FK catégorie en cascade → RESTRICT + `purgeNotebook` ; fichier de test > 400 lignes découpé). Contre-épreuves faites (filtres `notebook_id`, catégorie supprimée, PATCH catégorie).
+- 2026-11-04 session 13 — P2-02 fait : tables `expense`, `tag`, `expense_tag` (migration 0005), `POST/GET/PATCH/DELETE /notebooks/{id}/expenses[/{expenseId}]` + `POST …/restore`, création idempotente (rejeu → ligne existante ; supprimée → 409 « restaurer »), catégorie masquée acceptée, étiquettes par nom à la collation près, harnais étendu ; ADR-024. Deux relectures (1 bloquant corrigé : FK catégorie en cascade → RESTRICT + `purgeNotebook` ; fichier de test > 400 lignes découpé). Contre-épreuves faites (filtres `notebook_id`, catégorie supprimée, PATCH catégorie). Passation après 1 tâche (~15 fichiers lus).
 
 - 2026-11-04 session 12 — P2-01 fait : table `category` (migration 0004), plan par défaut de 14 racines + 50 sous-catégories (emoji, couleur, fr/en) créé avec le carnet, CRUD `/notebooks/{id}/categories` (création idempotente par UUID v7, 2 niveaux, masquage du sous-arbre, suppression logique des seules personnalisées), harnais étendu ; ADR-023. Une relecture (0 bloquant, 4 importants corrigés : OpenAPI `notebookId`, test d'inscription en anglais, traçabilité, test reporté en P2-02). Contre-épreuves faites (filtre `notebook_id`, langue d'inscription).
 
