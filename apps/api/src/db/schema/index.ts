@@ -8,3 +8,4 @@ export * from './user-identity.js';
 export * from './category.js';
 export * from './expense.js';
 export * from './spending-limit.js';
+export * from './limit-alert.js';

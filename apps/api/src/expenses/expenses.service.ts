@@ -14,6 +14,7 @@ import { isUuid, newId } from '../db/uuid.js';
 import { ProblemException } from '../errors/problem.exception.js';
 import { lockNotebook } from '../notebooks/notebook-lock.js';
 import type { CreateExpense, UpdateExpense } from './expense-input.js';
+import { checkLimitAlert } from '../limits/limit-alerts.js';
 import { tagNamesByExpense } from './expense-tags.js';
 import { encodeCursor, type ExpenseSearch } from './expense-query.js';
 
@@ -158,11 +159,17 @@ export class ExpensesService {
         .where(eq(expense.id, input.id));
       if (owner?.notebookId !== notebookId) throw new ProblemException(409, ID_TAKEN);
       if (input.tags?.length) await this.replaceTags(tx, notebookId, input.id, input.tags, now);
+      await checkLimitAlert(tx, this.clock, notebookId, userId);
       return (await this.find(tx, notebookId, input.id))!;
     });
   }
 
-  async update(notebookId: string, id: string, patch: UpdateExpense): Promise<ExpenseView> {
+  async update(
+    notebookId: string,
+    userId: string,
+    id: string,
+    patch: UpdateExpense,
+  ): Promise<ExpenseView> {
     const now = this.clock.now();
     return withTransaction(this.db, async (tx) => {
       await lockNotebook(tx, notebookId);
@@ -178,29 +185,34 @@ export class ExpensesService {
         .set({ ...fields, ...(date === undefined ? {} : { spentOn: date }), updatedAt: now })
         .where(and(eq(expense.id, id), eq(expense.notebookId, notebookId)));
       if (tags !== undefined) await this.replaceTags(tx, notebookId, id, tags, now);
+      await checkLimitAlert(tx, this.clock, notebookId, userId);
       return (await this.find(tx, notebookId, id))!;
     });
   }
 
   /** Suppression logique, idempotente. */
   async remove(notebookId: string, id: string): Promise<void> {
-    await this.setDeleted(notebookId, id, true);
+    await this.setDeleted(notebookId, id, { deleted: true });
   }
 
   /**
    * Annulation d'une suppression (F-DEP-10) ; sans effet sur une dépense active. La catégorie n'est
    * pas revérifiée : supprimée entre-temps, elle reste référencée, comme pour une dépense active.
    */
-  async restore(notebookId: string, id: string): Promise<ExpenseView> {
-    return (await this.setDeleted(notebookId, id, false))!;
+  async restore(notebookId: string, userId: string, id: string): Promise<ExpenseView> {
+    return (await this.setDeleted(notebookId, id, { deleted: false, userId }))!;
   }
 
-  /** Vue de la dépense active après l'opération, `undefined` si elle est supprimée. */
+  /**
+   * Vue de la dépense active après l'opération, `undefined` si elle est supprimée. Une suppression
+   * ne fait que baisser le total : seule la restauration relance la détection des alertes.
+   */
   private async setDeleted(
     notebookId: string,
     id: string,
-    deleted: boolean,
+    op: { deleted: true } | { deleted: false; userId: string },
   ): Promise<ExpenseView | undefined> {
+    const { deleted } = op;
     if (!isUuid(id)) throw new ProblemException(404, EXPENSE_NOT_FOUND);
     const now = this.clock.now();
     return withTransaction(this.db, async (tx) => {
@@ -213,6 +225,7 @@ export class ExpensesService {
           .update(expense)
           .set({ deletedAt: deleted ? now : null, updatedAt: now })
           .where(where);
+        if (!op.deleted) await checkLimitAlert(tx, this.clock, notebookId, op.userId);
       }
       return this.find(tx, notebookId, id);
     });

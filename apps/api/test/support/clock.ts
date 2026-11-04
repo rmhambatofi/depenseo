@@ -8,6 +8,10 @@ export class FakeClock implements Clock {
     return new Date(this.epochMs);
   }
 
+  set(epochMs: number): void {
+    this.epochMs = epochMs;
+  }
+
   advance(ms: number): void {
     this.epochMs += ms;
   }

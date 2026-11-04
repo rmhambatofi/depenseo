@@ -3,15 +3,16 @@
 // `notebook_id` ; une seule agrégation SQL couvre toutes les périodes demandées.
 import { Inject, Injectable } from '@nestjs/common';
 import { todayIn } from '@depenseo/shared';
-import { and, between, eq, isNull, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { Temporal } from 'temporal-polyfill';
 import { CLOCK, type Clock } from '../clock.js';
 import type { Database } from '../db/connection.js';
 import { DB } from '../db/database.module.js';
-import { expense, user } from '../db/schema/index.js';
+import { user } from '../db/schema/index.js';
 import { ProblemException } from '../errors/problem.exception.js';
+import { dayTotals } from './day-totals.js';
 import { globalLimitVersions } from './limits.service.js';
-import { type DayTotal, type PeriodSummary, periodSlices, summarize } from './period-summary.js';
+import { type PeriodSummary, periodSlices, summarize } from './period-summary.js';
 
 export interface CurrentLimitView {
   /** Fuseau du compte qui consulte : il fixe « aujourd'hui ». */
@@ -39,29 +40,8 @@ export class PeriodSummaryService {
     const today = todayIn(account.timeZone, now).toString();
     const versions = await globalLimitVersions(this.db, notebookId);
     const slices = periodSlices(versions, today, past + 1);
-    const totals = await this.dayTotals(notebookId, slices.at(-1)!.start, slices[0]!.end);
+    const totals = await dayTotals(this.db, notebookId, slices.at(-1)!.start, slices[0]!.end);
     const [current, ...previous] = slices.map((s) => summarize(s, today, totals, account.currency));
     return { timeZone: account.timeZone, today, current: current!, past: previous };
-  }
-
-  /** Sommes par jour, origine et devise ; SUM(BIGINT) arrive en chaîne décimale exacte. */
-  private async dayTotals(notebookId: string, from: string, to: string): Promise<DayTotal[]> {
-    const rows = await this.db
-      .select({
-        spentOn: expense.spentOn,
-        source: expense.source,
-        currency: expense.currency,
-        total: sql<string>`cast(sum(${expense.amount}) as char)`,
-      })
-      .from(expense)
-      .where(
-        and(
-          eq(expense.notebookId, notebookId),
-          isNull(expense.deletedAt),
-          between(expense.spentOn, from, to),
-        ),
-      )
-      .groupBy(expense.spentOn, expense.source, expense.currency);
-    return rows.map((r) => ({ ...r, total: BigInt(r.total) }));
   }
 }

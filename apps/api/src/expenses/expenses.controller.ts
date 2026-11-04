@@ -277,10 +277,16 @@ export class ExpensesController {
   @ApiUnprocessableEntityResponse({ description: 'Catégorie invalide' })
   update(
     @CurrentNotebook() access: NotebookAccess,
+    @CurrentUser() principal: Principal,
     @Param('expenseId') expenseId: string,
     @Body() body: UpdateExpenseDto,
   ): Promise<ExpenseDto> {
-    return this.expenses.update(access.notebookId, expenseId, parseBody(updateExpenseSchema, body));
+    return this.expenses.update(
+      access.notebookId,
+      principal.userId,
+      expenseId,
+      parseBody(updateExpenseSchema, body),
+    );
   }
 
   @Delete(':expenseId')
@@ -305,8 +311,9 @@ export class ExpensesController {
   @ApiNotFoundResponse({ description: NOT_FOUND })
   restore(
     @CurrentNotebook() access: NotebookAccess,
+    @CurrentUser() principal: Principal,
     @Param('expenseId') expenseId: string,
   ): Promise<ExpenseDto> {
-    return this.expenses.restore(access.notebookId, expenseId);
+    return this.expenses.restore(access.notebookId, principal.userId, expenseId);
   }
 }
