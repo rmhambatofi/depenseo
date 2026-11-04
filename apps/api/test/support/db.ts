@@ -8,8 +8,9 @@ const DEFAULT_MIGRATOR_URL =
   'mysql://depenseo_migrator:depenseo_migrator_dev@127.0.0.1:3307/depenseo_test';
 
 export const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL ?? DEFAULT_TEST_DATABASE_URL;
+export const TEST_MIGRATOR_URL = process.env.TEST_MIGRATOR_URL ?? DEFAULT_MIGRATOR_URL;
 
 /** Connexion d'administration du schéma de test (DDL), sans le réglage de session de l'API. */
 export function migratorConnection(): Promise<mysql.Connection> {
-  return mysql.createConnection(process.env.TEST_MIGRATOR_URL ?? DEFAULT_MIGRATOR_URL);
+  return mysql.createConnection(TEST_MIGRATOR_URL);
 }
