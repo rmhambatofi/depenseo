@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P2-04 (synchronisation différentielle `GET /sync` + purge des suppressions > 30 jours).
-- Dernier commit : 7ce1360 feat(api): expenses with idempotent create, tags, soft delete and restore (F-DEP-03, F-DEP-10)
+- Dernier commit : 3ca4735 feat(api): expense list with combinable search filters and keyset pagination (F-DEP-09)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 282 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/expenses`, `test/access` stables sur 3 relances
 
