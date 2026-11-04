@@ -270,3 +270,15 @@ Décision :
 - `limit_alert` porte `deleted_at` et l'index de synchronisation pour satisfaire l'invariant des tables de carnet (test d'invariants), sans être synchronisée ni supprimée logiquement.
 - Un changement de limite qui fait franchir un seuil sans nouvelle dépense n'alerte pas (F-LIM-04 vise les dépenses) ; la période tronquée par une nouvelle version a son propre début, donc ses propres seuils : une nouvelle version en cours de mois peut donner une seconde alerte « 80 % » dans le même mois civil (assumé : la limite a changé).
 Conséquence : nombre d'alertes borné par période, idempotence durable indépendante de la purge des tâches.
+
+## ADR-030 — Détection de la dépense inhabituelle (2026-11-05)
+
+Contexte : P3-04 applique ADR-005 (≥ 3 × médiane de la catégorie racine sur 90 jours, ≥ 5 dépenses d'historique, ≥ 20 €) ; plusieurs points restent ouverts.
+Décision :
+- Détection à la **création** seulement (`ExpensesService.create`, dans la transaction, carnet verrouillé) ; ni la modification ni la restauration ne déclenchent (une correction de montant n'est pas une nouvelle dépense). Clé de tâche `unusual:<dépense>` : un rejeu n'alerte jamais deux fois.
+- Historique = dépenses actives du carnet dont la catégorie est la racine ou l'une de ses sous-catégories, **même devise** que la dépense, datées de J−90 à J inclus, soit 91 jours avec les autres dépenses du même jour (lecture la plus simple des « 90 jours précédents » d'ADR-005 ; J = date de la dépense, pas aujourd'hui), toutes sources (manuelles et récurrentes), la dépense elle-même exclue. Une dépense antidatée est donc comparée à son propre passé.
+- Les dépenses générées par une récurrence (P4-02) ne déclenchent **pas** la détection : leur montant est attendu (fixe ou estimé) et déjà annoncé par l'échéance ; elles comptent en revanche dans l'historique.
+- Médiane paire = moyenne des deux valeurs centrales, comparée en entiers (2 × montant ≥ 3 × (a + b)).
+- Plancher de 2 000 unités mineures **dans la devise de la dépense**, sans conversion (devises multiples hors MVP) : approximation acceptée pour les devises non euro.
+- Charge utile `notify` `{kind: 'unusual_expense', notebookId, expenseId}`, sans montant (ADR-003) ; `NOTIFY` déplacé dans `src/notifications/notify-job.ts`.
+Conséquence : une requête indexée `(notebook_id, spent_on)` par création ; le gestionnaire push (P4-04) relira la dépense (et ignorera une dépense supprimée entre-temps).

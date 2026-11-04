@@ -15,6 +15,7 @@ import { ProblemException } from '../errors/problem.exception.js';
 import { lockNotebook } from '../notebooks/notebook-lock.js';
 import type { CreateExpense, UpdateExpense } from './expense-input.js';
 import { checkLimitAlert } from '../limits/limit-alerts.js';
+import { checkUnusualExpense } from './unusual-expense.js';
 import { tagNamesByExpense } from './expense-tags.js';
 import { encodeCursor, type ExpenseSearch } from './expense-query.js';
 
@@ -135,13 +136,14 @@ export class ExpensesService {
         return (await this.find(tx, notebookId, input.id))!;
       }
       await this.assertValidCategory(tx, notebookId, input.categoryId);
+      const currency = input.currency ?? (await this.userCurrency(tx, userId));
       await tx
         .insert(expense)
         .values({
           id: input.id,
           notebookId,
           amount: input.amount,
-          currency: input.currency ?? (await this.userCurrency(tx, userId)),
+          currency,
           categoryId: input.categoryId,
           spentOn: input.date,
           note: input.note ?? null,
@@ -160,6 +162,14 @@ export class ExpensesService {
       if (owner?.notebookId !== notebookId) throw new ProblemException(409, ID_TAKEN);
       if (input.tags?.length) await this.replaceTags(tx, notebookId, input.id, input.tags, now);
       await checkLimitAlert(tx, this.clock, notebookId, userId);
+      await checkUnusualExpense(tx, this.clock, {
+        notebookId,
+        expenseId: input.id,
+        categoryId: input.categoryId,
+        amount: input.amount,
+        currency,
+        spentOn: input.date,
+      });
       return (await this.find(tx, notebookId, input.id))!;
     });
   }

@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P3-04 (dépense inhabituellement élevée, ADR-005, F-NOT-01).
-- Dernier commit : f865670 feat(api): spending limit alerts (F-LIM-04, F-NOT-01)
+- Prochaine tâche : P3-05 (`GET /dashboard`, F-TB-01, 02).
+- Dernier commit : feat(api): unusual expense alert (F-NOT-01)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 395 api), `pnpm test:tz` vert (api : 22 par fuseau), `pnpm --filter api build` vert ; `test/sync`, `test/access`, `test/limits`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 415+ api), `pnpm test:tz` vert (api : 28 par fuseau), `pnpm --filter api build` vert ; `test/sync`, `test/access`, `test/limits`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -100,6 +100,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - OpenAPI : tout entier (montant, jour, pourcentage, paramètre de requête numérique) doit porter `type: 'integer'` (`type: Number` → `number` = flottant côté clients générés). Corrigé pour les limites en P3-02 ; vérifier les DTO des autres modules en P5-06.
 
 - Alertes (P3-03, ADR-029) : `checkLimitAlert(tx, clock, notebookId, userId)` (`src/limits/limit-alerts.ts`) appelé en fin de transaction de create/update/restore de dépense ; tâche `NOTIFY` = `defineJob('notify', z.discriminatedUnion('kind', …))` **à étendre en P3-04** (`kind: 'unusual_expense'`) plutôt qu'un nouveau type. État durable `limit_alert` (seuil max par période ; les jobs sont purgés à 7 j). `dayTotals(tx, …)` partagé (`src/limits/day-totals.ts`). `update`/`restore` du service prennent désormais `userId`. Aucun gestionnaire `notify` avant P4-04 (doit ignorer les alertes de périodes closes).
+- Dépense inhabituelle (P3-04, ADR-030) : `checkUnusualExpense` (`src/expenses/unusual-expense.ts`) appelé à la **création** seulement ; clé `unusual:<dépense>`. `NOTIFY` et les constantes de seuil vivent désormais dans `src/notifications/notify-job.ts` (union `limit` | `unusual_expense`, à étendre en P4). P4-02 : ne **pas** appeler la détection pour les dépenses de récurrence. Suite : septembre 2026 (et mars 2026 pour un test de date antidatée).
 - `FakeClock.set(epochMs)` ajouté. Suite des alertes : juillet–octobre 2026 ; jeton d'accès 15 min → pour changer de période, bascule de minuit en < 15 min plutôt que `advance(DAY)`.
 
 ## Actions humaines (non bloquantes)
@@ -112,6 +113,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-05 session 19 — P3-04 fait : dépense inhabituelle (≥ 3 × médiane de la racine, même devise, J−90…J, ≥ 5 dépenses, ≥ 2 000) à la création, tâche `notify` sans montant ; ADR-030 ; suite tz de la fenêtre. Une relecture (0 bloquant, 0 important ; 4 mineurs corrigés). Contre-épreuves faites (5 mutations : exclusion de soi, devise, supprimées, racine, fenêtre).
 
 - 2026-11-05 session 18 — P3-03 fait : alertes de limite 80/100/110…200 % sur la période en cours (fuseau de l'auteur), tâche `notify` dans la transaction d'écriture, clé `limit:<carnet>:<début>:<seuil>`, table `limit_alert` (migration 0008) ; ADR-029. Une relecture (1 bloquant corrigé : seuil non plafonné → débordement SMALLINT → 500 ; plafond 200 %). Contre-épreuves faites (mémoire du seuil, fuseau, restauration, récurrences).
 

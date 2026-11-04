@@ -5,37 +5,20 @@
 import { todayIn } from '@depenseo/shared';
 import { and, eq } from 'drizzle-orm';
 import { Temporal } from 'temporal-polyfill';
-import { z } from 'zod';
 import type { Tx } from '../auth/session.service.js';
 import type { Clock } from '../clock.js';
 import { limitAlert, user } from '../db/schema/index.js';
 import { newId } from '../db/uuid.js';
-import { defineJob, JobQueue } from '../jobs/job-queue.js';
+import { JobQueue } from '../jobs/job-queue.js';
+import {
+  ALERT_STEP,
+  FIRST_ALERT_PERCENT,
+  MAX_ALERT_PERCENT,
+  NOTIFY,
+} from '../notifications/notify-job.js';
 import { dayTotals } from './day-totals.js';
 import { globalLimitVersions } from './limits.service.js';
 import { periodSlices, summarize } from './period-summary.js';
-
-/** Premier seuil, puis 100 % et chaque tranche de `ALERT_STEP` points au-delà (ADR-004). */
-export const FIRST_ALERT_PERCENT = 80;
-export const ALERT_STEP = 10;
-/** Dernier seuil notifié (ADR-029) : au-delà, plus d'alerte dans la période (au plus 12). */
-export const MAX_ALERT_PERCENT = 200;
-
-/**
- * Notifications à envoyer (gestionnaire : P4-04, push sans montant). Union discriminée par `kind`
- * pour accueillir les autres notifications (dépense inhabituelle P3-04, échéances P4).
- */
-export const NOTIFY = defineJob(
-  'notify',
-  z.discriminatedUnion('kind', [
-    z.strictObject({
-      kind: z.literal('limit'),
-      notebookId: z.uuid(),
-      periodStart: z.iso.date(),
-      threshold: z.number().int().min(FIRST_ALERT_PERCENT).max(MAX_ALERT_PERCENT),
-    }),
-  ]),
-);
 
 /** Plus haut seuil atteint pour un pourcentage consommé (plancher), `null` sous 80 %, ≤ 200. */
 export function thresholdReached(percent: number | null): number | null {
