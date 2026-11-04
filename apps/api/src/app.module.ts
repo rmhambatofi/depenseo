@@ -10,6 +10,7 @@ import type { AppConfig } from './config/env.js';
 import { DatabaseModule } from './db/database.module.js';
 import { HealthController } from './health/health.controller.js';
 import { MeModule } from './me/me.module.js';
+import { CategoriesModule } from './categories/categories.module.js';
 import { NotebooksModule } from './notebooks/notebooks.module.js';
 import { pinoHttpOptions } from './logging/pino-options.js';
 
@@ -36,6 +37,7 @@ export class AppModule {
         AuthModule.register(idTokenKeys),
         MeModule,
         NotebooksModule,
+        CategoriesModule,
       ],
       controllers: [HealthController],
     };

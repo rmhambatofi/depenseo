@@ -19,8 +19,8 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | F-DEP-03 Champs montant, catégorie, date, note, marchand, étiquettes | P2-02, P6-04 | `api/test/expenses/expenses-crud.spec.ts`, `mobile/test/expenses/quick_entry_test.dart` |
 | F-DEP-09 Recherche texte/montant/catégorie/période | P2-03, P6-06 | `api/test/expenses/expenses-search.spec.ts` (« energie » → « Énergie »), `mobile/test/expenses/expense_list_test.dart` |
 | F-DEP-10 Modification, suppression, annulation 5 s | P2-02, P6-06 | `api/test/expenses/expenses-crud.spec.ts` (suppression logique + restauration), `mobile/test/expenses/undo_delete_test.dart` |
-| F-CAT-01 Plan de catégories français | P2-01, P6-07 | `api/test/categories/default-categories.spec.ts`, `mobile/test/categories/categories_test.dart` |
-| F-CAT-02 Catégories personnalisées, masquables | P2-01, P6-07 | `api/test/categories/custom-categories.spec.ts`, `mobile/test/categories/categories_test.dart` |
+| F-CAT-01 Plan de catégories français | P2-01, P6-07 | `api/test/categories/categories.spec.ts` (14 racines, langue d’inscription), `mobile/test/categories/categories_test.dart` |
+| F-CAT-02 Catégories personnalisées, masquables | P2-01, P6-07 | `api/test/categories/categories.spec.ts` (emoji, masquage, suppression logique), `mobile/test/categories/categories_test.dart` |
 | F-REC-01 Récurrence : nom, montant, fréquence, jour, catégorie | P4-01, P6-09 | `api/test/recurring/recurring-schedule.spec.ts` (31 → 30/28/29), `mobile/test/recurring/recurring_form_test.dart` |
 | F-REC-02 Enregistrement auto ou confirmation | P4-02, P6-09 | `api/test/recurring/due-occurrences.spec.ts` (cron rejoué → 1 dépense) |
 | F-REC-03 Ajuster, payer, sauter une échéance | P4-01, P6-09 | `api/test/recurring/occurrence-actions.spec.ts`, `mobile/test/recurring/occurrence_actions_test.dart` |

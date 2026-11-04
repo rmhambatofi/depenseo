@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P2-01 (catégories : plan par défaut créé à l'inscription, CRUD, masquage). Routes de carnet → `NotebookAccessGuard` + harnais (`BODIES`, `RESOURCE_PARAMS` pour `{categoryId}`, contrôle « inchangé » sur `category`).
-- Dernier commit : 9d6f97a feat(api): GET/PATCH /me with language, IANA time zone and currency preferences (NF-FMT-04)
+- Prochaine tâche : P2-02 (dépenses : `expense`, `tag`, `expense_tag`). Inclut le test reporté de P2-01 : dépense sur catégorie masquée acceptée. Harnais : ajouter `expenseId` à `RESOURCE_PARAMS`, les tables à `notebookRows`.
+- Dernier commit : feat(api): categories (F-CAT-01, F-CAT-02)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 225 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/me`, `test/access` stables sur 3 relances
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 235 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/me`, `test/access` stables sur 3 relances
 
 ## Pièges connus (à lire avant de coder)
 
@@ -70,6 +70,11 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Profil (P1-10, ADR-022) : `PATCH /me` = `profilePatchSchema` strict (`src/me/profile.ts`). Fuseau : **toujours** `normalizeTimeZone` de `@depenseo/shared` (Temporal, casse corrigée, alias conservés) ; ne jamais utiliser `Intl.DateTimeFormat().resolvedOptions().timeZone` pour normaliser (`America/Montreal` → `America/Toronto`). Lire `user.time_zone` pour tout calcul de période (P3-02). Devises : `SUPPORTED_CURRENCIES`/`isCurrencyCode`.
 - Tester un refus de clé inconnue (objet zod strict) **avec un champ valide en plus** : un corps ne contenant que la clé inconnue est refusé par la règle « au moins un champ » même sans `strictObject` (contre-épreuve P1-10 qui ne mordait pas).
 
+- Catégories (P2-01, ADR-023) : `CategoriesService` (`src/categories/`), plan `default-plan.ts` copié par `seedDefaultCategories` depuis `createPersonalNotebook` (langue du compte, figée). Écritures sous `SELECT notebook … FOR UPDATE`. Corps : `category-input.ts` (UUID v7 version + variante). Harnais : `RESOURCE_PARAMS` reçoit `(owner, db)` ; `notebookRows(db, notebookId)` relit les tables de carnet → **l'étendre** à chaque nouvelle table. `@ApiParam({ name, format: 'uuid' })` sur tout paramètre de chemin (sinon OpenAPI invalide).
+- `parseBody` remplace `undefined` par `{}` : ne pas l'utiliser pour un paramètre de requête facultatif.
+- `grep 'sql`${…}`'` : `$` est une ancre, utiliser `grep -F` ; un `&&` qui suit un grep sans résultat interrompt la chaîne (fichier non écrit, vu en P2-01). BSD sed ne connaît pas `\b` : utiliser `perl -pi -e`.
+- Reliquats mineurs P2-01 : pas de FK composite `(notebook_id, parent_id)` (garde applicative seulement) ; pas de test de concurrence sur la hiérarchie (verrou non éprouvé) ; rejeu de création avec `parentId` différent non testé.
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -80,6 +85,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-04 session 12 — P2-01 fait : table `category` (migration 0004), plan par défaut de 14 racines + 50 sous-catégories (emoji, couleur, fr/en) créé avec le carnet, CRUD `/notebooks/{id}/categories` (création idempotente par UUID v7, 2 niveaux, masquage du sous-arbre, suppression logique des seules personnalisées), harnais étendu ; ADR-023. Une relecture (0 bloquant, 4 importants corrigés : OpenAPI `notebookId`, test d'inscription en anglais, traçabilité, test reporté en P2-02). Contre-épreuves faites (filtre `notebook_id`, langue d'inscription).
 
 - 2026-11-04 session 11 — P1-10 fait : `GET/PATCH /me` (langue, fuseau IANA via Temporal, devise de la table shared, consentements en lecture seule, objet strict), `@depenseo/shared` compilé vers `dist` (premier import dans l'API), `PATCH /me` ajouté au harnais d'isolement ; ADR-022. Deux relectures (0 bloquant ; 2 importants et 4 mineurs corrigés : casse des alias → Temporal au lieu d’Intl, Etc/GMT±N refusés, `utc`, cas null). Reliquats mineurs : `Etc/GMT0` accepté (≡ UTC), `start`/`jobs:run` ne recompilent pas shared. Contre-épreuves faites (forme du fuseau, objet strict). Passation après 1 tâche (~15 fichiers lus).
 

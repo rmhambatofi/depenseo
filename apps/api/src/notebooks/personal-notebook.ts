@@ -1,6 +1,8 @@
 // Carnet personnel (§8.3, P1-09) : tout compte en possède un, créé dans la transaction qui crée le
-// compte (inscription par e-mail ou première connexion Apple/Google). ADR-021.
+// compte (inscription par e-mail ou première connexion Apple/Google), avec le plan de catégories
+// par défaut (F-CAT-01). ADR-021, ADR-023.
 import type { Tx } from '../auth/session.service.js';
+import { seedDefaultCategories } from '../categories/default-categories.js';
 import type { Database } from '../db/connection.js';
 import { notebook, notebookMember } from '../db/schema/index.js';
 import { newId } from '../db/uuid.js';
@@ -29,5 +31,6 @@ export async function createPersonalNotebook(
     createdAt: now,
     updatedAt: now,
   });
+  await seedDefaultCategories(tx, { notebookId: id, language, now });
   return id;
 }

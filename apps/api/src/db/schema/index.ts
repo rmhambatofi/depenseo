@@ -5,3 +5,4 @@ export * from './job.js';
 export * from './notebook.js';
 export * from './user.js';
 export * from './user-identity.js';
+export * from './category.js';

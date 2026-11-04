@@ -4,9 +4,10 @@
 //   un carnet inexistant ; A n'est pas refusé (le test mord) ; rien n'est modifié chez A ;
 // - route de compte (liste blanche ci-dessous) : la réponse faite à B ne contient rien de A.
 import type { INestApplication } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { user } from '../../src/db/schema/index.js';
+import type { Database } from '../../src/db/connection.js';
+import { category, user } from '../../src/db/schema/index.js';
 import { newId } from '../../src/db/uuid.js';
 import {
   callAs,
@@ -29,10 +30,41 @@ const ACCOUNT_ROUTES = ['GET /api/v1/me', 'PATCH /api/v1/me', 'GET /api/v1/noteb
 /** Corps valides par route d'écriture (sinon `{}`), pour que l'appelant ne soit pas refusé. */
 const BODIES: Record<string, (owner: Tenant) => object> = {
   'PATCH /api/v1/me': () => ({ language: 'en', timeZone: 'America/Montreal', currency: 'CHF' }),
+  'POST /api/v1/notebooks/{notebookId}/categories': () => ({
+    id: newId(),
+    name: 'Intrusion',
+    icon: '🕵️',
+    color: '#000000',
+  }),
+  'PATCH /api/v1/notebooks/{notebookId}/categories/{categoryId}': () => ({
+    name: 'Renommée',
+    hidden: true,
+  }),
 };
 
 /** Identifiants de ressources de A autres que le carnet, par nom de paramètre de chemin. */
-const RESOURCE_PARAMS: Record<string, (owner: Tenant) => Promise<string>> = {};
+const RESOURCE_PARAMS: Record<string, (owner: Tenant, db: Database) => Promise<string>> = {
+  // Catégorie personnalisée (une catégorie du plan ne se supprime pas : 409, garde non éprouvée).
+  categoryId: async (owner, db) => {
+    const id = newId();
+    const now = new Date();
+    await db.insert(category).values({
+      id,
+      notebookId: owner.notebookId,
+      name: 'Ressource de A',
+      icon: '🔒',
+      color: '#111111',
+      position: 1000,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return id;
+  },
+};
+
+/** Tables filles du carnet, relues après chaque appel de B : rien ne doit changer chez A. */
+const notebookRows = (db: Database, notebookId: string) =>
+  db.select().from(category).where(eq(category.notebookId, notebookId)).orderBy(asc(category.id));
 
 describe('isolement entre comptes (NF-SEC-03)', () => {
   const clock = new FakeClock(Date.UTC(2026, 3, 7, 9, 0, 0));
@@ -78,10 +110,11 @@ describe('isolement entre comptes (NF-SEC-03)', () => {
       const key = routeKey(route);
       const params: Record<string, string> = { notebookId: alice.notebookId };
       for (const [name, make] of Object.entries(RESOURCE_PARAMS)) {
-        if (route.path.includes(`{${name}}`)) params[name] = await make(alice);
+        if (route.path.includes(`{${name}}`)) params[name] = await make(alice, db);
       }
       const body = BODIES[key]?.(alice) ?? {};
       const before = await notebooksOf(db, alice.id);
+      const rowsBefore = await notebookRows(db, alice.notebookId);
 
       const intruder = await callAs(app, bob, route, params, body);
       const unknown = await callAs(app, bob, route, { ...params, notebookId: newId() }, body);
@@ -101,7 +134,8 @@ describe('isolement entre comptes (NF-SEC-03)', () => {
         );
         expect(viaOwn.status, `${key} (via le carnet de B)`).toBe(404);
       }
-      // À compléter par la lecture des tables de la route (dépenses…) quand elles existeront.
+      // Étendre `notebookRows` à chaque nouvelle table de carnet (dépenses…).
+      expect(await notebookRows(db, alice.notebookId), key).toEqual(rowsBefore);
       expect(await notebooksOf(db, alice.id), key).toEqual(before);
       expect(await accountRow(alice.id), key).toEqual(aliceAccount);
 
@@ -116,7 +150,9 @@ describe('isolement entre comptes (NF-SEC-03)', () => {
     for (const key of ACCOUNT_ROUTES) {
       const route = protectedRoutes.find((r) => routeKey(r) === key)!;
       const before = await notebooksOf(db, alice.id);
+      const rowsBefore = await notebookRows(db, alice.notebookId);
       const res = await callAs(app, bob, route, {}, BODIES[key]?.(bob) ?? {});
+      expect(await notebookRows(db, alice.notebookId), key).toEqual(rowsBefore);
       expect(await notebooksOf(db, alice.id), key).toEqual(before);
       expect(await accountRow(alice.id), key).toEqual(aliceAccount);
       expect(res.status, key).toBe(200);

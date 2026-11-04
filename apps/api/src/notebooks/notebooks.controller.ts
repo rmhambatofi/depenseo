@@ -5,6 +5,7 @@ import {
   ApiBearerAuth,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiParam,
   ApiProperty,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -79,6 +80,7 @@ export class NotebooksController {
   }
 
   @Get(':notebookId')
+  @ApiParam({ name: 'notebookId', format: 'uuid' })
   @UseGuards(NotebookAccessGuard)
   @Header('Cache-Control', 'no-store')
   @ApiOkResponse({ type: NotebookDto })
