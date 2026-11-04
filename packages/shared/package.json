@@ -8,9 +8,15 @@
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "coverage": "vitest run --coverage --coverage.include=src --coverage.exclude='src/**/*.test.ts'",
+    "test:tz": "for tz in Europe/Paris Europe/Lisbon America/Montreal Indian/Reunion; do TZ=$tz vitest run tz.test || exit 1; done"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "5.1.0",
     "vitest": "5.1.0"
+  },
+  "dependencies": {
+    "temporal-polyfill": "1.0.7"
   }
 }

@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P0-05 (périodes + todayIn, installer `temporal-polyfill` selon ADR-002)
-- Dernier commit : e7ebcf6 feat(shared): cents, ISO 4217 currency codes, calendar dates … (P0-04)
+- Prochaine tâche : P1-01 (squelette NestJS `apps/api`)
+- Dernier commit : feat(shared): limit periods … (P0-05)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 84 vitest shared). Couverture non mesurable : `@vitest/coverage-v8` absent (à ajouter, même majeure que vitest 5.1.0)
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared), `pnpm test:tz` vert (suites `*.tz.test.ts` sous les 4 TZ). Couverture shared 98,7 % (`pnpm --filter @depenseo/shared coverage`)
 
 ## Pièges connus (à lire avant de coder)
 
@@ -26,6 +26,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Image épinglée `mariadb:10.6.28` ; la version réelle d'o2switch (`SELECT VERSION()`) reste à relever par l'humain.
 - CI : actions épinglées par SHA (checkout v7.0.1, setup-node v7.1.0, pnpm/action-setup v6.1.1, flutter-action v2.23.0) ; `pnpm lint:ci` = actionlint 1.7.12 via Docker. Ne pas pousser sans accord humain (dépôt public). Vérifier les entrées d'une action sur son README à la version épinglée (`gh api repos/<o>/<r>/contents/README.md?ref=<tag>`, URL entre guillemets sous zsh).
 - `packages/shared` (P0-04, ADR-011) : `Cents`, `CurrencyCode`, `CalendarDate` (brands), `formatAmount` (chaîne décimale exacte vers Intl), `parseAmountInput` → `{ok,cents}|{ok:false,error}`. Décimales par devise = table ISO 4217 figée dans `currency.ts`, jamais Intl/ICU. Écrire les espaces insécables en `\u00a0`/`\u202f` dans le source (sinon `no-irregular-whitespace`) : un heredoc ou un éditeur peut les écrire littéralement, vérifier.
+- `packages/shared/src/period.ts` (P0-05, ADR-012) : `periodContaining/nextPeriod/previousPeriod` (règle `{kind:'month',startDay 1–31}` repli fin de mois, `{kind:'week',startDay? ISO 1–7}`), `todayIn(tz, Temporal.Instant)`, `toPlainDate/toCalendarDate`. Importer `Temporal` depuis `temporal-polyfill` (1.0.7), jamais le global (Node 26 l'a, Node 22 non). Convention : suites multi-fuseaux nommées `*.tz.test.ts`, lancées par `test:tz` de chaque paquet (racine : `pnpm test:tz`) ; l'API devra fournir son propre `test:tz`.
 - Les remplacements par script échouent silencieusement après un passage de Prettier (tableaux reformatés) : toujours `grep` le résultat.
 
 ## Actions humaines (non bloquantes)
@@ -38,6 +39,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-04 — Session 2 : P0-05 (périodes + todayIn, ADR-012, coverage-v8 ajouté).
 
 - 2026-11-04 — Session 1 : P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011) ; handoff après 3 tâches.
 
