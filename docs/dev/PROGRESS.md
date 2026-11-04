@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P1-08 (connexion Apple/Google, `IdTokenVerifier`, jose déjà présent). Les comptes sans mot de passe peuvent déjà demander un lien de réinitialisation (ADR-019).
-- Dernier commit : voir `git log -1` (feat(api): password reset … F-AUTH-03)
+- Dernier commit : 9063983 feat(api): password reset by single-use 30-min email link, revoking all sessions (F-AUTH-03)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 134 shared, 132 api), `pnpm test:tz` vert ; `test/auth test/jobs` stable sur 3 relances
 
@@ -55,7 +55,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Instabilité connue (vue 1 fois sur 5, P1-06) : `job-runner.spec.ts › écarte la clôture tardive…` expire à 5 s quand une autre suite réclame en parallèle dans la même plage `run_at` (2026-11-04, FakeClock par défaut) et que le `runJobs` interne saute la ligne (SKIP LOCKED, cf. piège ci-dessus). À corriger en donnant une plage `run_at` propre aux suites de la file ou en bouclant le `runJobs` interne.
 
 - Réinitialisation (P1-07, ADR-019) : `PasswordResetService` (`request`/`confirm`), tâche `mail.reset_password`, helper commun `scheduleThrottledMail` (`src/auth/mail-throttle.ts`) : l'appelant **doit** tenir un verrou exclusif sur la ligne `user`. Registre : `jobHandlers(deps)` enregistre désormais les deux e-mails.
-- **Ne jamais lancer `tester` et `reviewer` en parallèle** : chacun lance vitest, dont le `globalSetup` vide `depenseo_test` → `ER_NO_SUCH_TABLE` et faux échecs (constaté en P1-07). Toujours en séquence, `pgrep -fl vitest` vide.
+- **Ne jamais lancer `tester` et `reviewer` en parallèle** : chacun lance vitest, dont le `globalSetup` vide `depenseo_test` → `ER_NO_SUCH_TABLE` et faux échecs (constaté en P1-07). Toujours en séquence (tester d'abord, puis reviewer), `pgrep -fl vitest` vide.
 - `depenseo_api` n'a pas le privilège PROCESS : `information_schema.INNODB_TRX` refusé. Barrière de verrou en test : sonder `information_schema.PROCESSLIST` (connexions du même compte) sur le texte de la requête en attente (cf. `password-reset.spec.ts`).
 - InnoDB sous READ COMMITTED : un `UPDATE … WHERE user_id = ?` attend le verrou implicite d'une ligne insérée non validée (constaté) ; la contre-épreuve du `FOR UPDATE` de confirmation ne mord donc pas (défense en profondeur, ADR-019).
 
@@ -70,7 +70,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
-- 2026-11-04 session 8 — P1-07 fait : `POST /auth/password-reset/request` (202 toujours, ≤ 3 liens/h, verrou du compte) et `/confirm` (lien 30 min usage unique, autres liens invalidés, toutes familles de refresh révoquées sous verrou `user`, adresse réputée vérifiée) ; ADR-019. Une relecture (0 bloquant, 3 importants corrigés : verrou de la demande, test d'usage croisé, test à barrière). Contre-épreuves faites.
+- 2026-11-04 session 8 — P1-07 fait : `POST /auth/password-reset/request` (202 toujours, ≤ 3 liens/h, verrou du compte) et `/confirm` (lien 30 min usage unique, autres liens invalidés, toutes familles de refresh révoquées sous verrou `user`, adresse réputée vérifiée) ; ADR-019. Une relecture (0 bloquant, 3 importants corrigés : verrou de la demande, test d'usage croisé, test à barrière). Contre-épreuves faites. Passation après 1 tâche (~16 fichiers lus).
 
 - 2026-11-04 session 7 — P1-06 fait : `POST /auth/login|refresh|logout`, JWT HS256 15 min (jose 6.2.15), refresh opaque 30 j glissants à rotation, réutilisation → famille révoquée, verrou `user FOR UPDATE` contre la course révocation/rotation, purge des refresh expirés (migration 0002), garde globale + liste blanche testée, `GET /me` minimal ; ADR-018. Deux relectures (aucun bloquant ; 5 importants corrigés). Contre-épreuves faites (8 mutations). Passation après 1 tâche (~22 fichiers lus).
 
