@@ -7,9 +7,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P3-02 (`PeriodSummary`, `GET /limits/current`, F-LIM-03/05, suite multi-fuseaux).
-- Dernier commit : feat(api): global spending limit with dated versions (F-LIM-01, 02, 05, 09)
+- Dernier commit : 1fdebd4 feat(api): global spending limit with dated versions (F-LIM-01, 02, 05, 09)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 328 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/sync`, `test/access`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 328 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/sync`, `test/access`, `test/limits`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -108,7 +108,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
-- Session 16 (2026-11-05) : P3-01 limite globale (versions datées, historique immuable, sync). Relecture : bug de réécriture de périodes closes lors d'un changement de règles corrigé ; date d'effet antérieure à la dernière → 409.
+- 2026-11-05 session 16 — P3-01 limite globale (versions datées, historique immuable, sync). Relecture : bug de réécriture de périodes closes lors d'un changement de règles corrigé ; date d'effet antérieure à la dernière → 409. Passation après 1 tâche (~20 fichiers lus).
 
 - 2026-11-04 session 15 — P2-04 fait : `GET /notebooks/{id}/sync` (suppressions incluses, curseur (updated_at, id) stable sur horodatage partagé, filigrane −5 min, 410 au-delà de 29 j), purge périodique des suppressions > 30 j (dépenses, puis étiquettes/catégories non référencées, enfant avant parent), index `deleted_at` ; ADR-026. Une relecture (0 bloquant, 2 importants corrigés : référence pendante documentée, index de purge). Contre-épreuves faites (5 mutations). Collision d'horloge avec `tokens.spec` trouvée par le tester et corrigée.
 
@@ -126,6 +126,4 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - 2026-11-04 session 8 — P1-07 fait : `POST /auth/password-reset/request` (202 toujours, ≤ 3 liens/h, verrou du compte) et `/confirm` (lien 30 min usage unique, autres liens invalidés, toutes familles de refresh révoquées sous verrou `user`, adresse réputée vérifiée) ; ADR-019. Une relecture (0 bloquant, 3 importants corrigés : verrou de la demande, test d'usage croisé, test à barrière). Contre-épreuves faites. Passation après 1 tâche (~16 fichiers lus).
 
-- 2026-11-04 session 7 — P1-06 fait : `POST /auth/login|refresh|logout`, JWT HS256 15 min (jose 6.2.15), refresh opaque 30 j glissants à rotation, réutilisation → famille révoquée, verrou `user FOR UPDATE` contre la course révocation/rotation, purge des refresh expirés (migration 0002), garde globale + liste blanche testée, `GET /me` minimal ; ADR-018. Deux relectures (aucun bloquant ; 5 importants corrigés). Contre-épreuves faites (8 mutations). Passation après 1 tâche (~22 fichiers lus).
-
-- 2026-11-04 — Amorçage et socle, sessions 1-6 (résumé) : P1-05 (inscription argon2id, vérification e-mail, ADR-017) ; P1-04 (file `job`, `runJobs` SKIP LOCKED, ADR-016) ; kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013), P1-02 (pool réglé par connexion, `withTransaction`, UUID ↔ BINARY(16), ADR-014), P1-03 (7 tables du socle, migrations sous `GET_LOCK`, test d'invariants, ADR-015).
+- 2026-11-04 — Amorçage et socle, sessions 1-7 (résumé) : P1-06 (sessions JWT 15 min + refresh rotatif, garde globale, ADR-018) ; P1-05 (inscription argon2id, vérification e-mail, ADR-017) ; P1-04 (file `job`, `runJobs` SKIP LOCKED, ADR-016) ; kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013), P1-02 (pool réglé par connexion, `withTransaction`, UUID ↔ BINARY(16), ADR-014), P1-03 (7 tables du socle, migrations sous `GET_LOCK`, test d'invariants, ADR-015).
