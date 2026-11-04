@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P1-06 (connexion JWT 15 min, refresh opaque haché avec rotation et détection de réutilisation)
-- Dernier commit : feat(api): email/password registration with argon2id and single-use email verification (P1-05)
+- Dernier commit : e434d5d feat(api): email/password registration with argon2id and single-use email verification (F-AUTH-01)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 tests scripts/, 134 vitest shared, 107 vitest api), `pnpm test:tz` vert (shared 50 + api 14 sous chacun des 4 TZ)
 
