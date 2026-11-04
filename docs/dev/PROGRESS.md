@@ -98,7 +98,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
-- 2026-11-04 session 14 — P2-03 fait : `GET /notebooks/{id}/expenses` (texte note/marchand sous collation, montant min/max, catégories répétables, période, curseur par clé (date, id) décroissant, 1–100 / 50), `parseQuery` strict ; ADR-025. Une relecture (0 bloquant, 1 important corrigé : échappement `!` non testé ; test d'insertion entre deux pages ajouté). Contre-épreuves faites (échappement, départage par id).
+- 2026-11-04 session 14 — P2-03 fait : `GET /notebooks/{id}/expenses` (texte note/marchand sous collation, montant min/max, catégories répétables, période, curseur par clé (date, id) décroissant, 1–100 / 50), `parseQuery` strict ; ADR-025. Une relecture (0 bloquant, 1 important corrigé : échappement `!` non testé ; test d'insertion entre deux pages ajouté). Contre-épreuves faites (échappement, départage par id). Passation après 1 tâche (~13 fichiers lus).
 
 - 2026-11-04 session 13 — P2-02 fait : tables `expense`, `tag`, `expense_tag` (migration 0005), `POST/GET/PATCH/DELETE /notebooks/{id}/expenses[/{expenseId}]` + `POST …/restore`, création idempotente (rejeu → ligne existante ; supprimée → 409 « restaurer »), catégorie masquée acceptée, étiquettes par nom à la collation près, harnais étendu ; ADR-024. Deux relectures (1 bloquant corrigé : FK catégorie en cascade → RESTRICT + `purgeNotebook` ; fichier de test > 400 lignes découpé). Contre-épreuves faites (filtres `notebook_id`, catégorie supprimée, PATCH catégorie). Passation après 1 tâche (~15 fichiers lus).
 
