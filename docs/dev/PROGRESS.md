@@ -7,9 +7,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P3-03 (alertes de limite 80 / 100 % / dépassement, F-LIM-04, F-NOT-01).
-- Dernier commit : feat(api): period summary and current limit gauge (F-LIM-03, F-LIM-05)
+- Dernier commit : de9c6f3 feat(api): period summary and current limit gauge (F-LIM-03, F-LIM-05)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 365 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/sync`, `test/access`, `test/limits`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 365 api), `pnpm test:tz` vert (api : 22 par fuseau), `pnpm --filter api build` vert ; `test/sync`, `test/access`, `test/limits`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -128,6 +128,5 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - 2026-11-04 session 9 — P1-08 fait : `POST /auth/social` (Apple/Google), vérification jose RS256 + iss/aud/exp/âge 10 min/nonce SHA-256, identité par (fournisseur, SHA-256 du `sub`), rattachement par adresse seulement si le fournisseur fait autorité (Apple ; Google : Gmail ou `hd`), reprise d'un compte non vérifié (mot de passe effacé, CGU redatées), 422 sans CGU, rejeu sur course d'identité ; ADR-020. Une relecture (0 bloquant, 4 importants corrigés) ; le tester a trouvé une course (compte orphelin), corrigée et couverte par barrière. Contre-épreuves faites. Passation après 1 tâche (~17 fichiers lus).
 
-- 2026-11-04 session 8 — P1-07 fait : `POST /auth/password-reset/request` (202 toujours, ≤ 3 liens/h, verrou du compte) et `/confirm` (lien 30 min usage unique, autres liens invalidés, toutes familles de refresh révoquées sous verrou `user`, adresse réputée vérifiée) ; ADR-019. Une relecture (0 bloquant, 3 importants corrigés : verrou de la demande, test d'usage croisé, test à barrière). Contre-épreuves faites. Passation après 1 tâche (~16 fichiers lus).
 
-- 2026-11-04 — Amorçage et socle, sessions 1-7 (résumé) : P1-06 (sessions JWT 15 min + refresh rotatif, garde globale, ADR-018) ; P1-05 (inscription argon2id, vérification e-mail, ADR-017) ; P1-04 (file `job`, `runJobs` SKIP LOCKED, ADR-016) ; kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013), P1-02 (pool réglé par connexion, `withTransaction`, UUID ↔ BINARY(16), ADR-014), P1-03 (7 tables du socle, migrations sous `GET_LOCK`, test d'invariants, ADR-015).
+- 2026-11-04 — Amorçage et socle, sessions 1-8 (résumé) : P1-07 (réinitialisation du mot de passe, ADR-019) ; P1-06 (sessions JWT 15 min + refresh rotatif, garde globale, ADR-018) ; P1-05 (inscription argon2id, vérification e-mail, ADR-017) ; P1-04 (file `job`, `runJobs` SKIP LOCKED, ADR-016) ; kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013), P1-02 (pool réglé par connexion, `withTransaction`, UUID ↔ BINARY(16), ADR-014), P1-03 (7 tables du socle, migrations sous `GET_LOCK`, test d'invariants, ADR-015).
