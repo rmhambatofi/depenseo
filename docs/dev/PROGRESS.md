@@ -7,14 +7,15 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P0-02
-- Dernier commit : (aucun)
+- Dernier commit : 5266b7a chore: bootstrap pnpm monorepo … (P0-01)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm test` verts (2 tests de règle ESLint, shared sans test)
 
 ## Pièges connus (à lire avant de coder)
 
 - Versions relevées le 2026-11-04 : Node **v26.10.0** local (cible 22, voir ADR-006 ; pas de nvm/fnm/volta, `n` présent dans /usr/local/bin), pnpm 9.15.4, Docker Compose v5.1.0, Flutter 3.47.6 / Dart 3.13.5, git 2.45.2.
-- Le démon Docker peut être arrêté : lancer Docker Desktop (`open -a Docker`) avant P0-02 et tout test API.
+- Le démon Docker peut être arrêté : lancer Docker Desktop (`open -a Docker`) avant P0-02 et tout test API (démarré en fin de session d'amorçage, moteur 29.3.0).
+- Sous-agent `reviewer` : son prompt système contient « VERDICT: OK » ; ne pas détecter sa fin par grep du transcript, attendre la notification.
 - TypeScript épinglé à **6.0.3** : typescript-eslint 8.72 exige `typescript <6.1.0` (TS 7 natif non supporté). Ne pas monter TS sans vérifier le peer.
 - `pnpm -r lint` n'inclut pas la racine : `pnpm lint` (racine) lint aussi `scripts/` ; `pnpm test` (racine) lance `node --test scripts/*.test.mjs` puis les tests des paquets.
 - Règle `no-restricted-syntax` (eslint.config.mjs) : rejette `new Date(…)` et `Date.parse(…)` sur AAAA, AAAA-MM ou AAAA-MM-JJ, en littéral ou en gabarit sans expression ; les fixtures `scripts/lint-fixtures/` sont ignorées sauf par le test.
