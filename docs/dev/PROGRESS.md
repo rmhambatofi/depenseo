@@ -6,8 +6,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : première `[ ]` de PLAN.md (phase 3).
-- Dernier commit : feat(api): differential sync and purge of deletions older than 30 days (NF-OFF-01)
+- Prochaine tâche : P3-01 (limite globale, migration `spending_limit`, F-LIM-01/02/05/09).
+- Dernier commit : 4b7e685 feat(api): differential sync and purge of deletions older than 30 days (NF-OFF-01)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 293 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/sync`, `test/access`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
@@ -121,6 +121,4 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - 2026-11-04 session 7 — P1-06 fait : `POST /auth/login|refresh|logout`, JWT HS256 15 min (jose 6.2.15), refresh opaque 30 j glissants à rotation, réutilisation → famille révoquée, verrou `user FOR UPDATE` contre la course révocation/rotation, purge des refresh expirés (migration 0002), garde globale + liste blanche testée, `GET /me` minimal ; ADR-018. Deux relectures (aucun bloquant ; 5 importants corrigés). Contre-épreuves faites (8 mutations). Passation après 1 tâche (~22 fichiers lus).
 
-- 2026-11-04 session 6 — P1-05 fait : inscription (argon2id, 202 sans énumération, remplacement du mot de passe d'un compte non vérifié contre la pré-inscription), lien de vérification 24 h tiré par le gestionnaire `mail.verify_email` (≤ 3/h), `verify-email` usage unique sous concurrence, `Mailer` (SMTP nodemailer 15 s + faux mémoire), `authenticate` 401/403 ; ADR-017. Deux relectures (1 bloquant corrigé : pré-détournement). Contre-épreuves faites. Passation après 1 tâche (~20 fichiers lus).
-
-- 2026-11-04 — Amorçage et socle, sessions 1-5 (résumé) : P1-04 (file `job`, `runJobs` SKIP LOCKED, ADR-016) ; kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013), P1-02 (pool réglé par connexion, `withTransaction`, UUID ↔ BINARY(16), ADR-014), P1-03 (7 tables du socle, migrations sous `GET_LOCK`, test d'invariants, ADR-015).
+- 2026-11-04 — Amorçage et socle, sessions 1-6 (résumé) : P1-05 (inscription argon2id, vérification e-mail, ADR-017) ; P1-04 (file `job`, `runJobs` SKIP LOCKED, ADR-016) ; kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013), P1-02 (pool réglé par connexion, `withTransaction`, UUID ↔ BINARY(16), ADR-014), P1-03 (7 tables du socle, migrations sous `GET_LOCK`, test d'invariants, ADR-015).
