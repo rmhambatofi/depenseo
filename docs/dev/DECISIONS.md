@@ -212,3 +212,15 @@ Contexte : F-DEP-03/10, NF-OFF-01, NF-FMT-01/02 et le modèle « Expense » du �
 - **Suppression / annulation (F-DEP-10)** : `DELETE` logique (204, idempotent), `POST /expenses/{id}/restore` (200, sans effet sur une dépense active ; 404 si inconnue). Pas de limite de 5 s côté serveur : la fenêtre d'annulation est une affaire d'interface, la restauration reste possible jusqu'à la purge (P2-04).
 - Les écritures verrouillent la ligne `notebook` (`lockNotebook`, extrait de P2-01) : catégorie supprimée en parallèle, étiquettes créées en parallèle, futures alertes de limite (P3-03) sérialisées.
 - La liste des dépenses (`GET /expenses`) est livrée avec la recherche et la pagination (P2-03).
+
+## ADR-025 — Liste et recherche des dépenses : filtres stricts, tri par date, curseur par clé (2026-11-04)
+
+Contexte : F-DEP-09 et §8.1 (recherche insensible à la casse et aux accents) ne fixent ni l'ordre de la liste, ni la pagination, ni la forme des filtres.
+
+- **Route** : `GET /notebooks/{id}/expenses` → `{ items, nextCursor }` ; dépenses **actives** seulement (les supprimées passent par la synchronisation, P2-04).
+- **Tri** : `spent_on` décroissant puis `id` décroissant (UUID v7 : ordre de création à date égale) ; servi par l'index `(notebook_id, spent_on, id)`.
+- **Pagination par clé** : curseur opaque = base64url de `AAAA-MM-JJ~uuid` de la dernière ligne ; condition `spent_on < d OR (spent_on = d AND id < i)`. Lecture de `limit + 1` lignes : `nextCursor` est `null` dès qu'il n'y a plus rien (jamais de page vide). Taille 1–100, défaut 50. Le curseur ne porte pas les filtres : au client de les renvoyer à l'identique.
+- **Texte `q`** (≤ 100 caractères, espaces retirés, NFC, vide = pas de filtre) : `LIKE '%…%'` sur `note` **ou** `merchant`, jokers `%`/`_` échappés (caractère d'échappement `!`, pas `\` qui dépend de `NO_BACKSLASH_ESCAPES`). L'insensibilité casse/accents vient de la collation utf8mb4_unicode_520_ci des colonnes, pas d'un traitement applicatif. Les étiquettes ne sont pas cherchées (filtre par étiquette hors F-DEP-09, à ajouter si besoin). Pas d'index plein texte : parcours du carnet, acceptable aux volumes d'un carnet personnel (NF-PERF-02 à surveiller).
+- **Montant** `minAmount`/`maxAmount` : entiers en unités mineures, bornes incluses, sans tenir compte de la devise (mono-devise au MVP, ADR-024). **Période** `from`/`to` : dates calendaires incluses. min > max ou from > to → 400.
+- **Catégories** `categoryId` (répétable, ≤ 50) : correspondance **exacte**, une catégorie parente n'inclut pas ses sous-catégories (au client d'envoyer la liste ; option la plus simple). Catégorie inconnue ou d'un autre carnet : aucun résultat, pas d'erreur.
+- **Validation** : `parseQuery(schema, query)` (`src/http/parse-query.ts`), objet strict : paramètre inconnu, paramètre simple répété, nombre non entier (chiffres seuls), date impossible, curseur illisible → 400 « Paramètres invalides : … » sans valeur reçue.

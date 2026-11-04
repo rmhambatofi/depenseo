@@ -11,6 +11,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -31,6 +32,7 @@ import {
 import { CurrentUser, type Principal } from '../auth/access-token.guard.js';
 import { EXPENSE_SOURCES } from '../db/schema/index.js';
 import { parseBody } from '../http/parse-body.js';
+import { parseQuery } from '../http/parse-query.js';
 import {
   CurrentNotebook,
   type NotebookAccess,
@@ -45,7 +47,14 @@ import {
   TAG_MAX_LENGTH,
   updateExpenseSchema,
 } from './expense-input.js';
-import { ExpensesService, type ExpenseView } from './expenses.service.js';
+import {
+  DEFAULT_PAGE_SIZE,
+  expenseSearchSchema,
+  MAX_CATEGORY_FILTERS,
+  MAX_PAGE_SIZE,
+  SEARCH_MAX_LENGTH,
+} from './expense-query.js';
+import { type ExpensePage, ExpensesService, type ExpenseView } from './expenses.service.js';
 
 const AMOUNT = {
   type: 'integer',
@@ -146,6 +155,58 @@ export class UpdateExpenseDto {
   readonly tags?: string[];
 }
 
+export class ExpensePageDto implements ExpensePage {
+  @ApiProperty({ type: [ExpenseDto] })
+  readonly items!: ExpenseDto[];
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Curseur opaque de la page suivante ; `null` en fin de liste',
+  })
+  readonly nextCursor!: string | null;
+}
+
+/** Paramètres de la liste (documentation OpenAPI ; validés par `expenseSearchSchema`). */
+export class ExpenseSearchQueryDto {
+  @ApiPropertyOptional({
+    maxLength: SEARCH_MAX_LENGTH,
+    description: 'Texte cherché dans la note et le marchand (insensible à la casse et aux accents)',
+  })
+  readonly q?: string;
+
+  @ApiPropertyOptional({ ...AMOUNT, minimum: 0, description: 'Montant minimal inclus (centimes)' })
+  readonly minAmount?: number;
+
+  @ApiPropertyOptional({ ...AMOUNT, minimum: 0, description: 'Montant maximal inclus (centimes)' })
+  readonly maxAmount?: number;
+
+  @ApiPropertyOptional({
+    type: [String],
+    format: 'uuid',
+    maxItems: MAX_CATEGORY_FILTERS,
+    description: 'Catégorie(s) exacte(s), paramètre répétable (sous-catégories non incluses)',
+  })
+  readonly categoryId?: string[];
+
+  @ApiPropertyOptional({ ...DATE, description: 'Date de début incluse' })
+  readonly from?: string;
+
+  @ApiPropertyOptional({ ...DATE, description: 'Date de fin incluse' })
+  readonly to?: string;
+
+  @ApiPropertyOptional({
+    type: 'integer',
+    minimum: 1,
+    maximum: MAX_PAGE_SIZE,
+    default: DEFAULT_PAGE_SIZE,
+  })
+  readonly limit?: number;
+
+  @ApiPropertyOptional({ description: '`nextCursor` de la page précédente' })
+  readonly cursor?: string;
+}
+
 const UNAUTHORIZED = 'Jeton d’accès absent, invalide ou expiré';
 const NOT_FOUND = 'Carnet ou dépense introuvable';
 
@@ -175,6 +236,22 @@ export class ExpensesController {
       principal.userId,
       parseBody(createExpenseSchema, body),
     );
+  }
+
+  @Get()
+  @Header('Cache-Control', 'no-store')
+  @ApiOkResponse({
+    type: ExpensePageDto,
+    description: 'Dépenses actives filtrées, par date puis identifiant décroissants',
+  })
+  @ApiBadRequestResponse({ description: 'Paramètre inconnu ou invalide' })
+  @ApiUnauthorizedResponse({ description: UNAUTHORIZED })
+  @ApiNotFoundResponse({ description: 'Carnet introuvable' })
+  list(
+    @CurrentNotebook() access: NotebookAccess,
+    @Query() query: ExpenseSearchQueryDto,
+  ): Promise<ExpensePageDto> {
+    return this.expenses.search(access.notebookId, parseQuery(expenseSearchSchema, query));
   }
 
   @Get(':expenseId')

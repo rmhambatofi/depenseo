@@ -758,6 +758,138 @@
         "tags": [
           "expenses"
         ]
+      },
+      "get": {
+        "operationId": "ExpensesController_list",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Texte cherché dans la note et le marchand (insensible à la casse et aux accents)",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "minAmount",
+            "required": false,
+            "in": "query",
+            "description": "Montant minimal inclus (centimes)",
+            "schema": {
+              "minimum": 0,
+              "maximum": 99999999999,
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "name": "maxAmount",
+            "required": false,
+            "in": "query",
+            "description": "Montant maximal inclus (centimes)",
+            "schema": {
+              "minimum": 0,
+              "maximum": 99999999999,
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "description": "Catégorie(s) exacte(s), paramètre répétable (sous-catégories non incluses)",
+            "schema": {
+              "maxItems": 50,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "Date de début incluse",
+            "schema": {
+              "format": "date",
+              "example": "2026-03-29",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "Date de fin incluse",
+            "schema": {
+              "format": "date",
+              "example": "2026-03-29",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "`nextCursor` de la page précédente",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dépenses actives filtrées, par date puis identifiant décroissants",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpensePageDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Paramètre inconnu ou invalide"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet introuvable"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "expenses"
+        ]
       }
     },
     "/api/v1/notebooks/{notebookId}/expenses/{expenseId}": {
@@ -1619,6 +1751,26 @@
           "source",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "ExpensePageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpenseDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true,
+            "description": "Curseur opaque de la page suivante ; `null` en fin de liste"
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
         ]
       },
       "UpdateExpenseDto": {

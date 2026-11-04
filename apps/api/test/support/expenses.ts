@@ -54,6 +54,17 @@ export function expenseClient(app: () => INestApplication, db: Database, clock: 
       request(http(app()))
         .delete(`${base(t)}/${id}`)
         .set(auth(t)),
+    /** Liste filtrée (`GET …/expenses?…`, P2-03) ; un tableau devient un paramètre répété. */
+    list: (t: Tenant, query: Record<string, string | number | string[]> = {}) => {
+      const params = new URLSearchParams();
+      for (const [key, value] of Object.entries(query)) {
+        for (const v of Array.isArray(value) ? value : [value]) params.append(key, String(v));
+      }
+      const qs = params.toString();
+      return request(http(app()))
+        .get(qs ? `${base(t)}?${qs}` : base(t))
+        .set(auth(t));
+    },
     restore: (t: Tenant, id: string) =>
       request(http(app()))
         .post(`${base(t)}/${id}/restore`)

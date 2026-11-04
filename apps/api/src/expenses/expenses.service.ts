@@ -3,7 +3,7 @@
 // identifiant. Les écritures verrouillent la ligne `notebook` (catégorie supprimée en parallèle,
 // étiquettes créées en parallèle, futures alertes de limite).
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, inArray, isNull, lt, lte, or, type SQL, sql } from 'drizzle-orm';
 import type { Tx } from '../auth/session.service.js';
 import { CLOCK, type Clock } from '../clock.js';
 import type { Database } from '../db/connection.js';
@@ -14,6 +14,7 @@ import { isUuid, newId } from '../db/uuid.js';
 import { ProblemException } from '../errors/problem.exception.js';
 import { lockNotebook } from '../notebooks/notebook-lock.js';
 import type { CreateExpense, UpdateExpense } from './expense-input.js';
+import { encodeCursor, type ExpenseSearch } from './expense-query.js';
 
 export interface ExpenseView {
   id: string;
@@ -28,6 +29,12 @@ export interface ExpenseView {
   source: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ExpensePage {
+  items: ExpenseView[];
+  /** Curseur de la page suivante, `null` en fin de liste. */
+  nextCursor: string | null;
 }
 
 export const EXPENSE_NOT_FOUND = 'Dépense introuvable';
@@ -59,6 +66,52 @@ export class ExpensesService {
     const found = await this.find(this.db, notebookId, id);
     if (!found) throw new ProblemException(404, EXPENSE_NOT_FOUND);
     return found;
+  }
+
+  /**
+   * Liste filtrée des dépenses actives (F-DEP-09, ADR-025), par date puis id décroissants,
+   * paginée par curseur (pagination par clé : stable si des dépenses sont ajoutées entre deux
+   * pages). Le texte est comparé sous la collation des colonnes (utf8mb4_unicode_520_ci) :
+   * insensible à la casse et aux accents.
+   */
+  async search(notebookId: string, query: ExpenseSearch): Promise<ExpensePage> {
+    const conditions: (SQL | undefined)[] = [
+      eq(expense.notebookId, notebookId),
+      isNull(expense.deletedAt),
+    ];
+    if (query.q !== undefined) {
+      const pattern = `%${query.q.replace(/[!%_]/g, '!$&')}%`;
+      conditions.push(
+        sql`(${expense.note} like ${pattern} escape '!' or ${expense.merchant} like ${pattern} escape '!')`,
+      );
+    }
+    if (query.minAmount !== undefined) conditions.push(gte(expense.amount, query.minAmount));
+    if (query.maxAmount !== undefined) conditions.push(lte(expense.amount, query.maxAmount));
+    if (query.categoryId) conditions.push(inArray(expense.categoryId, query.categoryId));
+    if (query.from !== undefined) conditions.push(gte(expense.spentOn, query.from));
+    if (query.to !== undefined) conditions.push(lte(expense.spentOn, query.to));
+    if (query.cursor) {
+      const { date, id } = query.cursor;
+      conditions.push(
+        or(lt(expense.spentOn, date), and(eq(expense.spentOn, date), lt(expense.id, id))),
+      );
+    }
+    const rows = await this.db
+      .select(columns)
+      .from(expense)
+      .where(and(...conditions))
+      .orderBy(desc(expense.spentOn), desc(expense.id))
+      .limit(query.limit + 1);
+    const items = rows.slice(0, query.limit);
+    const tags = await this.tagsOf(
+      this.db,
+      items.map((r) => r.id),
+    );
+    const last = items.at(-1);
+    return {
+      items: items.map((row) => ({ ...row, tags: tags.get(row.id) ?? [] })),
+      nextCursor: rows.length > query.limit && last ? encodeCursor(last) : null,
+    };
   }
 
   /**
@@ -177,13 +230,24 @@ export class ExpensesService {
         and(eq(expense.id, id), eq(expense.notebookId, notebookId), isNull(expense.deletedAt)),
       );
     if (!row) return undefined;
-    const tags = await tx
-      .select({ name: tag.name })
+    const tags = await this.tagsOf(tx, [id]);
+    return { ...row, tags: tags.get(id) ?? [] };
+  }
+
+  /** Noms d'étiquettes par dépense, triés selon la collation. */
+  private async tagsOf(tx: Tx | Database, expenseIds: string[]): Promise<Map<string, string[]>> {
+    const byExpense = new Map<string, string[]>();
+    if (expenseIds.length === 0) return byExpense;
+    const rows = await tx
+      .select({ expenseId: expenseTag.expenseId, name: tag.name })
       .from(expenseTag)
       .innerJoin(tag, eq(tag.id, expenseTag.tagId))
-      .where(eq(expenseTag.expenseId, id))
+      .where(inArray(expenseTag.expenseId, expenseIds))
       .orderBy(asc(tag.name), asc(tag.id));
-    return { ...row, tags: tags.map((t) => t.name) };
+    for (const { expenseId, name } of rows) {
+      byExpense.set(expenseId, [...(byExpense.get(expenseId) ?? []), name]);
+    }
+    return byExpense;
   }
 
   /** Catégorie non supprimée du carnet ; masquée acceptée (ADR-023). */

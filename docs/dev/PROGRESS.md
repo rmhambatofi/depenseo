@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P2-03 (recherche et filtres des dépenses + `GET /notebooks/{id}/expenses` paginé par curseur : la liste n'existe pas encore, ADR-024).
+- Prochaine tâche : P2-04 (synchronisation différentielle `GET /sync` + purge des suppressions > 30 jours).
 - Dernier commit : 7ce1360 feat(api): expenses with idempotent create, tags, soft delete and restore (F-DEP-03, F-DEP-10)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 261 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/expenses`, `test/access`, `test/categories` stables sur 3 relances
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 282 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/expenses`, `test/access` stables sur 3 relances
 
 ## Pièges connus (à lire avant de coder)
 
@@ -83,6 +83,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Régénérer une migration **non committée** : `rm drizzle/NNNN_*.sql drizzle/meta/NNNN_snapshot.json && git checkout drizzle/meta/_journal.json`, puis `db:generate`, renommer le `.sql` et le `tag`, `npx drizzle-kit check` (fait 3 fois en P2-02).
 - Une remarque du relecteur « non testé » peut être fausse : la vérifier par mutation avant d'ajouter un test (P2-02 : PATCH catégorie déjà couvert).
 
+- Liste/recherche (P2-03, ADR-025) : `GET /notebooks/{id}/expenses` → `{items, nextCursor}`, `ExpensesService.search`, schéma `src/expenses/expense-query.ts` (curseur base64url `date~id`), `parseQuery(schema, req.query)` (`src/http/parse-query.ts`, objet strict, copie de l'objet sans prototype d'Express 5) **à réutiliser pour tout paramètre de requête**. LIKE échappé avec `!` (pas `\`). Étiquettes par lot : `tagsOf(tx, ids)`. Test client : `list(t, query)` (tableau = paramètre répété ; ne pas passer par `.query()` de supertest qui produit `a[0]=`).
+- Test de pagination : une ligne insérée **à la même date** avec un id v7 plus grand se classe *avant* le curseur (tri id décroissant) : ne pas l'attendre dans la page suivante (erreur faite en P2-03).
+- Reliquats mineurs P2-03 : paramètre inconnu → `detail` « (requête) » sans le nommer ; `q` borné à 100 avant NFC ; filtre catégorie exact (parents n'incluent pas les enfants) ; pas d'index plein texte.
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -93,6 +97,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-04 session 14 — P2-03 fait : `GET /notebooks/{id}/expenses` (texte note/marchand sous collation, montant min/max, catégories répétables, période, curseur par clé (date, id) décroissant, 1–100 / 50), `parseQuery` strict ; ADR-025. Une relecture (0 bloquant, 1 important corrigé : échappement `!` non testé ; test d'insertion entre deux pages ajouté). Contre-épreuves faites (échappement, départage par id).
 
 - 2026-11-04 session 13 — P2-02 fait : tables `expense`, `tag`, `expense_tag` (migration 0005), `POST/GET/PATCH/DELETE /notebooks/{id}/expenses[/{expenseId}]` + `POST …/restore`, création idempotente (rejeu → ligne existante ; supprimée → 409 « restaurer »), catégorie masquée acceptée, étiquettes par nom à la collation près, harnais étendu ; ADR-024. Deux relectures (1 bloquant corrigé : FK catégorie en cascade → RESTRICT + `purgeNotebook` ; fichier de test > 400 lignes découpé). Contre-épreuves faites (filtres `notebook_id`, catégorie supprimée, PATCH catégorie). Passation après 1 tâche (~15 fichiers lus).
 
@@ -110,6 +116,4 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - 2026-11-04 session 6 — P1-05 fait : inscription (argon2id, 202 sans énumération, remplacement du mot de passe d'un compte non vérifié contre la pré-inscription), lien de vérification 24 h tiré par le gestionnaire `mail.verify_email` (≤ 3/h), `verify-email` usage unique sous concurrence, `Mailer` (SMTP nodemailer 15 s + faux mémoire), `authenticate` 401/403 ; ADR-017. Deux relectures (1 bloquant corrigé : pré-détournement). Contre-épreuves faites. Passation après 1 tâche (~20 fichiers lus).
 
-- 2026-11-04 session 5 — P1-04 fait : file `job` (enqueue transactionnel, unicité, garde PII), `runJobs` (réclamation SKIP LOCKED en deux requêtes, bail 5 min, garde de clôture, délai gestionnaire, 1-2-4-8 min puis `failed`), planification sous `GET_LOCK` + purge par lots, `scripts/jobs-run.ts`, migration `0001_job_claim_indexes` ; ADR-016. Deux relectures (1 bloquant corrigé : verrouillage de toutes les lignes dues). Contre-épreuves faites (skipLocked, garde attempts). Passation après 1 tâche (~15 fichiers lus).
-
-- 2026-11-04 — Amorçage et socle, sessions 1-4 (résumé) : kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013), P1-02 (pool réglé par connexion, `withTransaction`, UUID ↔ BINARY(16), ADR-014), P1-03 (7 tables du socle, migrations sous `GET_LOCK`, test d'invariants, ADR-015).
+- 2026-11-04 — Amorçage et socle, sessions 1-5 (résumé) : P1-04 (file `job`, `runJobs` SKIP LOCKED, ADR-016) ; kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013), P1-02 (pool réglé par connexion, `withTransaction`, UUID ↔ BINARY(16), ADR-014), P1-03 (7 tables du socle, migrations sous `GET_LOCK`, test d'invariants, ADR-015).
