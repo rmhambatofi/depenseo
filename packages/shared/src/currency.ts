@@ -31,6 +31,11 @@ const MINOR_UNITS: Readonly<Record<string, number>> = Object.freeze({
   JPY: 0,
 });
 
+/** Codes pris en charge, dans l'ordre de la table (EUR en tête). */
+export const SUPPORTED_CURRENCIES: readonly CurrencyCode[] = Object.freeze(
+  Object.keys(MINOR_UNITS) as CurrencyCode[],
+);
+
 export function isCurrencyCode(value: string): value is CurrencyCode {
   return Object.hasOwn(MINOR_UNITS, value);
 }

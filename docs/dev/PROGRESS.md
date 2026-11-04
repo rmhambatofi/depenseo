@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P1-10 (`GET/PATCH /me` : langue, fuseau IANA, devise, consentements). Ajouter les nouvelles routes au harnais `test/access/cross-tenant.spec.ts` (`ACCOUNT_ROUTES`), qui vérifie déjà que la ligne `user` de A reste inchangée.
+- Prochaine tâche : P2-01 (catégories : plan par défaut créé à l'inscription, CRUD, masquage). Routes de carnet → `NotebookAccessGuard` + harnais (`BODIES`, `RESOURCE_PARAMS` pour `{categoryId}`, contrôle « inchangé » sur `category`).
 - Dernier commit : e8b0388 feat(api): personal notebook at signup, NotebookAccessGuard and cross-tenant harness (NF-SEC-03)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 134 shared, 196 api), `pnpm test:tz` vert ; `test/access`, `test/notebooks`, `test/auth` stables sur 3 relances
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, ~228 api), `pnpm test:tz` vert ; `test/access`, `test/notebooks`, `test/auth` stables sur 3 relances
 
 ## Pièges connus (à lire avant de coder)
 
@@ -34,7 +34,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - `DrizzleQueryError` met requête **et paramètres** dans son message (multiligne) : ne jamais journaliser `error.message` ; `describeError` le retire et remonte `code`/`errno` de la `cause`.
 - Sous-agent `tester` : vérifie déjà la stabilité des tests de verrous en les relançant 3 fois ; garder les tests d'interblocage avec barrière explicite (pas de `sleep`).
 - Vérifier qu'un test mord par contre-épreuve (mutation rapide du code puis restauration) : la relecture de P1-01 a trouvé un test de journal qui passait sans que la redaction serve.
-- **Avant le premier import de `@depenseo/shared` dans l'API** (toujours pas fait après P1-04) : `@depenseo/shared` exporte du `.ts` (`main: ./src/index.ts`) ; le `dist` de l'API (tsc → `node dist/src/main.js`) cassera dès son premier import. Compiler `shared` (build + `exports` vers `dist`) ou équivalent.
+- `@depenseo/shared` compilé (P1-10, ADR-022) : `exports` types→`src`, default→`dist` ; le `build` de l'API compile `shared` d'abord ; Vitest de l'API aliase les sources. Node (`start`, `jobs:run`, scripts) lit `dist` : recompiler après toute modification de `shared`. Futurs Vite (admin/web) : même alias. Déploiement : embarquer `packages/shared/dist`.
 - Les remplacements par script échouent silencieusement après un passage de Prettier (tableaux reformatés) : toujours `grep` le résultat.
 - Migrations (P1-03, ADR-015) : schéma `src/db/schema/*.ts` → `pnpm --filter api db:generate` (drizzle-kit) → `apps/api/drizzle/NNNN_*.sql` committé ; appliquer par `runMigrations(url)` / `MIGRATOR_DATABASE_URL=… pnpm --filter api migrate`. Ne jamais modifier une migration appliquée. Pas de colonne JSON (utf8mb4_bin sous MariaDB) ni `binary()` Drizzle (décode en UTF-8 : utiliser `sha256Binary`/`uuidBinary`). Horodatages fournis par l'app.
 - `vitest` a un `globalSetup` qui **vide** `depenseo_test`, la passe en latin1 puis la remigre : un test ne doit rien attendre d'un lancement précédent. Le test d'invariants (`test/support/schema-invariants.ts`) parcourt toutes les tables sauf `__drizzle_migrations`/`zz_test_*` ; règles par nom (`*_id`, `*amount*`, `*currency`, `*rate`) — un identifiant externe ne doit pas finir en `_id`.
@@ -67,6 +67,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Carnets (P1-09, ADR-021) : `createPersonalNotebook(tx, {userId, language, now})` appelé dans `register` et `resolve` ; `createUser` (tests) renvoie aussi `notebookId`. Toute route de carnet : chemin `/notebooks/:notebookId/…` + `@UseGuards(NotebookAccessGuard)` + `@CurrentNotebook()` (→ `{notebookId, role}`), et **filtrer les ressources filles par `notebook_id`** dans la requête. Harnais `test/access/cross-tenant.spec.ts` : toute nouvelle route doit y être classée ; nouveau paramètre de chemin (`{expenseId}`) → fournir `RESOURCE_PARAMS`/`BODIES` et étendre le contrôle « inchangé » aux tables concernées. Liste publique partagée : `test/support/public-routes.ts`. `test/support/access.ts` : `createTenant(app, db, now)` (compte + carnet + jeton), `callAs`, `problemWithoutInstance` (le champ `instance` reprend l'URL).
 - Reliquats mineurs P1-09 : pas de test prouvant « même transaction » (création du carnet qui échoue → pas de `user`) ; `GET /notebooks/:id` relit la base après la garde (pourrait exposer `name/kind` via la garde) ; routes `@ApiExclude*` hors harnais (à traiter avec les routes admin).
 
+- Profil (P1-10, ADR-022) : `PATCH /me` = `profilePatchSchema` strict (`src/me/profile.ts`). Fuseau : **toujours** `normalizeTimeZone` de `@depenseo/shared` (Temporal, casse corrigée, alias conservés) ; ne jamais utiliser `Intl.DateTimeFormat().resolvedOptions().timeZone` pour normaliser (`America/Montreal` → `America/Toronto`). Lire `user.time_zone` pour tout calcul de période (P3-02). Devises : `SUPPORTED_CURRENCIES`/`isCurrencyCode`.
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -77,6 +79,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-04 session 11 — P1-10 fait : `GET/PATCH /me` (langue, fuseau IANA via Temporal, devise de la table shared, consentements en lecture seule, objet strict), `@depenseo/shared` compilé vers `dist` (premier import dans l'API), `PATCH /me` ajouté au harnais d'isolement ; ADR-022. Deux relectures (0 bloquant ; 2 importants et 4 mineurs corrigés : casse des alias → Temporal au lieu d’Intl, Etc/GMT±N refusés, `utc`, cas null). Reliquats mineurs : `Etc/GMT0` accepté (≡ UTC), `start`/`jobs:run` ne recompilent pas shared. Contre-épreuves faites (forme du fuseau, objet strict).
 
 - 2026-11-04 session 10 — P1-09 fait : carnet personnel (« Mon carnet »/« My notebook ») créé dans la transaction de création du compte (inscription e-mail et Apple/Google), `GET /notebooks`, `GET /notebooks/{notebookId}`, `NotebookAccessGuard` (adhésion active, carnet non supprimé, sinon même 404), harnais d'isolement sur toutes les routes protégées de l'OpenAPI ; ADR-021. Une relecture (0 bloquant, 2 importants corrigés : liste publique exacte partagée, attaque de ressource fille via le carnet de B). Contre-épreuves faites (garde sans filtre utilisateur, création sociale sans carnet). Passation après 1 tâche (~15 fichiers lus).
 

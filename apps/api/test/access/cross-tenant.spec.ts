@@ -24,10 +24,12 @@ import { notebooksOf } from '../support/notebooks.js';
 import { PUBLIC_ROUTES } from '../support/public-routes.js';
 
 /** Routes du compte connecté, sans identifiant de ressource dans le chemin. */
-const ACCOUNT_ROUTES = ['GET /api/v1/me', 'GET /api/v1/notebooks'];
+const ACCOUNT_ROUTES = ['GET /api/v1/me', 'PATCH /api/v1/me', 'GET /api/v1/notebooks'];
 
-/** Corps valides par route d'écriture de carnet (sinon `{}`), pour que A ne soit pas refusé. */
-const BODIES: Record<string, (owner: Tenant) => object> = {};
+/** Corps valides par route d'écriture (sinon `{}`), pour que l'appelant ne soit pas refusé. */
+const BODIES: Record<string, (owner: Tenant) => object> = {
+  'PATCH /api/v1/me': () => ({ language: 'en', timeZone: 'America/Montreal', currency: 'CHF' }),
+};
 
 /** Identifiants de ressources de A autres que le carnet, par nom de paramètre de chemin. */
 const RESOURCE_PARAMS: Record<string, (owner: Tenant) => Promise<string>> = {};
@@ -114,7 +116,7 @@ describe('isolement entre comptes (NF-SEC-03)', () => {
     for (const key of ACCOUNT_ROUTES) {
       const route = protectedRoutes.find((r) => routeKey(r) === key)!;
       const before = await notebooksOf(db, alice.id);
-      const res = await callAs(app, bob, route, {});
+      const res = await callAs(app, bob, route, {}, BODIES[key]?.(bob) ?? {});
       expect(await notebooksOf(db, alice.id), key).toEqual(before);
       expect(await accountRow(alice.id), key).toEqual(aliceAccount);
       expect(res.status, key).toBe(200);

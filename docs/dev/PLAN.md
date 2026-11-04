@@ -25,7 +25,7 @@ Couverture des exigences « M » : `docs/dev/TRACEABILITY.md` (à tenir à jour 
 - [x] P1-07 Réinitialisation du mot de passe par lien à usage unique valable 30 min ; révocation des refresh existants après reset ; réponse identique que l'e-mail existe ou non. Tests e2e : lien expiré à 30 min + 1 s, second usage refusé. (F-AUTH-03)
 - [x] P1-08 Connexion Apple et Google : vérification des `id_token` (signature JWKS, `iss`, `aud`, `exp`, `nonce`) derrière une interface `IdTokenVerifier`, création de compte ou rattachement à un compte existant par e-mail vérifié. Tests avec clés et jetons factices signés (jose). (F-AUTH-02)
 - [x] P1-09 Carnets + garde d'accès : carnet personnel créé à l'inscription (même transaction), `GET /notebooks` ; garde générique `NotebookAccessGuard` ; harnais de test « utilisateur B ne voit ni ne modifie les données de A » réutilisable, appliqué à chaque route existante. (NF-SEC-03, §8.3)
-- [ ] P1-10 `GET/PATCH /me` : langue (fr/en), fuseau IANA validé, devise (EUR par défaut), dates de consentement. Tests : fuseau invalide → 400 ; harnais d'accès. (NF-FMT-04, §8.3)
+- [x] P1-10 `GET/PATCH /me` : langue (fr/en), fuseau IANA validé, devise (EUR par défaut), dates de consentement. Tests : fuseau invalide → 400 ; harnais d'accès. (NF-FMT-04, §8.3)
 
 ## Phase 2 — API : dépenses et catégories
 

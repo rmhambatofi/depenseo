@@ -310,6 +310,46 @@
         "tags": [
           "me"
         ]
+      },
+      "patch": {
+        "operationId": "MeController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profil après modification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Corps vide, champ inconnu, langue, fuseau ou devise non pris en charge"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
       }
     },
     "/api/v1/notebooks": {
@@ -604,12 +644,113 @@
           "email": {
             "type": "string",
             "format": "email"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "fr",
+              "en"
+            ]
+          },
+          "timeZone": {
+            "type": "string",
+            "description": "Fuseau IANA, ex. Europe/Paris",
+            "example": "Europe/Paris"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR",
+              "CHF",
+              "GBP",
+              "USD",
+              "CAD",
+              "SEK",
+              "NOK",
+              "DKK",
+              "PLN",
+              "CZK",
+              "HUF",
+              "RON",
+              "ISK",
+              "MAD",
+              "TND",
+              "MGA",
+              "MUR",
+              "XOF",
+              "XAF",
+              "XPF",
+              "JPY"
+            ],
+            "description": "Code ISO 4217"
+          },
+          "termsAcceptedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Acceptation des CGU (UTC)"
+          },
+          "privacyAcceptedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Acceptation de la politique de confidentialité (UTC)"
           }
         },
         "required": [
           "id",
-          "email"
+          "email",
+          "language",
+          "timeZone",
+          "currency",
+          "termsAcceptedAt",
+          "privacyAcceptedAt"
         ]
+      },
+      "UpdateMeDto": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "enum": [
+              "fr",
+              "en"
+            ]
+          },
+          "timeZone": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Fuseau IANA (`Zone/Lieu` ou `UTC`) ; décalages fixes et abréviations refusés",
+            "example": "America/Montreal"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR",
+              "CHF",
+              "GBP",
+              "USD",
+              "CAD",
+              "SEK",
+              "NOK",
+              "DKK",
+              "PLN",
+              "CZK",
+              "HUF",
+              "RON",
+              "ISK",
+              "MAD",
+              "TND",
+              "MGA",
+              "MUR",
+              "XOF",
+              "XAF",
+              "XPF",
+              "JPY"
+            ],
+            "description": "Code ISO 4217"
+          }
+        }
       },
       "NotebookDto": {
         "type": "object",

@@ -52,7 +52,7 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | NF-FMT-01 Montants en centimes entiers, devise ISO 4217 | P0-04, P1-03, P2-02 | `shared/src/amount.test.ts`, `api/test/db/schema-invariants.spec.ts` (aucun FLOAT/DOUBLE) |
 | NF-FMT-02 Dates calendaires sans fuseau | P0-05, P1-02, P2-02, P6-14 | `api/test/db/session.tz.spec.ts`, `api/test/expenses/expenses-crud.spec.ts` |
 | NF-FMT-03 Horodatages UTC, affichés en local | P1-02, P1-03, P6-14 | `api/test/db/session.tz.spec.ts`, `mobile/test/dates/timestamps_test.dart` |
-| NF-FMT-04 Aujourd'hui, semaines, périodes dans le fuseau utilisateur | P0-05, P1-10, P3-02 | `shared/src/period.tz.test.ts`, `api/test/limits/period-summary.tz.spec.ts` |
+| NF-FMT-04 Aujourd'hui, semaines, périodes dans le fuseau utilisateur | P0-05, P1-10, P3-02 | `shared/src/period.tz.test.ts`, `api/test/limits/period-summary.tz.spec.ts`, `api/test/me/me.spec.ts` |
 | NF-FMT-05 Tests 4 fuseaux + DST (API, mobile) | P0-05, P1-02, P3-02, P4-03, P6-14 | suites `*.tz.spec.ts` / `*.tz.test.ts` (commande `pnpm --filter api test:tz`), `mobile/test/dates/timezones_test.dart` |
 | NF-FMT-06 Format des nombres selon la langue, saisie tolérante | P0-04, P6-04 | `shared/src/amount.test.ts` (`formatAmount` fr → « 1 234,56 € »), `mobile/test/expenses/amount_input_test.dart` |
 | NF-FMT-07 `DATE` lu en chaîne, connexion en UTC | P1-02 | `api/test/db/session.tz.spec.ts` |

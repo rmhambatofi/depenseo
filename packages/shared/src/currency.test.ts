@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { asCurrencyCode, isCurrencyCode, minorUnitDigits } from './currency.js';
+import {
+  asCurrencyCode,
+  isCurrencyCode,
+  minorUnitDigits,
+  SUPPORTED_CURRENCIES,
+} from './currency.js';
 
 describe('CurrencyCode (ISO 4217)', () => {
   it.each(['EUR', 'USD', 'CHF', 'GBP', 'JPY', 'XOF'])('accepte %s', (code) => {
@@ -24,5 +29,14 @@ describe('CurrencyCode (ISO 4217)', () => {
   it('suit ISO 4217 et non les données ICU du moteur (HUF et MGA : 2 décimales)', () => {
     expect(minorUnitDigits(asCurrencyCode('HUF'))).toBe(2);
     expect(minorUnitDigits(asCurrencyCode('MGA'))).toBe(2);
+  });
+});
+
+describe('SUPPORTED_CURRENCIES', () => {
+  it('liste exactement les codes reconnus, EUR en tête', () => {
+    expect(SUPPORTED_CURRENCIES[0]).toBe('EUR');
+    expect(SUPPORTED_CURRENCIES.every((code) => isCurrencyCode(code))).toBe(true);
+    expect(new Set(SUPPORTED_CURRENCIES).size).toBe(SUPPORTED_CURRENCIES.length);
+    expect(SUPPORTED_CURRENCIES).toContain('XPF');
   });
 });
