@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P3-02 (`PeriodSummary`, `GET /limits/current`, F-LIM-03/05, suite multi-fuseaux).
-- Dernier commit : 1fdebd4 feat(api): global spending limit with dated versions (F-LIM-01, 02, 05, 09)
+- Prochaine tâche : P3-03 (alertes de limite 80 / 100 % / dépassement, F-LIM-04, F-NOT-01).
+- Dernier commit : feat(api): period summary and current limit gauge (F-LIM-03, F-LIM-05)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 328 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/sync`, `test/access`, `test/limits`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 365 api), `pnpm test:tz` vert, `pnpm --filter api build` vert ; `test/sync`, `test/access`, `test/limits`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -96,6 +96,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - MariaDB refuse `NOT NULL` sur une colonne générée : pas de `.notNull()` sur `generatedAlwaysAs`. Pas d'IODKU quand un index unique secondaire doit produire un 409.
 - `perl -pi -e 's|…|…|'` avec des `|` dans le motif : le `|` devient une alternative vide et corrompt **chaque ligne** (TRACEABILITY.md, rattrapé par `git checkout`). Utiliser Python avec `assert old in s`.
 - Reliquats mineurs P3-01 : pas de test du repli `ER_DUP_ENTRY` → 409 (course non sérialisée, couverte par le verrou du carnet) ; la version « de demain » (fuseau vers l'ouest) n'est pas modifiable avant son jour ; `appliesFrom` absent de la sync.
+- Jauge (P3-02, ADR-028) : `GET /notebooks/{id}/limits/current?past=0–24` ; pur : `periodSlices(versions, today, n)` / `summarize(slice, today, dayTotals, devise)` (`src/limits/period-summary.ts`) **à réutiliser en P3-03 (seuils) et P3-05 (tableau de bord)** ; service `PeriodSummaryService` (une agrégation `SUM … GROUP BY spent_on, source, currency`). Versions : `globalLimitVersions(tx, id)` exporté de `limits.service.ts`. Test : `test/support/period-summary.ts` (`summaryClient` : `spend`, `limit` insérés en base, `setTimeZone`, `current`). Suites : HTTP en mai 2026, tz en mars/mai/octobre 2026.
+- OpenAPI : tout entier (montant, jour, pourcentage, paramètre de requête numérique) doit porter `type: 'integer'` (`type: Number` → `number` = flottant côté clients générés). Corrigé pour les limites en P3-02 ; vérifier les DTO des autres modules en P5-06.
 
 ## Actions humaines (non bloquantes)
 
@@ -107,6 +109,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-05 session 17 — P3-02 fait : jauge `GET …/limits/current` (périodes tronquées selon ADR-027, dépensé avec/sans récurrences, restant, rythme en jours, autres devises signalées), suites HTTP + 4 fuseaux + DST ; ADR-028. Une relecture (0 bloquant, 2 importants corrigés : types `integer` OpenAPI). Contre-épreuves faites (fuseau, `notebook_id`, `deleted_at`).
 
 - 2026-11-05 session 16 — P3-01 limite globale (versions datées, historique immuable, sync). Relecture : bug de réécriture de périodes closes lors d'un changement de règles corrigé ; date d'effet antérieure à la dernière → 409. Passation après 1 tâche (~20 fichiers lus).
 

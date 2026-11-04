@@ -43,3 +43,16 @@ export const updateLimitSchema = z
     message: 'Aucun champ à modifier',
   });
 export type UpdateLimit = z.infer<typeof updateLimitSchema>;
+
+/** Nombre maximal de périodes passées par appel (tableau de bord : 12, ADR-028). */
+export const MAX_PAST_PERIODS = 24;
+
+/** `GET …/limits/current?past=N` : chiffres seuls, objet strict. */
+export const currentLimitQuerySchema = z.strictObject({
+  past: z
+    .string()
+    .regex(/^\d{1,2}$/)
+    .transform(Number)
+    .pipe(z.number().int().max(MAX_PAST_PERIODS))
+    .default(0),
+});

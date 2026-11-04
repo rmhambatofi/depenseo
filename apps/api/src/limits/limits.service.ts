@@ -50,10 +50,20 @@ const columns = {
   createdAt: spendingLimit.createdAt,
   updatedAt: spendingLimit.updatedAt,
 };
-type Row = Omit<LimitView, 'appliesFrom'>;
+/** Version telle que stockée (sans `appliesFrom`, qui dépend des versions précédentes). */
+export type LimitRow = Omit<LimitView, 'appliesFrom'>;
 
 /** Limite globale : pas de catégorie (la clé générée vaut alors 16 octets nuls). */
 const isGlobal = isNull(spendingLimit.categoryId);
+
+/** Versions actives de la limite globale d'un carnet, par date d'effet croissante. */
+export function globalLimitVersions(tx: Tx | Database, notebookId: string): Promise<LimitRow[]> {
+  return tx
+    .select(columns)
+    .from(spendingLimit)
+    .where(and(eq(spendingLimit.notebookId, notebookId), isGlobal, isNull(spendingLimit.deletedAt)))
+    .orderBy(asc(spendingLimit.effectiveDate));
+}
 
 @Injectable()
 export class LimitsService {
@@ -149,14 +159,7 @@ export class LimitsService {
    * (qui dépend des versions précédentes, ADR-027).
    */
   private async history(tx: Tx | Database, notebookId: string): Promise<LimitView[]> {
-    const rows = await tx
-      .select(columns)
-      .from(spendingLimit)
-      .where(
-        and(eq(spendingLimit.notebookId, notebookId), isGlobal, isNull(spendingLimit.deletedAt)),
-      )
-      .orderBy(asc(spendingLimit.effectiveDate));
-    return withAppliesFrom(rows);
+    return withAppliesFrom(await globalLimitVersions(tx, notebookId));
   }
 
   private async view(tx: Tx, notebookId: string, id: string): Promise<LimitView> {
@@ -189,7 +192,11 @@ export class LimitsService {
     return row?.effectiveDate;
   }
 
-  private async find(tx: Tx | Database, notebookId: string, id: string): Promise<Row | undefined> {
+  private async find(
+    tx: Tx | Database,
+    notebookId: string,
+    id: string,
+  ): Promise<LimitRow | undefined> {
     if (!isUuid(id)) return undefined;
     const [row] = await tx
       .select(columns)

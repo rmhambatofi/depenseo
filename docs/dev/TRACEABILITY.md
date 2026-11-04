@@ -27,9 +27,9 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | F-REC-04 Rappels J-3 / jour J à l'heure locale | P4-03, P6-09 | `api/test/recurring/reminders.tz.spec.ts` (4 fuseaux + DST) |
 | F-LIM-01 Limite globale facultative mois/semaine | P3-01, P6-08 | `api/test/limits/limits-crud.spec.ts`, `mobile/test/limits/limit_settings_test.dart` |
 | F-LIM-02 Début de période réglable | P0-05, P3-01, P6-08 | `shared/src/period.tz.test.ts`, `api/test/limits/limits-crud.spec.ts` |
-| F-LIM-03 Dépensé, restant, rythme | P3-02, P6-08 | `api/test/limits/period-summary.tz.spec.ts`, `mobile/test/limits/limit_gauge_test.dart` |
+| F-LIM-03 Dépensé, restant, rythme | P3-02, P6-08 | `api/test/limits/period-summary.spec.ts`, `api/test/limits/period-summary-http.spec.ts`, `api/test/limits/period-summary.tz.spec.ts`, `mobile/test/limits/limit_gauge_test.dart` |
 | F-LIM-04 Alertes 80 %, 100 %, dépassement significatif | P3-03 | `api/test/limits/limit-alerts.spec.ts` (idempotence, 110 %/120 %) |
-| F-LIM-05 Inclure ou non les récurrences | P3-01, P3-02, P6-08 | `api/test/limits/period-summary.tz.spec.ts` (cas avec/sans récurrences) |
+| F-LIM-05 Inclure ou non les récurrences | P3-01, P3-02, P6-08 | `api/test/limits/period-summary.spec.ts`, `api/test/limits/period-summary-http.spec.ts` (cas avec/sans récurrences) |
 | F-LIM-09 Changement de limite sans réécrire l'historique | P3-01, P6-08 | `api/test/limits/limit-history.spec.ts`, `api/test/limits/limits-crud.spec.ts` |
 | F-EXP-01 Export Excel et CSV sur période | P4-05, P6-12 | `api/test/exports/expense-export.spec.ts`, `mobile/test/account/expense_export_test.dart` |
 | F-TB-01 Accueil : jauge, échéances, dernières dépenses | P3-05, P6-10 | `api/test/dashboard/dashboard.spec.ts`, `mobile/test/home/home_screen_test.dart` |

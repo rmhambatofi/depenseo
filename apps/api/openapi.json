@@ -1196,6 +1196,61 @@
         ]
       }
     },
+    "/api/v1/notebooks/{notebookId}/limits/current": {
+      "get": {
+        "operationId": "LimitsController_current",
+        "parameters": [
+          {
+            "name": "past",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 0,
+              "maximum": 24,
+              "default": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jauge de la période en cours",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentLimitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Paramètre invalide"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou limite introuvable"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "limits"
+        ]
+      }
+    },
     "/api/v1/notebooks/{notebookId}/limits/{limitId}": {
       "patch": {
         "operationId": "LimitsController_update",
@@ -2091,7 +2146,7 @@
             "format": "uuid"
           },
           "amount": {
-            "type": "number",
+            "type": "integer",
             "nullable": true,
             "description": "Unités mineures de `currency` ; NULL = aucune limite"
           },
@@ -2108,7 +2163,7 @@
             ]
           },
           "startDay": {
-            "type": "number",
+            "type": "integer",
             "minimum": 1,
             "maximum": 31,
             "description": "Mois : 1–31 ; semaine : 1 = lundi … 7"
@@ -2149,6 +2204,128 @@
           "updatedAt"
         ]
       },
+      "PeriodSummaryDto": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date",
+            "description": "Premier jour (inclus)"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "description": "Dernier jour (inclus)"
+          },
+          "periodKind": {
+            "type": "string",
+            "enum": [
+              "month",
+              "week"
+            ]
+          },
+          "startDay": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 31
+          },
+          "limitId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "limit": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Unités mineures ; NULL = aucune"
+          },
+          "currency": {
+            "type": "string",
+            "example": "EUR"
+          },
+          "includeRecurring": {
+            "type": "boolean"
+          },
+          "spent": {
+            "type": "integer",
+            "description": "Unités mineures de `currency`"
+          },
+          "remaining": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Négatif en cas de dépassement"
+          },
+          "consumedPercent": {
+            "type": "integer",
+            "nullable": true,
+            "description": "⌊100 × dépensé / limite⌋"
+          },
+          "elapsedDays": {
+            "type": "integer",
+            "description": "Jours écoulés, aujourd’hui compris"
+          },
+          "totalDays": {
+            "type": "integer"
+          },
+          "elapsedPercent": {
+            "type": "integer",
+            "description": "⌊100 × jours écoulés / jours de la période⌋"
+          },
+          "otherCurrencies": {
+            "description": "Devises non comptées",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "periodKind",
+          "startDay",
+          "limitId",
+          "limit",
+          "currency",
+          "includeRecurring",
+          "spent",
+          "remaining",
+          "consumedPercent",
+          "elapsedDays",
+          "totalDays",
+          "elapsedPercent",
+          "otherCurrencies"
+        ]
+      },
+      "CurrentLimitDto": {
+        "type": "object",
+        "properties": {
+          "timeZone": {
+            "type": "string",
+            "example": "Europe/Paris"
+          },
+          "today": {
+            "type": "string",
+            "format": "date"
+          },
+          "current": {
+            "$ref": "#/components/schemas/PeriodSummaryDto"
+          },
+          "past": {
+            "description": "Plus récente d’abord",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeriodSummaryDto"
+            }
+          }
+        },
+        "required": [
+          "timeZone",
+          "today",
+          "current",
+          "past"
+        ]
+      },
       "CreateLimitDto": {
         "type": "object",
         "properties": {
@@ -2158,7 +2335,7 @@
             "description": "UUID v7 généré par le client (idempotence)"
           },
           "amount": {
-            "type": "number",
+            "type": "integer",
             "nullable": true,
             "minimum": 1,
             "maximum": 99999999999,
@@ -2173,7 +2350,7 @@
             "default": "month"
           },
           "startDay": {
-            "type": "number",
+            "type": "integer",
             "minimum": 1,
             "maximum": 31,
             "default": 1
@@ -2192,7 +2369,7 @@
         "type": "object",
         "properties": {
           "amount": {
-            "type": "number",
+            "type": "integer",
             "nullable": true,
             "minimum": 1,
             "maximum": 99999999999
@@ -2205,7 +2382,7 @@
             ]
           },
           "startDay": {
-            "type": "number",
+            "type": "integer",
             "minimum": 1,
             "maximum": 31
           },
