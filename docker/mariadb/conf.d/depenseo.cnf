@@ -1,0 +1,8 @@
+# Réglages serveur Depenseo (§8.2) : seulement ce qu'o2switch fournit aussi (utf8mb4, mode strict).
+# Volontairement ABSENTS : default-time-zone (reste SYSTEM = Europe/Paris) et transaction-isolation
+# (reste REPEATABLE-READ) : l'API doit les régler à chaque connexion et ses tests (P1-02) le prouvent.
+# Pas de character-set-client-handshake=FALSE : la collation de session doit venir du pilote.
+[mariadb]
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_520_ci
+sql-mode = STRICT_ALL_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ZERO_DATE,NO_ZERO_IN_DATE,NO_ENGINE_SUBSTITUTION

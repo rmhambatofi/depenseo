@@ -1,0 +1,29 @@
+# Base locale et CI : même moteur et même version qu'o2switch (NF-QUA-03, §8.2, ADR-010).
+# Démarrage : `docker compose up -d db && scripts/db-wait.sh`.
+# Mots de passe de développement uniquement : surchargeables par variables d'environnement (.env.example).
+services:
+  db:
+    image: mariadb:10.6.28 # patch épinglé ; version o2switch réelle à relever (PROGRESS.md)
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${DB_PORT:-3307}:3306' # jamais exposé au réseau (§8.2)
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-depenseo_root_dev}
+      DB_API_PASSWORD: ${DB_API_PASSWORD:-depenseo_api_dev}
+      DB_MIGRATOR_PASSWORD: ${DB_MIGRATOR_PASSWORD:-depenseo_migrator_dev}
+      DB_ADMIN_PASSWORD: ${DB_ADMIN_PASSWORD:-depenseo_admin_dev}
+      # Fuseau système non UTC, comme un serveur mutualisé : l'API doit forcer +00:00 (P1-02).
+      TZ: Europe/Paris
+    volumes:
+      - ./docker/mariadb/conf.d:/etc/mysql/conf.d:ro
+      - ./docker/mariadb/initdb.d:/docker-entrypoint-initdb.d:ro
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+volumes:
+  db-data:

@@ -26,7 +26,7 @@ Source de vérité fonctionnelle : `docs/cahier-des-charges.md` (révision 4). N
 
 ```bash
 pnpm install                 # racine
-docker compose up -d db      # MariaDB 10.6 locale (port 3307)
+docker compose up -d db && scripts/db-wait.sh   # MariaDB 10.6 locale (port 3307) — requise par `pnpm test`
 pnpm -r typecheck            # tsc sur tous les paquets
 pnpm -r lint                 # eslint
 pnpm --filter api test       # vitest (unitaires + intégration contre MariaDB)

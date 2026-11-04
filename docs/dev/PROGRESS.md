@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P0-02
-- Dernier commit : 5266b7a chore: bootstrap pnpm monorepo … (P0-01)
+- Prochaine tâche : P0-03
+- Dernier commit : feat(infra): MariaDB 10.6 docker-compose … (P0-02)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm test` verts (2 tests de règle ESLint, shared sans test)
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm test` verts (9 tests scripts/ dont 7 base ; shared sans test)
 
 ## Pièges connus (à lire avant de coder)
 
@@ -21,11 +21,18 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Règle `no-restricted-syntax` (eslint.config.mjs) : rejette `new Date(…)` et `Date.parse(…)` sur AAAA, AAAA-MM ou AAAA-MM-JJ, en littéral ou en gabarit sans expression ; les fixtures `scripts/lint-fixtures/` sont ignorées sauf par le test.
 - Le plan a été renuméroté le 2026-11-04 (session d'amorçage) : se fier aux IDs actuels de PLAN.md et à TRACEABILITY.md.
 
+- `pnpm test` exige la base : `docker compose up -d db && scripts/db-wait.sh` (ADR-010). Volume neuf : `docker compose down -v`.
+- Base locale volontairement « hostile » : fuseau SYSTEM = Europe/Paris, REPEATABLE-READ, pas de forçage du charset client. P1-02 doit forcer `+00:00`, READ COMMITTED et la collation utf8mb4_unicode_520_ci côté mysql2 (ne pas « corriger » le cnf).
+- Comptes : `depenseo_api`/`depenseo_admin` (DML seul, pas de TRUNCATE/DDL), `depenseo_migrator` (tout) sur `depenseo` et `depenseo_test` ; mots de passe dev `<compte>_dev` sauf root `depenseo_root_dev`. Nettoyer les tests avec le compte migrator.
+- Image épinglée `mariadb:10.6.28` ; la version réelle d'o2switch (`SELECT VERSION()`) reste à relever par l'humain.
+
 ## BLOQUÉ
 
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-04 — Session 1 : P0-02 faite (docker-compose MariaDB 10.6.28, db-wait.sh, 3 comptes, ADR-010 ; CI P0-03 réutilisera le compose).
 
 - 2026-11-04 — Session d'amorçage : plan affiné (60 tâches, renumérotées), `TRACEABILITY.md`, ADR-003 à 009 ; P0-01 faite (monorepo pnpm, TS strict, ESLint + règle dates, Prettier).
 

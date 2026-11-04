@@ -56,3 +56,9 @@ Conséquence : tâches P7-05 et P7-06 ajoutées ; matrice `TRACEABILITY.md` sans
 Contexte : F-EXP-01 (M) cite Excel et CSV ; §5 place l'export Excel dans le Premium.
 Décision : les deux formats sont implémentés au MVP ; l'Excel est soumis à `Entitlements` (essai compris).
 Conséquence : F-EXP-01 testée sur les deux formats, avec un test de refus 403 hors Premium.
+
+## ADR-010 — Base locale et CI : docker-compose unique, trois comptes, réglages serveur en filet (2026-11-04)
+
+Contexte : §8.2 et NF-QUA-03 imposent MariaDB 10.6, utf8mb4_unicode_520_ci et trois comptes distincts (API, migrations, back-office) sans fixer noms ni variables.
+Décision : `docker-compose.yml` (image `mariadb:10.6`, port 3307) crée les bases `depenseo` et `depenseo_test` et les comptes `depenseo_api` / `depenseo_admin` (DML seul) et `depenseo_migrator` (tous droits sur ces bases). Le serveur imite un mutualisé : utf8mb4 et `STRICT_ALL_TABLES`, mais fuseau `SYSTEM` = Europe/Paris et `REPEATABLE-READ` laissés exprès, pour que les tests de P1-02 prouvent que l'API force `+00:00` et READ COMMITTED à chaque connexion. Image épinglée au patch (`mariadb:10.6.28`), port lié à 127.0.0.1. La CI (P0-03) démarre ce même compose puis `scripts/db-wait.sh`, plutôt qu'un service GitHub séparé, pour n'avoir qu'une définition. `scripts/db.test.mjs` fait partie de `pnpm test` : la base doit être démarrée.
+Conséquence : mots de passe de développement par défaut (sans apostrophe), surchargeables via `.env` (`.env.example`) ; les tests d'intégration nettoient la base avec le compte de migration.
