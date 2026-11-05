@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P6-05 (hors ligne : file d'envoi des lignes `pending_sync`, synchro différentielle, catégories locales).
-- Dernier commit : feat(mobile): quick expense entry stored locally (P6-04)
+- Dernier commit : 72dfc49 feat(mobile): quick expense entry stored locally (P6-04)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (14 racine, 155 shared, 5 api-client, 19 admin, 807 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build`, `pnpm --filter @depenseo/admin test:e2e` (3 Playwright), `pnpm check:admin-code` verts ; mobile : `flutter analyze` propre, `flutter test` 160 verts (P6-04) ; `flutter build apk --debug` et `flutter build ios --debug --simulator` OK (P6-03, non relancés en P6-04)
 
