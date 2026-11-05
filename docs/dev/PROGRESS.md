@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P4-05 (export CSV/xlsx chiffré, lien expirable).
-- Dernier commit : feat(api): push notifications (F-NOT-01, F-NOT-04, F-NOT-05)
+- Dernier commit : a0754ac feat(api): push notifications (F-NOT-01, F-NOT-04, F-NOT-05)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (153 shared, 591 api), `pnpm test:tz` vert (api : 84 par fuseau), `pnpm --filter api build` vert ; `test/recurring`, `test/sync`, `test/access`, `test/categories`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
@@ -127,7 +127,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
-- 2026-11-05 session 23 — P4-04 fait (code produit par la session 22 interrompue, repris) : appareils `PUT/DELETE /me/devices/:id`, réglages par type + plage de silence `GET/PATCH /me/notification-settings`, gestionnaire `notify` (abandon si sans objet, type désactivé, report en fin de plage, fusion du rappel « jour J » avec l'échéance à confirmer), APNs + FCM, textes fr/en sans montant ; migration 0012 ; ADR-035 (manquant, rédigé). Corrigé : 1 erreur de lint, spec > 400 lignes (aide `insertDevice` extraite). Une relecture (0 bloquant ; 2 importants corrigés : session APNs réutilisée par passage, 404 FCM ≠ jeton invalide ; 2 mineurs corrigés : suppression filtrée sur le jeton, rappel quotidien reporté au lendemain abandonné). Contre-épreuves : 2 mutations tuées.
+- 2026-11-05 session 23 — P4-04 fait (code produit par la session 22 interrompue, repris) : appareils `PUT/DELETE /me/devices/:id`, réglages par type + plage de silence `GET/PATCH /me/notification-settings`, gestionnaire `notify` (abandon si sans objet, type désactivé, report en fin de plage, fusion du rappel « jour J » avec l'échéance à confirmer), APNs + FCM, textes fr/en sans montant ; migration 0012 ; ADR-035 (manquant, rédigé). Corrigé : 1 erreur de lint, spec > 400 lignes (aide `insertDevice` extraite). Une relecture (0 bloquant ; 2 importants corrigés : session APNs réutilisée par passage, 404 FCM ≠ jeton invalide ; 2 mineurs corrigés : suppression filtrée sur le jeton, rappel quotidien reporté au lendemain abandonné). Contre-épreuves : 2 mutations tuées. Passation après 1 tâche (~20 fichiers lus).
 
 - 2026-11-05 session 22 — P4-03 fait : rappels d'échéance J-3/jour J à l'heure de rappel du compte (réglables par récurrence) et rappel quotidien facultatif, planifiés par le cron au moment voulu (rattrapage 1 h, clé d'unicité par jour), DST `compatible` ; migration 0011 ; ADR-034. Une relecture (0 bloquant, 0 important ; 5 mineurs corrigés : index `(status, due_date)`, 2 tests de bornes, description OpenAPI, motif unique). Contre-épreuves : 11 mutations, toutes tuées. Passation après 1 tâche (~16 fichiers lus).
 
