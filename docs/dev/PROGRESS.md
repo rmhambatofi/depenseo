@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P6-12 (compte : export CSV/Excel sur période, export des données personnelles, suppression du compte avec confirmation, mentions légales / CGU / CGV / confidentialité / accessibilité ; tests widget ; F-EXP-01, F-AUTH-07/08, §6). Lire via `explorer` ADR-036 (exports), les routes RGPD (P4-06) et ce que P6-01 a noté sur la licence OpenSSL/SQLCipher.
-- Dernier commit : cf6ca05 feat(mobile): push notifications, device registration and settings (F-NOT-01…05)
+- Dernier commit : 6ad1590 chore(dev): finish P6-11 (fonctionnel : cf6ca05 feat(mobile): push notifications… F-NOT-01…05)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (14 racine, 155 shared, 5 api-client, 19 admin, 807 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build`, `pnpm --filter @depenseo/admin test:e2e` (3 Playwright), `pnpm check:admin-code` verts ; mobile : `flutter analyze` propre, `flutter test` 315 verts (P6-11) ; suites pnpm non relancées en P6-07…P6-11 (aucun code TS modifié ; tests racine et `format:check` verts en P6-11) ; `flutter build apk --debug` et `flutter build ios --debug --simulator` OK (P6-11)
 
