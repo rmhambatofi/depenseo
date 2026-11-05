@@ -5,7 +5,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## État courant
 
-- Tâche en cours : aucune
+- Tâche en cours : P6-12
 - Prochaine tâche : P6-12 (compte : export CSV/Excel sur période, export des données personnelles, suppression du compte avec confirmation, mentions légales / CGU / CGV / confidentialité / accessibilité ; tests widget ; F-EXP-01, F-AUTH-07/08, §6). Lire via `explorer` ADR-036 (exports), les routes RGPD (P4-06) et ce que P6-01 a noté sur la licence OpenSSL/SQLCipher.
 - Dernier commit : 6ad1590 chore(dev): finish P6-11 (fonctionnel : cf6ca05 feat(mobile): push notifications… F-NOT-01…05)
 - Branche : main
