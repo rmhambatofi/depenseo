@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P3-05 (`GET /dashboard`, F-TB-01, 02).
-- Dernier commit : feat(api): unusual expense alert (F-NOT-01)
+- Prochaine tâche : P4-01 (dépenses récurrentes ; inclut le champ `upcoming` du tableau de bord, ADR-031).
+- Dernier commit : feat(api): notebook dashboard (F-TB-01, F-TB-02)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 415+ api), `pnpm test:tz` vert (api : 28 par fuseau), `pnpm --filter api build` vert ; `test/sync`, `test/access`, `test/limits`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 437 api), `pnpm test:tz` vert (api : 32 par fuseau), `pnpm --filter api build` vert ; `test/sync`, `test/access`, `test/limits`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -101,6 +101,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Alertes (P3-03, ADR-029) : `checkLimitAlert(tx, clock, notebookId, userId)` (`src/limits/limit-alerts.ts`) appelé en fin de transaction de create/update/restore de dépense ; tâche `NOTIFY` = `defineJob('notify', z.discriminatedUnion('kind', …))` **à étendre en P3-04** (`kind: 'unusual_expense'`) plutôt qu'un nouveau type. État durable `limit_alert` (seuil max par période ; les jobs sont purgés à 7 j). `dayTotals(tx, …)` partagé (`src/limits/day-totals.ts`). `update`/`restore` du service prennent désormais `userId`. Aucun gestionnaire `notify` avant P4-04 (doit ignorer les alertes de périodes closes).
 - Dépense inhabituelle (P3-04, ADR-030) : `checkUnusualExpense` (`src/expenses/unusual-expense.ts`) appelé à la **création** seulement ; clé `unusual:<dépense>`. `NOTIFY` et les constantes de seuil vivent désormais dans `src/notifications/notify-job.ts` (union `limit` | `unusual_expense`, à étendre en P4). P4-02 : ne **pas** appeler la détection pour les dépenses de récurrence. Suite : septembre 2026 (et mars 2026 pour un test de date antidatée).
+- Tableau de bord (P3-05, ADR-031) : `GET /notebooks/{id}/dashboard` (`src/dashboard/`), calculs purs `cumulativeByDay`/`categoryBreakdown` (`dashboard.ts`), règles de comptage communes `sliceScope` (`period-summary.ts`) **à réutiliser** pour toute somme par période. `ExpensesModule` exporte désormais `ExpensesService`. **F-TB-01 incomplet** : `upcoming` (prochaines échéances) à ajouter en P4-01. Tests : `test/support/dashboard.ts` (`plan`, `spend` dans une catégorie choisie, `dashboard`) ; suites en novembre 2026 et 31 octobre 2026 23:30 UTC (tz).
 - `FakeClock.set(epochMs)` ajouté. Suite des alertes : juillet–octobre 2026 ; jeton d'accès 15 min → pour changer de période, bascule de minuit en < 15 min plutôt que `advance(DAY)`.
 
 ## Actions humaines (non bloquantes)
@@ -113,6 +114,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-05 session 19 (suite) — P3-05 fait : tableau de bord (jauge ou total sans limite, 5 dernières dépenses, répartition par catégorie racine, cumul jour par jour vs période précédente, 12 périodes), suite 4 fuseaux + DST ; ADR-031 ; `upcoming` reporté à P4-01. Une relecture (0 bloquant, 1 important corrigé : test 404 inter-carnets explicite). Contre-épreuves faites (racine, supprimées, fuseau, devise du compte).
 
 - 2026-11-05 session 19 — P3-04 fait : dépense inhabituelle (≥ 3 × médiane de la racine, même devise, J−90…J, ≥ 5 dépenses, ≥ 2 000) à la création, tâche `notify` sans montant ; ADR-030 ; suite tz de la fenêtre. Une relecture (0 bloquant, 0 important ; 4 mineurs corrigés). Contre-épreuves faites (5 mutations : exclusion de soi, devise, supprimées, racine, fenêtre).
 

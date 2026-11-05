@@ -93,7 +93,25 @@ export function periodSlices<V extends SummaryVersion>(
   return slices;
 }
 
-function safe(value: bigint): number {
+/**
+ * Règles de comptage d'une période (ADR-028) : jour dans la période, récurrences selon la version,
+ * devise de la version (ou du compte avant toute limite). Partagé par la jauge et le tableau de bord.
+ */
+export function sliceScope(slice: PeriodSlice, accountCurrency: string) {
+  const currency = slice.version?.currency ?? accountCurrency;
+  const includeRecurring = slice.version?.includeRecurring ?? true;
+  return {
+    currency,
+    includeRecurring,
+    /** Jour et origine retenus (toutes devises). */
+    covers: (t: { spentOn: string; source: ExpenseSource }) =>
+      t.spentOn >= slice.start &&
+      t.spentOn <= slice.end &&
+      (includeRecurring || t.source !== 'recurrence'),
+  };
+}
+
+export function safe(value: bigint): number {
   if (value > BigInt(Number.MAX_SAFE_INTEGER) || value < BigInt(Number.MIN_SAFE_INTEGER)) {
     throw new RangeError('Total hors de la plage des entiers sûrs');
   }
@@ -109,13 +127,11 @@ export function summarize(
 ): PeriodSummary {
   const { version } = slice;
   const limit = version?.amount ?? null;
-  const currency = version?.currency ?? accountCurrency;
-  const includeRecurring = version?.includeRecurring ?? true;
+  const { currency, includeRecurring, covers } = sliceScope(slice, accountCurrency);
   let spent = 0n;
   const others = new Set<string>();
   for (const t of totals) {
-    if (t.spentOn < slice.start || t.spentOn > slice.end) continue;
-    if (!includeRecurring && t.source === 'recurrence') continue;
+    if (!covers(t)) continue;
     if (t.currency === currency) spent += t.total;
     else others.add(t.currency);
   }

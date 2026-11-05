@@ -1317,6 +1317,47 @@
         ]
       }
     },
+    "/api/v1/notebooks/{notebookId}/dashboard": {
+      "get": {
+        "operationId": "DashboardController_get",
+        "parameters": [
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tableau de bord du carnet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet introuvable"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
     "/api/v1/notebooks/{notebookId}/sync": {
       "get": {
         "operationId": "SyncController_changes",
@@ -2390,6 +2431,133 @@
             "type": "boolean"
           }
         }
+      },
+      "CategoryShareDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Catégorie racine"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Unités mineures de la devise de la jauge"
+          },
+          "percent": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "⌊100 × part⌋"
+          }
+        },
+        "required": [
+          "categoryId",
+          "total",
+          "percent"
+        ]
+      },
+      "CumulativePointDto": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Rang du jour dans la période"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "cumulative": {
+            "type": "integer",
+            "description": "Unités mineures, cumul au jour inclus"
+          }
+        },
+        "required": [
+          "day",
+          "date",
+          "cumulative"
+        ]
+      },
+      "CumulativeDto": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "description": "Jusqu’à aujourd’hui",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CumulativePointDto"
+            }
+          },
+          "previous": {
+            "description": "Période entière",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CumulativePointDto"
+            }
+          }
+        },
+        "required": [
+          "current",
+          "previous"
+        ]
+      },
+      "DashboardDto": {
+        "type": "object",
+        "properties": {
+          "timeZone": {
+            "type": "string",
+            "example": "Europe/Paris"
+          },
+          "today": {
+            "type": "string",
+            "format": "date"
+          },
+          "gauge": {
+            "description": "Période en cours ; limit NULL = sans limite",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PeriodSummaryDto"
+              }
+            ]
+          },
+          "recent": {
+            "maxItems": 5,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpenseDto"
+            }
+          },
+          "categories": {
+            "description": "Total décroissant",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryShareDto"
+            }
+          },
+          "cumulative": {
+            "$ref": "#/components/schemas/CumulativeDto"
+          },
+          "evolution": {
+            "minItems": 12,
+            "maxItems": 12,
+            "description": "En cours d’abord",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeriodSummaryDto"
+            }
+          }
+        },
+        "required": [
+          "timeZone",
+          "today",
+          "gauge",
+          "recent",
+          "categories",
+          "cumulative",
+          "evolution"
+        ]
       },
       "SyncCategoryDto": {
         "type": "object",

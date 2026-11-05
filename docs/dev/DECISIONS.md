@@ -282,3 +282,18 @@ Décision :
 - Plancher de 2 000 unités mineures **dans la devise de la dépense**, sans conversion (devises multiples hors MVP) : approximation acceptée pour les devises non euro.
 - Charge utile `notify` `{kind: 'unusual_expense', notebookId, expenseId}`, sans montant (ADR-003) ; `NOTIFY` déplacé dans `src/notifications/notify-job.ts`.
 Conséquence : une requête indexée `(notebook_id, spent_on)` par création ; le gestionnaire push (P4-04) relira la dépense (et ignorera une dépense supprimée entre-temps).
+
+## ADR-031 — Tableau de bord (2026-11-05)
+
+Contexte : P3-05 (F-TB-01/02) ; le cahier ne précise ni la route, ni le nombre de dernières dépenses, ni le niveau de la répartition, ni la devise des graphiques ; les récurrences n'existent pas encore.
+Décision :
+- Route `GET /notebooks/{notebookId}/dashboard` (convention des routes de carnet, garde de carnet), et non `/dashboard`. « Aujourd'hui » dans le fuseau du compte qui consulte (comme la jauge, ADR-028).
+- `gauge` = résumé de la période en cours (`summarize`) : `limit` NULL ⇒ « total dépensé sans limite ».
+- `evolution` = 12 périodes (en cours d'abord, découpage ADR-027), `evolution[0]` = `gauge`.
+- Toutes les sommes suivent les règles de comptage de la jauge (`sliceScope`) : devise de la version (du compte sans limite), récurrences exclues si la version les exclut ; les autres devises sont ignorées et signalées par `gauge.otherCurrencies`. La somme de la répartition égale `gauge.spent`.
+- `categories` : répartition de la période en cours par **catégorie racine** (une dépense sur une sous-catégorie compte pour sa racine), total décroissant puis identifiant, `percent` = ⌊100 × part⌋ calculé par l'API (invariant 8).
+- `cumulative.current` : un point par jour de début de période à aujourd'hui (une dépense datée plus tard dans la période figure dans la jauge mais pas encore dans le cumul) ; `cumulative.previous` : période précédente entière. Axe commun = rang du jour (`day`), les deux périodes pouvant différer en longueur.
+- `recent` : 5 dernières dépenses actives, par date puis identifiant décroissants (même tri que la liste, ADR-025).
+- `upcoming` (prochaines échéances) reporté à P4-01, où les récurrences sont créées (champ ajouté sans rupture du contrat).
+- Chaque période compte dans la devise de **sa** version : si une nouvelle version change de devise, cumul courant et précédent sont en devises différentes (multidevise hors MVP ; la devise de chaque période figure dans `evolution`).
+Conséquence : 5 requêtes par appel (compte, versions, totaux journaliers sur 12 périodes, totaux par racine, dernières dépenses), sans cache ni transaction : sous READ COMMITTED, une écriture concurrente peut rendre momentanément Σ `categories` ≠ `gauge.spent` (corrigé à l'appel suivant).
