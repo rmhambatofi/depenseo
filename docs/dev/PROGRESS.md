@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P6-09 (récurrences mobiles : création, échéances, payer / ajuster / sauter, confirmation, réglage des rappels ; tests widget ; F-REC-01..04). Vérifier côté API (`apps/api/src/recurring*`) les routes et si les échéances sont calculées par l'API (invariant 8) ; si une table locale alimentée par la synchro est ajoutée, incrémenter `syncFormat`.
-- Dernier commit : (voir git log) feat(mobile): spending limit screen (P6-08)
+- Dernier commit : 6480320 feat(mobile): spending limit screen (P6-08)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (14 racine, 155 shared, 5 api-client, 19 admin, 807 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build`, `pnpm --filter @depenseo/admin test:e2e` (3 Playwright), `pnpm check:admin-code` verts ; mobile : `flutter analyze` propre, `flutter test` 258 verts (P6-08) ; suites pnpm non relancées en P6-07/P6-08 (aucun code TS modifié) ; `flutter build apk --debug` et `flutter build ios --debug --simulator` OK (P6-03, non relancés en P6-04)
 
