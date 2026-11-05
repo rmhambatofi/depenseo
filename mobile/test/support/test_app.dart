@@ -161,6 +161,9 @@ class TestApp {
     WidgetTester tester, {
     Locale locale = const Locale('fr'),
     bool freshInstall = false,
+
+    /// Faux : rend la main dès le premier rendu (mesure du démarrage, P7-06).
+    bool settleAfter = true,
   }) async {
     // Une base neuve par test, fermée de façon asynchrone par le conteneur.
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -198,7 +201,7 @@ class TestApp {
         child: DepenseoApp(locale: locale),
       ),
     );
-    await settle(tester);
+    if (settleAfter) await settle(tester);
   }
 
   /// Laisse aboutir les vraies E/S (témoin d'installation) hors de l'horloge simulée,

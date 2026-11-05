@@ -6,5 +6,13 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src", "test", "scripts", "vitest.config.ts", "drizzle.config.ts"]
+  "include": [
+    "src",
+    "test",
+    "scripts",
+    "bench",
+    "vitest.config.ts",
+    "vitest.bench.config.ts",
+    "drizzle.config.ts"
+  ]
 }

@@ -49,6 +49,11 @@ jobs:
       # Inclut la couverture de l'API et son seuil (NF-QUA-01, `vitest run --coverage`).
       - run: pnpm test
 
+      # Banc de charge (NF-PERF-02, ADR-065) : p95 < 300 ms par route clé, carnet de 10 000 dépenses.
+      # Après `pnpm test` (même base `depenseo_test`, jamais en parallèle de Vitest).
+      - name: Banc p95 des routes clés (autocannon)
+        run: pnpm --filter api bench
+
       # Contrat OpenAPI et client généré (P5-06) : la régénération ne doit produire aucun diff.
       - name: Contrat OpenAPI et packages/api-client à jour
         run: |
