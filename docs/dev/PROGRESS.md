@@ -5,7 +5,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## État courant
 
-- Tâche en cours : aucune
+- Tâche en cours : P6-10
 - Prochaine tâche : P6-10 (accueil et graphiques fl_chart : jauge, prochaines échéances, dernières dépenses, répartition, cumul vs période précédente, 12 périodes, données de `/dashboard` ; tests widget ; F-TB-01/02). Lire d'abord `apps/api/src/dashboard/` (DTO `upcoming`, séries) ; l'accueil actuel est `mobile/lib/features/home/home_screen.dart`.
 - Dernier commit : adeb435 feat(mobile): recurring expenses screens (P6-09)
 - Branche : main
