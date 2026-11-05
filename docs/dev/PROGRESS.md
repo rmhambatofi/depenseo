@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P7-06 (banc autocannon routes clés, 10 000 dépenses, p95 < 300 ms en CI ; démarrage mobile < 2 s consigné dans `docs/dev/PERF.md` ; NF-PERF-01, 02).
-- Dernier commit : feat(api,mobile): Sentry EU error tracking with amount/PII scrubbing (NF-QUA-02) (session 50)
+- Dernier commit : chore(dev): handoff after P7-05 (session 50 ; fonctionnel : 8585678 feat(api,mobile): Sentry EU error tracking with amount/PII scrubbing (NF-QUA-02))
 - Branche : main
 - Tests (P7-05) : `pnpm test` racine vert (API 841, couverture lignes 97,2 %), `test:tz` vert, `flutter test` 437 verts (couverture 92,6 %), analyse/format/génération sans diff, builds `ios --no-codesign` et `apk --debug` OK avec sentry_flutter.
 
