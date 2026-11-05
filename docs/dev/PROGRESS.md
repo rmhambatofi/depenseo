@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P7-08 (relecture finale par `reviewer` sur chaque paquet, corrections, `PROGRESS.md` → « MVP terminé »).
-- Dernier commit : feat(api): deployment guide and fake data seeding (NF-QUA-03, NF-SEC-01) (session 52, P7-07)
+- Dernier commit : chore(dev): handoff after P7-07 (session 52 ; fonctionnel : 1a598cb feat(api): deployment guide and fake data seeding (NF-QUA-03, NF-SEC-01))
 - Branche : main
 - Tests (P7-07) : `pnpm -r typecheck`/`lint` verts, API 853 (couverture lignes 97,3 %), `test:tz` vert, scripts racine 34, prettier OK ; Flutter non touché (437 verts en P7-06).
 
