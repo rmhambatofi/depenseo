@@ -163,7 +163,11 @@ describe('gestionnaire notify', () => {
     });
     const sent = push.to(token);
     expect(sent).toHaveLength(3);
-    const text = JSON.stringify(sent);
+    // Identifiants (UUID v7 aléatoires) retirés : « 500 » peut y figurer par hasard.
+    const text = JSON.stringify(sent).replace(
+      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi,
+      '<id>',
+    );
     for (const forbidden of ['1234', '1 234', '850', '500', '€', 'EUR', 'Loyer']) {
       expect(text).not.toContain(forbidden);
     }
