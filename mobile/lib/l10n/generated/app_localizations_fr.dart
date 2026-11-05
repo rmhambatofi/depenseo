@@ -312,4 +312,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get saveFailed => 'Enregistrement impossible. Réessayez.';
+
+  @override
+  String get expensePendingSync => 'En attente d\'envoi';
+
+  @override
+  String get expenseSyncRejected => 'Refusée par le serveur';
+
+  @override
+  String get categoryNotSynced => 'Catégorie inconnue';
+
+  @override
+  String get syncOffline =>
+      'Hors ligne : les dépenses seront envoyées au retour du réseau.';
+
+  @override
+  String get expenseSyncConflict =>
+      'En conflit avec le serveur (supprimée ailleurs ?)';
 }

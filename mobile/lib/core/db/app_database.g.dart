@@ -1016,6 +1016,28 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _syncErrorMeta = const VerificationMeta(
+    'syncError',
+  );
+  @override
+  late final GeneratedColumn<String> syncError = GeneratedColumn<String>(
+    'sync_error',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _baseUpdatedAtMeta = const VerificationMeta(
+    'baseUpdatedAt',
+  );
+  @override
+  late final GeneratedColumn<String> baseUpdatedAt = GeneratedColumn<String>(
+    'base_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1031,6 +1053,8 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
     updatedAt,
     deletedAt,
     pendingSync,
+    syncError,
+    baseUpdatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1138,6 +1162,21 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
         ),
       );
     }
+    if (data.containsKey('sync_error')) {
+      context.handle(
+        _syncErrorMeta,
+        syncError.isAcceptableOrUnknown(data['sync_error']!, _syncErrorMeta),
+      );
+    }
+    if (data.containsKey('base_updated_at')) {
+      context.handle(
+        _baseUpdatedAtMeta,
+        baseUpdatedAt.isAcceptableOrUnknown(
+          data['base_updated_at']!,
+          _baseUpdatedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1199,6 +1238,14 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
         DriftSqlType.bool,
         data['${effectivePrefix}pending_sync'],
       )!,
+      syncError: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_error'],
+      ),
+      baseUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}base_updated_at'],
+      ),
     );
   }
 
@@ -1225,6 +1272,14 @@ class Expense extends DataClass implements Insertable<Expense> {
 
   /// Modification locale pas encore acceptée par l'API (file d'envoi, P6-05).
   final bool pendingSync;
+
+  /// Envoi refusé par l'API (400/422) : la ligne reste en attente mais n'est
+  /// plus renvoyée tant qu'elle n'est pas modifiée (ADR-050).
+  final String? syncError;
+
+  /// `updatedAt` de la version serveur sur laquelle repose la ligne (`null` =
+  /// jamais reçue) : une version serveur différente signale un conflit.
+  final String? baseUpdatedAt;
   const Expense({
     required this.id,
     required this.notebookId,
@@ -1239,6 +1294,8 @@ class Expense extends DataClass implements Insertable<Expense> {
     required this.updatedAt,
     this.deletedAt,
     required this.pendingSync,
+    this.syncError,
+    this.baseUpdatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1262,6 +1319,12 @@ class Expense extends DataClass implements Insertable<Expense> {
       map['deleted_at'] = Variable<String>(deletedAt);
     }
     map['pending_sync'] = Variable<bool>(pendingSync);
+    if (!nullToAbsent || syncError != null) {
+      map['sync_error'] = Variable<String>(syncError);
+    }
+    if (!nullToAbsent || baseUpdatedAt != null) {
+      map['base_updated_at'] = Variable<String>(baseUpdatedAt);
+    }
     return map;
   }
 
@@ -1284,6 +1347,12 @@ class Expense extends DataClass implements Insertable<Expense> {
           ? const Value.absent()
           : Value(deletedAt),
       pendingSync: Value(pendingSync),
+      syncError: syncError == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncError),
+      baseUpdatedAt: baseUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(baseUpdatedAt),
     );
   }
 
@@ -1306,6 +1375,8 @@ class Expense extends DataClass implements Insertable<Expense> {
       updatedAt: serializer.fromJson<String>(json['updatedAt']),
       deletedAt: serializer.fromJson<String?>(json['deletedAt']),
       pendingSync: serializer.fromJson<bool>(json['pendingSync']),
+      syncError: serializer.fromJson<String?>(json['syncError']),
+      baseUpdatedAt: serializer.fromJson<String?>(json['baseUpdatedAt']),
     );
   }
   @override
@@ -1325,6 +1396,8 @@ class Expense extends DataClass implements Insertable<Expense> {
       'updatedAt': serializer.toJson<String>(updatedAt),
       'deletedAt': serializer.toJson<String?>(deletedAt),
       'pendingSync': serializer.toJson<bool>(pendingSync),
+      'syncError': serializer.toJson<String?>(syncError),
+      'baseUpdatedAt': serializer.toJson<String?>(baseUpdatedAt),
     };
   }
 
@@ -1342,6 +1415,8 @@ class Expense extends DataClass implements Insertable<Expense> {
     String? updatedAt,
     Value<String?> deletedAt = const Value.absent(),
     bool? pendingSync,
+    Value<String?> syncError = const Value.absent(),
+    Value<String?> baseUpdatedAt = const Value.absent(),
   }) => Expense(
     id: id ?? this.id,
     notebookId: notebookId ?? this.notebookId,
@@ -1356,6 +1431,10 @@ class Expense extends DataClass implements Insertable<Expense> {
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     pendingSync: pendingSync ?? this.pendingSync,
+    syncError: syncError.present ? syncError.value : this.syncError,
+    baseUpdatedAt: baseUpdatedAt.present
+        ? baseUpdatedAt.value
+        : this.baseUpdatedAt,
   );
   Expense copyWithCompanion(ExpensesCompanion data) {
     return Expense(
@@ -1378,6 +1457,10 @@ class Expense extends DataClass implements Insertable<Expense> {
       pendingSync: data.pendingSync.present
           ? data.pendingSync.value
           : this.pendingSync,
+      syncError: data.syncError.present ? data.syncError.value : this.syncError,
+      baseUpdatedAt: data.baseUpdatedAt.present
+          ? data.baseUpdatedAt.value
+          : this.baseUpdatedAt,
     );
   }
 
@@ -1396,7 +1479,9 @@ class Expense extends DataClass implements Insertable<Expense> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
-          ..write('pendingSync: $pendingSync')
+          ..write('pendingSync: $pendingSync, ')
+          ..write('syncError: $syncError, ')
+          ..write('baseUpdatedAt: $baseUpdatedAt')
           ..write(')'))
         .toString();
   }
@@ -1416,6 +1501,8 @@ class Expense extends DataClass implements Insertable<Expense> {
     updatedAt,
     deletedAt,
     pendingSync,
+    syncError,
+    baseUpdatedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -1433,7 +1520,9 @@ class Expense extends DataClass implements Insertable<Expense> {
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
-          other.pendingSync == this.pendingSync);
+          other.pendingSync == this.pendingSync &&
+          other.syncError == this.syncError &&
+          other.baseUpdatedAt == this.baseUpdatedAt);
 }
 
 class ExpensesCompanion extends UpdateCompanion<Expense> {
@@ -1450,6 +1539,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
   final Value<String> updatedAt;
   final Value<String?> deletedAt;
   final Value<bool> pendingSync;
+  final Value<String?> syncError;
+  final Value<String?> baseUpdatedAt;
   final Value<int> rowid;
   const ExpensesCompanion({
     this.id = const Value.absent(),
@@ -1465,6 +1556,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
     this.pendingSync = const Value.absent(),
+    this.syncError = const Value.absent(),
+    this.baseUpdatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ExpensesCompanion.insert({
@@ -1481,6 +1574,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     required String updatedAt,
     this.deletedAt = const Value.absent(),
     this.pendingSync = const Value.absent(),
+    this.syncError = const Value.absent(),
+    this.baseUpdatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        notebookId = Value(notebookId),
@@ -1504,6 +1599,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     Expression<String>? updatedAt,
     Expression<String>? deletedAt,
     Expression<bool>? pendingSync,
+    Expression<String>? syncError,
+    Expression<String>? baseUpdatedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1520,6 +1617,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (pendingSync != null) 'pending_sync': pendingSync,
+      if (syncError != null) 'sync_error': syncError,
+      if (baseUpdatedAt != null) 'base_updated_at': baseUpdatedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1538,6 +1637,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     Value<String>? updatedAt,
     Value<String?>? deletedAt,
     Value<bool>? pendingSync,
+    Value<String?>? syncError,
+    Value<String?>? baseUpdatedAt,
     Value<int>? rowid,
   }) {
     return ExpensesCompanion(
@@ -1554,6 +1655,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
       pendingSync: pendingSync ?? this.pendingSync,
+      syncError: syncError ?? this.syncError,
+      baseUpdatedAt: baseUpdatedAt ?? this.baseUpdatedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1600,6 +1703,12 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     if (pendingSync.present) {
       map['pending_sync'] = Variable<bool>(pendingSync.value);
     }
+    if (syncError.present) {
+      map['sync_error'] = Variable<String>(syncError.value);
+    }
+    if (baseUpdatedAt.present) {
+      map['base_updated_at'] = Variable<String>(baseUpdatedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1622,6 +1731,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
           ..write('pendingSync: $pendingSync, ')
+          ..write('syncError: $syncError, ')
+          ..write('baseUpdatedAt: $baseUpdatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2131,6 +2242,8 @@ typedef $$ExpensesTableCreateCompanionBuilder = ExpensesCompanion Function({
   required String updatedAt,
   Value<String?> deletedAt,
   Value<bool> pendingSync,
+  Value<String?> syncError,
+  Value<String?> baseUpdatedAt,
   Value<int> rowid,
 });
 typedef $$ExpensesTableUpdateCompanionBuilder = ExpensesCompanion Function({
@@ -2147,6 +2260,8 @@ typedef $$ExpensesTableUpdateCompanionBuilder = ExpensesCompanion Function({
   Value<String> updatedAt,
   Value<String?> deletedAt,
   Value<bool> pendingSync,
+  Value<String?> syncError,
+  Value<String?> baseUpdatedAt,
   Value<int> rowid,
 });
 
@@ -2221,6 +2336,16 @@ class $$ExpensesTableFilterComposer
 
   ColumnFilters<bool> get pendingSync => $composableBuilder(
     column: $table.pendingSync,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncError => $composableBuilder(
+    column: $table.syncError,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get baseUpdatedAt => $composableBuilder(
+    column: $table.baseUpdatedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2298,6 +2423,16 @@ class $$ExpensesTableOrderingComposer
     column: $table.pendingSync,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get syncError => $composableBuilder(
+    column: $table.syncError,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get baseUpdatedAt => $composableBuilder(
+    column: $table.baseUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ExpensesTableAnnotationComposer
@@ -2353,6 +2488,14 @@ class $$ExpensesTableAnnotationComposer
     column: $table.pendingSync,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get syncError =>
+      $composableBuilder(column: $table.syncError, builder: (column) => column);
+
+  GeneratedColumn<String> get baseUpdatedAt => $composableBuilder(
+    column: $table.baseUpdatedAt,
+    builder: (column) => column,
+  );
 }
 
 class $$ExpensesTableTableManager
@@ -2396,6 +2539,8 @@ class $$ExpensesTableTableManager
                 Value<String> updatedAt = const Value.absent(),
                 Value<String?> deletedAt = const Value.absent(),
                 Value<bool> pendingSync = const Value.absent(),
+                Value<String?> syncError = const Value.absent(),
+                Value<String?> baseUpdatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExpensesCompanion(
                 id: id,
@@ -2411,6 +2556,8 @@ class $$ExpensesTableTableManager
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
                 pendingSync: pendingSync,
+                syncError: syncError,
+                baseUpdatedAt: baseUpdatedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2428,6 +2575,8 @@ class $$ExpensesTableTableManager
                 required String updatedAt,
                 Value<String?> deletedAt = const Value.absent(),
                 Value<bool> pendingSync = const Value.absent(),
+                Value<String?> syncError = const Value.absent(),
+                Value<String?> baseUpdatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExpensesCompanion.insert(
                 id: id,
@@ -2443,6 +2592,8 @@ class $$ExpensesTableTableManager
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
                 pendingSync: pendingSync,
+                syncError: syncError,
+                baseUpdatedAt: baseUpdatedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

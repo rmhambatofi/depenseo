@@ -6,10 +6,17 @@ import 'package:dio/dio.dart';
 
 /// Requête reçue par le faux serveur : méthode, chemin sous `/api/v1`, en-têtes, corps JSON.
 class FakeRequest {
-  FakeRequest(this.method, this.path, this.headers, this.body);
+  FakeRequest(
+    this.method,
+    this.path,
+    this.headers,
+    this.body, [
+    this.query = const {},
+  ]);
 
   final String method;
   final String path;
+  final Map<String, String> query;
   final Map<String, dynamic> headers;
   final Object? body;
 
@@ -56,6 +63,7 @@ class FakeApi implements HttpClientAdapter {
       options.data is String
           ? jsonDecode(options.data as String)
           : options.data,
+      options.uri.queryParameters,
     );
     requests.add(request);
     final handler = routes[request.key];

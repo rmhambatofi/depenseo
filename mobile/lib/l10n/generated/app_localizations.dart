@@ -661,6 +661,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Enregistrement impossible. Réessayez.'**
   String get saveFailed;
+
+  /// No description provided for @expensePendingSync.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente d\'envoi'**
+  String get expensePendingSync;
+
+  /// No description provided for @expenseSyncRejected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refusée par le serveur'**
+  String get expenseSyncRejected;
+
+  /// No description provided for @categoryNotSynced.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégorie inconnue'**
+  String get categoryNotSynced;
+
+  /// No description provided for @syncOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors ligne : les dépenses seront envoyées au retour du réseau.'**
+  String get syncOffline;
+
+  /// No description provided for @expenseSyncConflict.
+  ///
+  /// In fr, this message translates to:
+  /// **'En conflit avec le serveur (supprimée ailleurs ?)'**
+  String get expenseSyncConflict;
 }
 
 class _AppLocalizationsDelegate

@@ -52,4 +52,27 @@ final quickEntryDataProvider = FutureProvider.autoDispose<QuickEntryData>(
   },
 );
 
+/// Dépense de la copie locale, avec le nom de sa catégorie (`null` si la
+/// catégorie n'est pas encore synchronisée).
+class LocalExpenseItem {
+  const LocalExpenseItem(this.expense, this.categoryName);
+
+  final Expense expense;
+  final String? categoryName;
+}
+
+/// Dernières dépenses du carnet, lues dans la base locale : consultables hors
+/// connexion (NF-OFF-01). Rafraîchie après chaque saisie et chaque synchro.
+final localExpensesProvider =
+    FutureProvider.autoDispose<List<LocalExpenseItem>>(retry: _noRetry, (
+      ref,
+    ) async {
+      final account = await ref.watch(accountContextProvider.future);
+      final db = await ref.watch(databaseProvider.future);
+      return [
+        for (final (e, name) in await db.recentExpenses(account.notebookId))
+          LocalExpenseItem(e, name),
+      ];
+    });
+
 Duration? _noRetry(int retryCount, Object error) => null;

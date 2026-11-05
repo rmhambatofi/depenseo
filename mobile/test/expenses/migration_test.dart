@@ -49,4 +49,39 @@ void main() {
       ]),
     );
   });
+
+  test('migration 2 → 3 : colonne sync_error ajoutée, file d’envoi gardée', () async {
+    final dir = Directory.systemTemp.createTempSync('depenseo-mig-');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final file = File('${dir.path}/v2.sqlite');
+    sqlite3.open(file.path)
+      ..execute(
+        'CREATE TABLE app_meta (key TEXT NOT NULL, value TEXT NOT NULL, '
+        'PRIMARY KEY (key))',
+      )
+      ..execute(
+        'CREATE TABLE expenses (id TEXT NOT NULL, notebook_id TEXT NOT NULL, '
+        'amount INTEGER NOT NULL, currency TEXT NOT NULL, '
+        'category_id TEXT NOT NULL, date TEXT NOT NULL, note TEXT NULL, '
+        "merchant TEXT NULL, tags TEXT NOT NULL DEFAULT '[]', "
+        'created_at TEXT NOT NULL, updated_at TEXT NOT NULL, '
+        'deleted_at TEXT NULL, pending_sync INTEGER NOT NULL DEFAULT 1, '
+        'PRIMARY KEY (id))',
+      )
+      ..execute(
+        'INSERT INTO expenses (id, notebook_id, amount, currency, category_id, '
+        "date, created_at, updated_at) VALUES ('e', 'n', 5, 'EUR', 'c', "
+        "'2026-11-05', '2026-11-05T09:00:00.000Z', '2026-11-05T09:00:00.000Z')",
+      )
+      ..execute('PRAGMA user_version = 2')
+      ..close();
+
+    final db = AppDatabase(NativeDatabase(file));
+    addTearDown(db.close);
+    final row = await db.select(db.expenses).getSingle();
+    expect(
+      (row.id, row.pendingSync, row.syncError, row.baseUpdatedAt),
+      ('e', true, null, null),
+    );
+  });
 }

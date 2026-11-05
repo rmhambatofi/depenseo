@@ -310,4 +310,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get saveFailed => 'Could not save. Try again.';
+
+  @override
+  String get expensePendingSync => 'Waiting to sync';
+
+  @override
+  String get expenseSyncRejected => 'Rejected by the server';
+
+  @override
+  String get categoryNotSynced => 'Unknown category';
+
+  @override
+  String get syncOffline =>
+      'Offline: expenses will be sent when the network is back.';
+
+  @override
+  String get expenseSyncConflict =>
+      'Conflicts with the server (deleted elsewhere?)';
 }

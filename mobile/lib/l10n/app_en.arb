@@ -93,5 +93,10 @@
   "accountUnavailable": "Go online once to set up expense entry.",
   "noteTooLong": "500 characters at most.",
   "merchantTooLong": "100 characters at most.",
-  "saveFailed": "Could not save. Try again."
+  "saveFailed": "Could not save. Try again.",
+  "expensePendingSync": "Waiting to sync",
+  "expenseSyncRejected": "Rejected by the server",
+  "categoryNotSynced": "Unknown category",
+  "syncOffline": "Offline: expenses will be sent when the network is back.",
+  "expenseSyncConflict": "Conflicts with the server (deleted elsewhere?)"
 }

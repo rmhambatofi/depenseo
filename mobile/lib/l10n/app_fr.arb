@@ -100,5 +100,10 @@
   "accountUnavailable": "Connectez-vous à Internet une première fois pour préparer la saisie.",
   "noteTooLong": "500 caractères au maximum.",
   "merchantTooLong": "100 caractères au maximum.",
-  "saveFailed": "Enregistrement impossible. Réessayez."
+  "saveFailed": "Enregistrement impossible. Réessayez.",
+  "expensePendingSync": "En attente d'envoi",
+  "expenseSyncRejected": "Refusée par le serveur",
+  "categoryNotSynced": "Catégorie inconnue",
+  "syncOffline": "Hors ligne : les dépenses seront envoyées au retour du réseau.",
+  "expenseSyncConflict": "En conflit avec le serveur (supprimée ailleurs ?)"
 }

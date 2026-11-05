@@ -7,6 +7,7 @@ import 'package:depenseo/core/auth/social_sign_in.dart';
 import 'package:depenseo/core/auth/token_store.dart';
 import 'package:depenseo/core/lock/biometric_auth.dart';
 import 'package:depenseo/core/lock/screen_security.dart';
+import 'package:depenseo/features/sync/sync_controller.dart';
 import 'package:depenseo/providers.dart';
 import 'package:depenseo/router.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
@@ -90,6 +91,12 @@ class TestApp {
   final FakeClock clock = FakeClock();
   final FakeBiometrics biometrics = FakeBiometrics();
   final FakeScreenSecurity screen = FakeScreenSecurity();
+
+  /// Nouveaux essais de synchro : aucun par défaut (pas de minuterie en fin de test).
+  List<Duration> syncRetryDelays = const [];
+
+  /// Synchro automatique : coupée sauf dans les tests qui l'exercent.
+  bool syncEnabled = false;
   late final ProviderContainer container;
   late final Directory dir;
 
@@ -121,6 +128,8 @@ class TestApp {
         clockProvider.overrideWithValue(() => clock.now),
         biometricAuthProvider.overrideWithValue(biometrics),
         screenSecurityProvider.overrideWithValue(screen),
+        syncRetryDelaysProvider.overrideWith((ref) => syncRetryDelays),
+        syncEnabledProvider.overrideWith((ref) => syncEnabled),
       ],
     );
     addTearDown(container.dispose);

@@ -66,6 +66,14 @@ class Expenses extends Table {
   /// Modification locale pas encore acceptée par l'API (file d'envoi, P6-05).
   BoolColumn get pendingSync => boolean().withDefault(const Constant(true))();
 
+  /// Envoi refusé par l'API (400/422) : la ligne reste en attente mais n'est
+  /// plus renvoyée tant qu'elle n'est pas modifiée (ADR-050).
+  TextColumn get syncError => text().nullable()();
+
+  /// `updatedAt` de la version serveur sur laquelle repose la ligne (`null` =
+  /// jamais reçue) : une version serveur différente signale un conflit.
+  TextColumn get baseUpdatedAt => text().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
@@ -75,7 +83,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -86,6 +94,9 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(expenses);
         await m.createIndex(expenseNotebookUpdated);
         await m.createIndex(expenseNotebookDate);
+      } else if (from < 3) {
+        await m.addColumn(expenses, expenses.syncError);
+        await m.addColumn(expenses, expenses.baseUpdatedAt);
       }
     },
   );
@@ -158,6 +169,36 @@ class AppDatabase extends _$AppDatabase {
         updatedAt: stamp,
       ),
     );
+  }
+
+  /// Dernières dépenses non supprimées du carnet (date puis saisie
+  /// décroissantes), avec le nom de leur catégorie s'il est connu.
+  Future<List<(Expense, String?)>> recentExpenses(
+    String notebookId, {
+    int limit = 50,
+  }) async {
+    final query =
+        select(expenses).join([
+            leftOuterJoin(
+              categories,
+              categories.id.equalsExp(expenses.categoryId),
+            ),
+          ])
+          ..where(
+            expenses.notebookId.equals(notebookId) &
+                expenses.deletedAt.isNull(),
+          )
+          ..orderBy([
+            OrderingTerm.desc(expenses.date),
+            OrderingTerm.desc(expenses.createdAt),
+            OrderingTerm.desc(expenses.id),
+          ])
+          ..limit(limit);
+    final rows = await query.get();
+    return [
+      for (final r in rows)
+        (r.readTable(expenses), r.readTableOrNull(categories)?.name),
+    ];
   }
 
   /// Version de SQLCipher liée ; vide si la bibliothèque n'est pas SQLCipher.

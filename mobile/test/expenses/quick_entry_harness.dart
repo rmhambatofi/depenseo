@@ -101,8 +101,10 @@ Future<TestApp> startSignedIn(
   Locale locale = const Locale('fr'),
   String timeZone = 'Europe/Paris',
   String currency = 'EUR',
+  void Function(TestApp app)? configure,
 }) async {
   final app = TestApp();
+  configure?.call(app);
   app.api
     ..on(
       'GET /me',
