@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P6-13 (Premium mobile : in_app_purchase, essai 14 jours, restauration, lien de résiliation vers le store, fonctions Premium en lecture seule à expiration ; tests avec faux store ; F-ABO-01…03, §5). Lire via `explorer` ADR-009/040 (droits Premium, `Entitlements`) et les routes d'abonnement de P5 (validation des reçus). Penser à afficher le plan sur l'écran Compte (aujourd'hui l'Excel n'est refusé que par le 403 de l'API).
-- Dernier commit : 9ba4903 feat(mobile): account screen with exports, account deletion and legal pages (F-EXP-01, F-AUTH-07, F-AUTH-08)
+- Dernier commit : 37780a0 chore(dev): finish P6-12 (fonctionnel : 9ba4903 feat(mobile): account screen… F-EXP-01, F-AUTH-07, F-AUTH-08)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (14 racine, 155 shared, 5 api-client, 19 admin, 807 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build`, `pnpm --filter @depenseo/admin test:e2e` (3 Playwright), `pnpm check:admin-code` verts ; mobile : `flutter analyze` propre, `flutter test` 341 verts (P6-12) ; suites pnpm non relancées en P6-07…P6-12 (aucun code TS modifié ; tests racine et `format:check` verts en P6-12) ; `flutter build apk --debug` et `flutter build ios --debug --simulator` OK (P6-12, avec share_plus)
 
