@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:depenseo/app.dart';
@@ -7,6 +8,8 @@ import 'package:depenseo/core/auth/social_sign_in.dart';
 import 'package:depenseo/core/auth/token_store.dart';
 import 'package:depenseo/core/lock/biometric_auth.dart';
 import 'package:depenseo/core/lock/screen_security.dart';
+import 'package:depenseo/core/push/push_service.dart';
+import 'package:depenseo/features/notifications/push_registration.dart';
 import 'package:depenseo/features/sync/sync_controller.dart';
 import 'package:depenseo/providers.dart';
 import 'package:depenseo/router.dart';
@@ -69,6 +72,25 @@ class FakeScreenSecurity implements ScreenSecurity {
   Future<void> setSecure(bool secure) async => this.secure = secure;
 }
 
+/// Notifications simulées : [token] `null` (défaut) = autorisation refusée ;
+/// aucune requête d'appareil dans les tests qui ne l'exercent pas.
+class FakePushService implements PushService {
+  @override
+  PushPlatform? platform = PushPlatform.android;
+  String? token;
+  int requests = 0;
+  final StreamController<String> refreshes = StreamController.broadcast();
+
+  @override
+  Future<String?> requestToken() async {
+    requests++;
+    return token;
+  }
+
+  @override
+  Stream<String> get tokenRefreshes => refreshes.stream;
+}
+
 /// Coffre qui échoue à la lecture tant que [failing] est vrai (trousseau verrouillé).
 class FlakySecureStore extends MemorySecureStore {
   bool failing = true;
@@ -91,6 +113,7 @@ class TestApp {
   final FakeClock clock = FakeClock();
   final FakeBiometrics biometrics = FakeBiometrics();
   final FakeScreenSecurity screen = FakeScreenSecurity();
+  final FakePushService push = FakePushService();
 
   /// Nouveaux essais de synchro : aucun par défaut (pas de minuterie en fin de test).
   List<Duration> syncRetryDelays = const [];
@@ -128,6 +151,7 @@ class TestApp {
         clockProvider.overrideWithValue(() => clock.now),
         biometricAuthProvider.overrideWithValue(biometrics),
         screenSecurityProvider.overrideWithValue(screen),
+        pushServiceProvider.overrideWithValue(push),
         syncRetryDelaysProvider.overrideWith((ref) => syncRetryDelays),
         syncEnabledProvider.overrideWith((ref) => syncEnabled),
       ],

@@ -421,5 +421,25 @@
       }
     }
   },
-  "dashboardRecentTitle": "Dernières dépenses"
+  "dashboardRecentTitle": "Dernières dépenses",
+  "notificationsTitle": "Notifications",
+  "notificationsSettingsHint": "Types, plage de silence, rappel quotidien",
+  "notificationsOffline": "Connexion requise pour consulter ou modifier les notifications.",
+  "notificationsTypes": "Types de notification",
+  "notificationsLimit": "Limite de dépenses",
+  "notificationsLimitHint": "À 80 % et à 100 % de la limite",
+  "notificationsOccurrence": "Dépenses récurrentes",
+  "notificationsOccurrenceHint": "Échéances à venir et à confirmer",
+  "notificationsUnusual": "Dépense inhabituelle",
+  "notificationsUnusualHint": "Dépense nettement plus élevée que d’habitude",
+  "notificationsDaily": "Rappel quotidien",
+  "notificationsDailyHint": "« Avez-vous noté vos dépenses du jour ? »",
+  "notificationsDailyTime": "Heure du rappel quotidien",
+  "notificationsQuiet": "Plage de silence",
+  "notificationsQuietEnable": "Activer la plage de silence",
+  "notificationsQuietHint": "Les notifications sont reportées à la fin de la plage.",
+  "notificationsQuietStart": "Début",
+  "notificationsQuietEnd": "Fin",
+  "notificationsQuietInvalid": "Le début et la fin de la plage doivent être différents.",
+  "notificationsNoAmount": "Aucun montant n’apparaît dans les notifications."
 }

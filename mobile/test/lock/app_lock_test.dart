@@ -279,6 +279,12 @@ void main() {
     await typePin(tester, '123456');
     app.router.go('/settings');
     await tester.pumpAndSettle();
+    // Liste paresseuse : dernière ligne pas encore construite.
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('lock-screenshots')),
+      100,
+      scrollable: find.byType(Scrollable).last,
+    );
     await tap(tester, find.byKey(const Key('lock-screenshots')));
     expect(app.screen.secure, isFalse);
     expect((await LockStore(app.store).load()).blockScreenshots, isFalse);

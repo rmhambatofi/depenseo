@@ -1501,6 +1501,126 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Dernières dépenses'**
   String get dashboardRecentTitle;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsSettingsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Types, plage de silence, rappel quotidien'**
+  String get notificationsSettingsHint;
+
+  /// No description provided for @notificationsOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion requise pour consulter ou modifier les notifications.'**
+  String get notificationsOffline;
+
+  /// No description provided for @notificationsTypes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Types de notification'**
+  String get notificationsTypes;
+
+  /// No description provided for @notificationsLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Limite de dépenses'**
+  String get notificationsLimit;
+
+  /// No description provided for @notificationsLimitHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'À 80 % et à 100 % de la limite'**
+  String get notificationsLimitHint;
+
+  /// No description provided for @notificationsOccurrence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenses récurrentes'**
+  String get notificationsOccurrence;
+
+  /// No description provided for @notificationsOccurrenceHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échéances à venir et à confirmer'**
+  String get notificationsOccurrenceHint;
+
+  /// No description provided for @notificationsUnusual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépense inhabituelle'**
+  String get notificationsUnusual;
+
+  /// No description provided for @notificationsUnusualHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépense nettement plus élevée que d’habitude'**
+  String get notificationsUnusualHint;
+
+  /// No description provided for @notificationsDaily.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel quotidien'**
+  String get notificationsDaily;
+
+  /// No description provided for @notificationsDailyHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'« Avez-vous noté vos dépenses du jour ? »'**
+  String get notificationsDailyHint;
+
+  /// No description provided for @notificationsDailyTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Heure du rappel quotidien'**
+  String get notificationsDailyTime;
+
+  /// No description provided for @notificationsQuiet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plage de silence'**
+  String get notificationsQuiet;
+
+  /// No description provided for @notificationsQuietEnable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer la plage de silence'**
+  String get notificationsQuietEnable;
+
+  /// No description provided for @notificationsQuietHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les notifications sont reportées à la fin de la plage.'**
+  String get notificationsQuietHint;
+
+  /// No description provided for @notificationsQuietStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Début'**
+  String get notificationsQuietStart;
+
+  /// No description provided for @notificationsQuietEnd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin'**
+  String get notificationsQuietEnd;
+
+  /// No description provided for @notificationsQuietInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le début et la fin de la plage doivent être différents.'**
+  String get notificationsQuietInvalid;
+
+  /// No description provided for @notificationsNoAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun montant n’apparaît dans les notifications.'**
+  String get notificationsNoAmount;
 }
 
 class _AppLocalizationsDelegate

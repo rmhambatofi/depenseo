@@ -795,4 +795,71 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dashboardRecentTitle => 'Dernières dépenses';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsSettingsHint =>
+      'Types, plage de silence, rappel quotidien';
+
+  @override
+  String get notificationsOffline =>
+      'Connexion requise pour consulter ou modifier les notifications.';
+
+  @override
+  String get notificationsTypes => 'Types de notification';
+
+  @override
+  String get notificationsLimit => 'Limite de dépenses';
+
+  @override
+  String get notificationsLimitHint => 'À 80 % et à 100 % de la limite';
+
+  @override
+  String get notificationsOccurrence => 'Dépenses récurrentes';
+
+  @override
+  String get notificationsOccurrenceHint => 'Échéances à venir et à confirmer';
+
+  @override
+  String get notificationsUnusual => 'Dépense inhabituelle';
+
+  @override
+  String get notificationsUnusualHint =>
+      'Dépense nettement plus élevée que d’habitude';
+
+  @override
+  String get notificationsDaily => 'Rappel quotidien';
+
+  @override
+  String get notificationsDailyHint =>
+      '« Avez-vous noté vos dépenses du jour ? »';
+
+  @override
+  String get notificationsDailyTime => 'Heure du rappel quotidien';
+
+  @override
+  String get notificationsQuiet => 'Plage de silence';
+
+  @override
+  String get notificationsQuietEnable => 'Activer la plage de silence';
+
+  @override
+  String get notificationsQuietHint =>
+      'Les notifications sont reportées à la fin de la plage.';
+
+  @override
+  String get notificationsQuietStart => 'Début';
+
+  @override
+  String get notificationsQuietEnd => 'Fin';
+
+  @override
+  String get notificationsQuietInvalid =>
+      'Le début et la fin de la plage doivent être différents.';
+
+  @override
+  String get notificationsNoAmount =>
+      'Aucun montant n’apparaît dans les notifications.';
 }

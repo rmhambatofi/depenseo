@@ -45,6 +45,14 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => context.push('/settings/recurring'),
           ),
           ListTile(
+            key: const Key('open-notifications'),
+            leading: const Icon(Icons.notifications_outlined),
+            title: Text(l10n.notificationsTitle),
+            subtitle: Text(l10n.notificationsSettingsHint),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/settings/notifications'),
+          ),
+          ListTile(
             title: Text(
               l10n.settingsSecurity,
               style: TextStyle(color: Theme.of(context).colorScheme.primary),

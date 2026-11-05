@@ -790,4 +790,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboardRecentTitle => 'Latest expenses';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsSettingsHint => 'Types, quiet hours, daily reminder';
+
+  @override
+  String get notificationsOffline =>
+      'A connection is required to view or change notifications.';
+
+  @override
+  String get notificationsTypes => 'Notification types';
+
+  @override
+  String get notificationsLimit => 'Spending limit';
+
+  @override
+  String get notificationsLimitHint => 'At 80% and 100% of the limit';
+
+  @override
+  String get notificationsOccurrence => 'Recurring expenses';
+
+  @override
+  String get notificationsOccurrenceHint =>
+      'Upcoming payments and payments to confirm';
+
+  @override
+  String get notificationsUnusual => 'Unusual expense';
+
+  @override
+  String get notificationsUnusualHint => 'An expense much higher than usual';
+
+  @override
+  String get notificationsDaily => 'Daily reminder';
+
+  @override
+  String get notificationsDailyHint => '“Have you recorded today’s expenses?”';
+
+  @override
+  String get notificationsDailyTime => 'Daily reminder time';
+
+  @override
+  String get notificationsQuiet => 'Quiet hours';
+
+  @override
+  String get notificationsQuietEnable => 'Enable quiet hours';
+
+  @override
+  String get notificationsQuietHint =>
+      'Notifications are postponed until quiet hours end.';
+
+  @override
+  String get notificationsQuietStart => 'Start';
+
+  @override
+  String get notificationsQuietEnd => 'End';
+
+  @override
+  String get notificationsQuietInvalid =>
+      'Quiet hours must start and end at different times.';
+
+  @override
+  String get notificationsNoAmount => 'Notifications never show any amount.';
 }

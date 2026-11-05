@@ -4,6 +4,7 @@ import '../../core/auth/auth_api.dart';
 import '../../core/auth/reinstall_guard.dart';
 import '../../core/auth/social_sign_in.dart';
 import '../../providers.dart';
+import '../notifications/push_registration.dart';
 
 enum AuthStatus { signedOut, signedIn }
 
@@ -67,6 +68,9 @@ class AuthController extends AsyncNotifier<AuthStatus> {
   Future<void> logout() async {
     final store = ref.read(tokenStoreProvider);
     final session = await store.read();
+    // Avant d'effacer la session : l'appareil ne doit plus recevoir les
+    // notifications de ce compte (au mieux, borné dans le temps).
+    if (session != null) await ref.read(deviceRegistrarProvider).unregister();
     await store.clear();
     try {
       await ref.read(accountEpochProvider).clear();
