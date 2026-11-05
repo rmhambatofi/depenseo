@@ -82,7 +82,7 @@ Couverture des exigences « M » : `docs/dev/TRACEABILITY.md` (à tenir à jour 
 ## Phase 7 — Recette
 
 - [x] P7-01 Vérification de `docs/dev/TRACEABILITY.md` : chaque test cité existe et passe ; aucune ligne vide. (§11.1)
-- [ ] P7-02 Couverture ≥ 70 % sur la logique métier API (`domain/`, `services/`) et mobile, rapport et seuil en CI. (NF-QUA-01)
+- [x] P7-02 Couverture ≥ 70 % sur la logique métier API (`domain/`, `services/`) et mobile, rapport et seuil en CI. (NF-QUA-01)
 - [ ] P7-03 Sécurité : auto-évaluation OWASP MASVS L2 dans `docs/dev/MASVS.md`, en-têtes (CSP, HSTS), limitation de débit sur `/auth`. Test : 429 après N tentatives. (NF-SEC-04, NF-SEC-01)
 - [ ] P7-04 Accessibilité : labels sémantiques, contrastes, tailles dynamiques sur les parcours clés (tests `meetsGuideline` Flutter) ; check-list `docs/dev/A11Y.md`. (NF-QUA-04)
 - [ ] P7-05 Suivi des erreurs Sentry (région UE) sur l'API et le mobile, avec filtrage des montants et PII (`beforeSend`). Test : un événement contenant un montant est nettoyé. (NF-QUA-02, NF-SEC-06)
