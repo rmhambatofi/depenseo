@@ -5,7 +5,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## État courant
 
-- Tâche en cours : aucune
+- Tâche en cours : P6-09
 - Prochaine tâche : P6-09 (récurrences mobiles : création, échéances, payer / ajuster / sauter, confirmation, réglage des rappels ; tests widget ; F-REC-01..04). Vérifier côté API (`apps/api/src/recurring*`) les routes et si les échéances sont calculées par l'API (invariant 8) ; si une table locale alimentée par la synchro est ajoutée, incrémenter `syncFormat`.
 - Dernier commit : 6480320 feat(mobile): spending limit screen (P6-08)
 - Branche : main
