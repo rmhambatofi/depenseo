@@ -9,7 +9,7 @@ import type { Tx } from '../auth/session.service.js';
 import { CLOCK, type Clock } from '../clock.js';
 import type { Database } from '../db/connection.js';
 import { DB } from '../db/database.module.js';
-import { CUSTOM_CATEGORY_POSITION, category } from '../db/schema/index.js';
+import { CUSTOM_CATEGORY_POSITION, category, recurringExpense } from '../db/schema/index.js';
 import { withTransaction } from '../db/transaction.js';
 import { isUuid } from '../db/uuid.js';
 import { ProblemException } from '../errors/problem.exception.js';
@@ -158,6 +158,17 @@ export class CategoriesService {
       }
       if (await this.hasActiveChildren(tx, id)) {
         throw new ProblemException(409, 'Supprimer ou déplacer d’abord les sous-catégories');
+      }
+      // Une échéance se paie dans la catégorie de sa récurrence (ADR-032).
+      const usedBy = await tx.$count(
+        recurringExpense,
+        and(eq(recurringExpense.categoryId, id), isNull(recurringExpense.deletedAt)),
+      );
+      if (usedBy > 0) {
+        throw new ProblemException(
+          409,
+          'Catégorie utilisée par une dépense récurrente : changer d’abord sa catégorie',
+        );
       }
       await tx
         .update(category)

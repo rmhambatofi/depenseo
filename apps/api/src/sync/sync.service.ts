@@ -1,5 +1,5 @@
 // Synchronisation différentielle d'un carnet (NF-OFF-01, §8.2, ADR-026). Un parcours sert
-// catégories, étiquettes, dépenses puis versions de limite, chaque table par (updated_at, id) croissants sur l'index
+// catégories, étiquettes, dépenses, versions de limite, récurrences puis échéances, chaque table par (updated_at, id) croissants sur l'index
 // (notebook_id, updated_at, id), suppressions logiques comprises. Toute requête filtre par
 // `notebook_id`.
 import { Inject, Injectable } from '@nestjs/common';
@@ -7,7 +7,20 @@ import { and, asc, eq, gt, gte, or, type SQL } from 'drizzle-orm';
 import { CLOCK, type Clock } from '../clock.js';
 import type { Database } from '../db/connection.js';
 import { DB } from '../db/database.module.js';
-import { category, expense, type LimitPeriodKind, spendingLimit, tag } from '../db/schema/index.js';
+import {
+  type AmountKind,
+  category,
+  expense,
+  type LimitPeriodKind,
+  occurrence,
+  type OccurrenceStatus,
+  type RecurrenceFrequency,
+  type RecurrenceMode,
+  recurringExpense,
+  spendingLimit,
+  tag,
+} from '../db/schema/index.js';
+import { recurringColumns } from '../recurring/recurring.service.js';
 import { ProblemException } from '../errors/problem.exception.js';
 import { tagNamesByExpense } from '../expenses/expense-tags.js';
 import { encodeSyncCursor, type SyncCursor, type SyncQuery, SYNC_TABLES } from './sync-query.js';
@@ -55,11 +68,33 @@ export interface SyncLimit extends Synced {
   effectiveDate: string;
   createdAt: Date;
 }
+export interface SyncRecurring extends Synced {
+  name: string;
+  amount: number;
+  currency: string;
+  amountKind: AmountKind;
+  frequency: RecurrenceFrequency;
+  startDate: string;
+  categoryId: string;
+  mode: RecurrenceMode;
+  createdAt: Date;
+}
+export interface SyncOccurrence extends Synced {
+  recurringExpenseId: string;
+  dueDate: string;
+  status: OccurrenceStatus;
+  /** Montant propre à l'échéance ; NULL = montant de la récurrence. */
+  amount: number | null;
+  expenseId: string | null;
+  createdAt: Date;
+}
 export interface SyncPage {
   categories: SyncCategory[];
   tags: SyncTag[];
   expenses: SyncExpense[];
   limits: SyncLimit[];
+  recurringExpenses: SyncRecurring[];
+  occurrences: SyncOccurrence[];
   /** Page suivante du même parcours, `null` à la fin. */
   nextCursor: string | null;
   /** `updated_since` du prochain parcours, une fois celui-ci terminé. */
@@ -111,6 +146,19 @@ const limitColumns = {
   deletedAt: spendingLimit.deletedAt,
 };
 
+const syncRecurringColumns = { ...recurringColumns, deletedAt: recurringExpense.deletedAt };
+const occurrenceColumns = {
+  id: occurrence.id,
+  recurringExpenseId: occurrence.recurringExpenseId,
+  dueDate: occurrence.dueDate,
+  status: occurrence.status,
+  amount: occurrence.amount,
+  expenseId: occurrence.expenseId,
+  createdAt: occurrence.createdAt,
+  updatedAt: occurrence.updatedAt,
+  deletedAt: occurrence.deletedAt,
+};
+
 @Injectable()
 export class SyncService {
   constructor(
@@ -133,6 +181,8 @@ export class SyncService {
       tags: [],
       expenses: [],
       limits: [],
+      recurringExpenses: [],
+      occurrences: [],
       nextCursor: null,
       nextUpdatedSince: watermark,
     };
@@ -164,7 +214,7 @@ export class SyncService {
     from: { since?: Date; after?: SyncCursor['after'] },
     limit: number,
   ): Promise<Synced[]> {
-    const source = [category, tag, expense, spendingLimit][table]!;
+    const source = [category, tag, expense, spendingLimit, recurringExpense, occurrence][table]!;
     const conditions: (SQL | undefined)[] = [eq(source.notebookId, notebookId)];
     if (from.after) {
       const { updatedAt, id } = from.after;
@@ -177,7 +227,14 @@ export class SyncService {
     } else if (from.since) {
       conditions.push(gte(source.updatedAt, from.since));
     }
-    const columns = [categoryColumns, tagColumns, expenseColumns, limitColumns][table]!;
+    const columns = [
+      categoryColumns,
+      tagColumns,
+      expenseColumns,
+      limitColumns,
+      syncRecurringColumns,
+      occurrenceColumns,
+    ][table]!;
     return this.db
       .select(columns)
       .from(source)
@@ -205,6 +262,12 @@ export class SyncService {
       }
       case 'limits':
         page.limits = rows as SyncLimit[];
+        return;
+      case 'recurringExpenses':
+        page.recurringExpenses = rows as SyncRecurring[];
+        return;
+      case 'occurrences':
+        page.occurrences = rows as SyncOccurrence[];
     }
   }
 }

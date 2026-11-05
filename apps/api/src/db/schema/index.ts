@@ -9,3 +9,4 @@ export * from './category.js';
 export * from './expense.js';
 export * from './spending-limit.js';
 export * from './limit-alert.js';
+export * from './recurring.js';

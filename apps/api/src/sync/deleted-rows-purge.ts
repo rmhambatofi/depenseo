@@ -6,7 +6,7 @@
 import { and, inArray, isNotNull, lt, notExists, sql } from 'drizzle-orm';
 import type { Tx } from '../auth/session.service.js';
 import type { Database } from '../db/connection.js';
-import { category, expense, expenseTag, tag } from '../db/schema/index.js';
+import { category, expense, expenseTag, recurringExpense, tag } from '../db/schema/index.js';
 import { withTransaction } from '../db/transaction.js';
 import { PURGE_BATCH, type ScheduledTask } from '../jobs/scheduler.js';
 
@@ -19,8 +19,12 @@ const hasNoChild = notExists(
   // Alias explicite : la sous-requête porte sur la même table que la requête externe.
   sql`(select 1 from ${category} as ${sql.raw('child')} where ${sql.raw('child.parent_id')} = ${category.id})`,
 );
-const unusedCategory = notExists(
-  sql`(select 1 from ${expense} where ${expense.categoryId} = ${category.id})`,
+// Une récurrence (même supprimée, ADR-032) référence sa catégorie sans cascade.
+const unusedCategory = and(
+  notExists(sql`(select 1 from ${expense} where ${expense.categoryId} = ${category.id})`),
+  notExists(
+    sql`(select 1 from ${recurringExpense} where ${recurringExpense.categoryId} = ${category.id})`,
+  ),
 );
 
 export function purgeDeletedSyncRows(batchSize = PURGE_BATCH): ScheduledTask {
@@ -35,6 +39,21 @@ export function purgeDeletedSyncRows(batchSize = PURGE_BATCH): ScheduledTask {
           const [result] = await tx
             .delete(expense)
             .where(and(isNotNull(expense.deletedAt), lt(expense.deletedAt, cutoff)))
+            .limit(batchSize);
+          return result.affectedRows;
+        });
+        total += deleted;
+        if (deleted < batchSize) break;
+      }
+      // Récurrences supprimées (ADR-032) : leurs échéances partent par cascade ; avant les
+      // catégories, qu'elles référencent.
+      for (;;) {
+        const deleted = await withTransaction(db, async (tx) => {
+          const [result] = await tx
+            .delete(recurringExpense)
+            .where(
+              and(isNotNull(recurringExpense.deletedAt), lt(recurringExpense.deletedAt, cutoff)),
+            )
             .limit(batchSize);
           return result.affectedRows;
         });

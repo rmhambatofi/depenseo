@@ -7,6 +7,7 @@ import {
   verificationEmailHandler,
 } from '../auth/verification-email.job.js';
 import type { JobHandler } from './job-runner.js';
+import { generateDueOccurrences } from '../recurring/occurrence-generation.js';
 import { purgeDeletedSyncRows } from '../sync/deleted-rows-purge.js';
 import { purgeFinishedJobs, type ScheduledTask } from './scheduler.js';
 
@@ -16,5 +17,10 @@ export function jobHandlers(deps: VerificationEmailDeps): JobHandler<any>[] {
 }
 
 export function scheduledTasks(): ScheduledTask[] {
-  return [purgeFinishedJobs(), purgeExpiredRefreshTokens(), purgeDeletedSyncRows()];
+  return [
+    purgeFinishedJobs(),
+    purgeExpiredRefreshTokens(),
+    purgeDeletedSyncRows(),
+    generateDueOccurrences(),
+  ];
 }

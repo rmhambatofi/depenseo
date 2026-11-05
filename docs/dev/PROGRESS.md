@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P4-01 (dépenses récurrentes ; inclut le champ `upcoming` du tableau de bord, ADR-031).
-- Dernier commit : 5410860 feat(api): notebook dashboard (F-TB-01, F-TB-02)
+- Prochaine tâche : P4-02 (échéances dues traitées par le cron : auto → dépense, confirmation → notification).
+- Dernier commit : feat(api): recurring expenses and occurrences (F-REC-01, F-REC-03)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 437 api), `pnpm test:tz` vert (api : 32 par fuseau), `pnpm --filter api build` vert ; `test/sync`, `test/access`, `test/limits`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 469 api), `pnpm test:tz` vert (api : 37 par fuseau), `pnpm --filter api build` vert ; `test/sync`, `test/access`, `test/limits`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -106,6 +106,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Le harnais `test/access/cross-tenant.spec.ts` couvre automatiquement toute route `{notebookId}` en GET ; le relecteur demande malgré tout un test 404 explicite par ressource (ajouté pour le tableau de bord) : le prévoir d'emblée.
 - `FakeClock.set(epochMs)` ajouté. Suite des alertes : juillet–octobre 2026 ; jeton d'accès 15 min → pour changer de période, bascule de minuit en < 15 min plutôt que `advance(DAY)`.
 
+- Récurrences (P4-01, ADR-032) : `src/recurring/` — calendrier pur `dueDates/nextDueDate` (`schedule.ts`, départ + n × pas, jamais chaîné), `generateOccurrences(tx, rec, from, through, now)` + tâche `generate-occurrences` (horizon 40 j, `generated_through`, `9999-12-31` = épuisée), `RecurringService` (CRUD, calendrier immuable), `OccurrencesService` (`adjust`/`pay`/`skip`, `pay` = dépense `recurrence` + `checkLimitAlert`, sans détection inhabituelle) **à réutiliser en P4-02** pour le mode auto (extraire un `payOccurrence(tx, …)` sans `userId` HTTP). `pendingOccurrences` alimente `dashboard.upcoming`. Sync : `recurringExpenses`, `occurrences`. Colonne `pricing` (pas `amount_kind` : règle `*amount*` = BIGINT). Supprimer une catégorie utilisée par une récurrence active → 409. Tests : `test/support/recurring.ts` (`recurringClient`) ; suites en décembre 2026, tz au 31 octobre 2026 23:30 UTC, tâche de génération et purge en **mars–avril 2025 sans connexion** (`createUser`, pas de jeton : cf. `tokens.spec`).
+- Une suite qui lance une tâche périodique **globale** (génération, purge) doit choisir une plage où elle seule a des données éligibles (cf. ci-dessus) et n'asserter que sur ses propres identifiants.
+- Reliquats mineurs P4-01 : course « même `expenseId` payé depuis un autre carnet » non testée (ODKU + relecture en place) ; rejeu de `pay` après purge de la dépense → 409 ; pas d'annulation de « sauter ».
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -116,6 +120,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-05 session 20 — P4-01 fait : récurrences (hebdo/mensuel/trimestriel/annuel/ponctuel, jour = date de départ, repli fin de mois), échéances matérialisées à 40 j + tâche `generate-occurrences`, ajuster/payer/sauter, `upcoming` du tableau de bord, sync, purges ; migration 0009 ; ADR-032. Deux relectures (0 bloquant ; 5 importants corrigés : tombstones des échéances, catégorie protégée, ordre de verrous, tests de purge, alerte au paiement). Contre-épreuves faites (8 mutations).
 
 - 2026-11-05 session 19 (suite) — P3-05 fait : tableau de bord (jauge ou total sans limite, 5 dernières dépenses, répartition par catégorie racine, cumul jour par jour vs période précédente, 12 périodes), suite 4 fuseaux + DST ; ADR-031 ; `upcoming` reporté à P4-01. Une relecture (0 bloquant, 1 important corrigé : test 404 inter-carnets explicite). Contre-épreuves faites (racine, supprimées, fuseau, devise du compte).
 

@@ -64,6 +64,13 @@
       "when": 1793835201779,
       "tag": "0008_limit_alert",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1793837630213,
+      "tag": "0009_recurring_expense",
+      "breakpoints": true
     }
   ]
 }

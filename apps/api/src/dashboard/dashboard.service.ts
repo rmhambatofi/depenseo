@@ -15,6 +15,8 @@ import { type ExpenseView, ExpensesService } from '../expenses/expenses.service.
 import { dayTotals } from '../limits/day-totals.js';
 import { globalLimitVersions } from '../limits/limits.service.js';
 import { type PeriodSummary, periodSlices, summarize } from '../limits/period-summary.js';
+import { type OccurrenceView, pendingOccurrences } from '../recurring/occurrences.service.js';
+import { addDays } from '../recurring/occurrence-generation.js';
 import {
   type CategoryShare,
   type CategoryTotal,
@@ -27,6 +29,14 @@ import {
 export const EVOLUTION_PERIODS = 12;
 /** Dernières dépenses affichées (ADR-031). */
 export const RECENT_EXPENSES = 5;
+/** Prochaines échéances affichées et fenêtre (jours après aujourd'hui), ADR-032. */
+export const UPCOMING_OCCURRENCES = 5;
+export const UPCOMING_DAYS = 31;
+
+/** Échéance en attente, `overdue` si sa date est passée (fuseau du compte). */
+export interface UpcomingOccurrence extends OccurrenceView {
+  overdue: boolean;
+}
 
 export interface DashboardView {
   timeZone: string;
@@ -35,6 +45,8 @@ export interface DashboardView {
   gauge: PeriodSummary;
   /** Dernières dépenses actives, par date puis identifiant décroissants. */
   recent: ExpenseView[];
+  /** Échéances en attente (en retard comprises) dues d'ici `UPCOMING_DAYS` jours, par date. */
+  upcoming: UpcomingOccurrence[];
   /** Répartition de la période en cours par catégorie racine. */
   categories: CategoryShare[];
   /** Cumul de la période en cours (jusqu'à aujourd'hui) et de la précédente (entière). */
@@ -66,11 +78,18 @@ export class DashboardService {
     const evolution = slices.map((s) => summarize(s, today, totals, account.currency));
     const byCategory = await this.categoryTotals(notebookId, current.start, current.end);
     const { items: recent } = await this.expenses.search(notebookId, { limit: RECENT_EXPENSES });
+    const pending = await pendingOccurrences(
+      this.db,
+      notebookId,
+      addDays(today, UPCOMING_DAYS),
+      UPCOMING_OCCURRENCES,
+    );
     return {
       timeZone: account.timeZone,
       today,
       gauge: evolution[0]!,
       recent,
+      upcoming: pending.map((o) => ({ ...o, overdue: o.dueDate < today })),
       categories: categoryBreakdown(current, byCategory, account.currency),
       cumulative: {
         current: cumulativeByDay(current, today, totals, account.currency),

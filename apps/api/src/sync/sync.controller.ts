@@ -14,7 +14,13 @@ import {
 } from '@nestjs/swagger';
 import { CategoryDto } from '../categories/categories.controller.js';
 import { ExpenseDto } from '../expenses/expenses.controller.js';
-import { LIMIT_PERIOD_KINDS, type LimitPeriodKind } from '../db/schema/index.js';
+import {
+  LIMIT_PERIOD_KINDS,
+  type LimitPeriodKind,
+  OCCURRENCE_STATUSES,
+  type OccurrenceStatus,
+} from '../db/schema/index.js';
+import { RecurringDto } from '../recurring/recurring.dto.js';
 import { parseQuery } from '../http/parse-query.js';
 import {
   CurrentNotebook,
@@ -26,7 +32,9 @@ import {
   type SyncCategory,
   type SyncExpense,
   type SyncLimit,
+  type SyncOccurrence,
   type SyncPage,
+  type SyncRecurring,
   SyncService,
   type SyncTag,
 } from './sync.service.js';
@@ -107,6 +115,44 @@ export class SyncLimitDto implements SyncLimit {
   readonly deletedAt!: Date | null;
 }
 
+export class SyncRecurringDto extends RecurringDto implements SyncRecurring {
+  @ApiProperty(DELETED_AT)
+  readonly deletedAt!: Date | null;
+}
+
+export class SyncOccurrenceDto implements SyncOccurrence {
+  @ApiProperty({ format: 'uuid' })
+  readonly id!: string;
+
+  @ApiProperty({ format: 'uuid' })
+  readonly recurringExpenseId!: string;
+
+  @ApiProperty({ format: 'date' })
+  readonly dueDate!: string;
+
+  @ApiProperty({ enum: OCCURRENCE_STATUSES })
+  readonly status!: OccurrenceStatus;
+
+  @ApiProperty({
+    type: 'integer',
+    nullable: true,
+    description: 'Montant propre à l’échéance ; NULL = montant de la récurrence',
+  })
+  readonly amount!: number | null;
+
+  @ApiProperty({ type: String, format: 'uuid', nullable: true })
+  readonly expenseId!: string | null;
+
+  @ApiProperty({ format: 'date-time' })
+  readonly createdAt!: Date;
+
+  @ApiProperty({ format: 'date-time' })
+  readonly updatedAt!: Date;
+
+  @ApiProperty(DELETED_AT)
+  readonly deletedAt!: Date | null;
+}
+
 export class SyncPageDto implements SyncPage {
   @ApiProperty({ type: [SyncCategoryDto] })
   readonly categories!: SyncCategoryDto[];
@@ -119,6 +165,12 @@ export class SyncPageDto implements SyncPage {
 
   @ApiProperty({ type: [SyncLimitDto], description: 'Versions de la limite globale (ADR-027)' })
   readonly limits!: SyncLimitDto[];
+
+  @ApiProperty({ type: [SyncRecurringDto], description: 'Dépenses récurrentes (ADR-032)' })
+  readonly recurringExpenses!: SyncRecurringDto[];
+
+  @ApiProperty({ type: [SyncOccurrenceDto], description: 'Échéances (ADR-032)' })
+  readonly occurrences!: SyncOccurrenceDto[];
 
   @ApiProperty({
     type: String,
@@ -170,7 +222,7 @@ export class SyncController {
   @ApiOkResponse({
     type: SyncPageDto,
     description:
-      'Catégories, étiquettes puis dépenses modifiées, suppressions incluses, par (updatedAt, id)',
+      'Catégories, étiquettes, dépenses, limites, récurrences puis échéances modifiées, suppressions incluses, par (updatedAt, id)',
   })
   @ApiBadRequestResponse({ description: 'Paramètre inconnu ou invalide' })
   @ApiUnauthorizedResponse({ description: 'Jeton d’accès absent, invalide ou expiré' })

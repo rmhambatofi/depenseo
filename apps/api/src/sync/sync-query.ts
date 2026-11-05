@@ -9,7 +9,15 @@ export const MAX_SYNC_PAGE_SIZE = 500;
  * Ordre de parcours : les références (catégories, étiquettes) avant les dépenses ; les limites
  * (ADR-027) en dernier : ajout en fin pour ne pas décaler l'index des curseurs émis.
  */
-export const SYNC_TABLES = ['categories', 'tags', 'expenses', 'limits'] as const;
+export const SYNC_TABLES = [
+  'categories',
+  'tags',
+  'expenses',
+  'limits',
+  // Récurrences puis échéances (ADR-032).
+  'recurringExpenses',
+  'occurrences',
+] as const;
 export type SyncTable = (typeof SYNC_TABLES)[number];
 
 /** Position dans un parcours de synchronisation. */

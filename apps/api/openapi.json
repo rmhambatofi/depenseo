@@ -1358,6 +1358,504 @@
         ]
       }
     },
+    "/api/v1/notebooks/{notebookId}/recurring-expenses": {
+      "get": {
+        "operationId": "RecurringController_list",
+        "parameters": [
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actives, par nom",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RecurringDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou dépense récurrente introuvable"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "recurring-expenses"
+        ]
+      },
+      "post": {
+        "operationId": "RecurringController_create",
+        "parameters": [
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRecurringDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Créée, ou existante si rejeu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecurringDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Corps invalide"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou dépense récurrente introuvable"
+          },
+          "409": {
+            "description": "Identifiant déjà utilisé, ou récurrence supprimée"
+          },
+          "422": {
+            "description": "Catégorie supprimée ou d’un autre carnet, ou ponctuelle passée"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "recurring-expenses"
+        ]
+      }
+    },
+    "/api/v1/notebooks/{notebookId}/recurring-expenses/{recurringId}": {
+      "get": {
+        "operationId": "RecurringController_get",
+        "parameters": [
+          {
+            "name": "recurringId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecurringDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou dépense récurrente introuvable"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "recurring-expenses"
+        ]
+      },
+      "patch": {
+        "operationId": "RecurringController_update",
+        "parameters": [
+          {
+            "name": "recurringId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRecurringDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecurringDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Corps vide ou invalide (calendrier immuable)"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou dépense récurrente introuvable"
+          },
+          "422": {
+            "description": "Catégorie supprimée ou d’un autre carnet"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "recurring-expenses"
+        ]
+      },
+      "delete": {
+        "operationId": "RecurringController_remove",
+        "parameters": [
+          {
+            "name": "recurringId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Supprimée avec ses échéances en attente, ou déjà supprimée"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou dépense récurrente introuvable"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "recurring-expenses"
+        ]
+      }
+    },
+    "/api/v1/notebooks/{notebookId}/recurring-expenses/{recurringId}/occurrences": {
+      "get": {
+        "operationId": "RecurringController_occurrencesOf",
+        "parameters": [
+          {
+            "name": "recurringId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Par date d’échéance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OccurrenceDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou dépense récurrente introuvable"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "recurring-expenses"
+        ]
+      }
+    },
+    "/api/v1/notebooks/{notebookId}/occurrences/{occurrenceId}": {
+      "patch": {
+        "operationId": "OccurrencesController_adjust",
+        "parameters": [
+          {
+            "name": "occurrenceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdjustOccurrenceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Montant ajusté",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OccurrenceDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Corps invalide"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou échéance introuvable"
+          },
+          "409": {
+            "description": "Échéance déjà payée ou sautée"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "recurring-expenses"
+        ]
+      }
+    },
+    "/api/v1/notebooks/{notebookId}/occurrences/{occurrenceId}/pay": {
+      "post": {
+        "operationId": "OccurrencesController_pay",
+        "parameters": [
+          {
+            "name": "occurrenceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayOccurrenceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payée (dépense créée), ou rejeu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OccurrenceDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Corps invalide"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou échéance introuvable"
+          },
+          "409": {
+            "description": "Déjà payée (autre dépense) ou sautée ; identifiant pris"
+          },
+          "422": {
+            "description": "Catégorie supprimée ou d’un autre carnet"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "recurring-expenses"
+        ]
+      }
+    },
+    "/api/v1/notebooks/{notebookId}/occurrences/{occurrenceId}/skip": {
+      "post": {
+        "operationId": "OccurrencesController_skip",
+        "parameters": [
+          {
+            "name": "occurrenceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "notebookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sautée, ou déjà sautée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OccurrenceDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Carnet ou échéance introuvable"
+          },
+          "409": {
+            "description": "Échéance déjà payée"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "recurring-expenses"
+        ]
+      }
+    },
     "/api/v1/notebooks/{notebookId}/sync": {
       "get": {
         "operationId": "SyncController_changes",
@@ -1405,7 +1903,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Catégories, étiquettes puis dépenses modifiées, suppressions incluses, par (updatedAt, id)",
+            "description": "Catégories, étiquettes, dépenses, limites, récurrences puis échéances modifiées, suppressions incluses, par (updatedAt, id)",
             "content": {
               "application/json": {
                 "schema": {
@@ -2432,6 +2930,92 @@
           }
         }
       },
+      "UpcomingOccurrenceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recurringExpenseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "paid",
+              "skipped"
+            ]
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99999999999,
+            "description": "Attendu (ajusté ou de la récurrence) ; payée : réel"
+          },
+          "adjusted": {
+            "type": "boolean",
+            "description": "Montant propre à cette échéance"
+          },
+          "currency": {
+            "type": "string",
+            "example": "EUR"
+          },
+          "amountKind": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "estimated"
+            ]
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expenseId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "overdue": {
+            "type": "boolean",
+            "description": "Date d’échéance passée (fuseau du compte)"
+          }
+        },
+        "required": [
+          "id",
+          "recurringExpenseId",
+          "name",
+          "dueDate",
+          "status",
+          "amount",
+          "adjusted",
+          "currency",
+          "amountKind",
+          "categoryId",
+          "expenseId",
+          "createdAt",
+          "updatedAt",
+          "overdue"
+        ]
+      },
       "CategoryShareDto": {
         "type": "object",
         "properties": {
@@ -2529,6 +3113,14 @@
               "$ref": "#/components/schemas/ExpenseDto"
             }
           },
+          "upcoming": {
+            "maxItems": 5,
+            "description": "Échéances en attente dues d’ici 31 jours, en retard comprises",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpcomingOccurrenceDto"
+            }
+          },
           "categories": {
             "description": "Total décroissant",
             "type": "array",
@@ -2554,9 +3146,306 @@
           "today",
           "gauge",
           "recent",
+          "upcoming",
           "categories",
           "cumulative",
           "evolution"
+        ]
+      },
+      "RecurringDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99999999999,
+            "description": "Unités mineures de `currency`"
+          },
+          "currency": {
+            "type": "string",
+            "example": "EUR"
+          },
+          "amountKind": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "estimated"
+            ]
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "weekly",
+              "monthly",
+              "quarterly",
+              "yearly",
+              "once"
+            ]
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Première échéance ; porte le jour (ADR-032)"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "confirm"
+            ],
+            "description": "auto : enregistrée à l’échéance"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "amount",
+          "currency",
+          "amountKind",
+          "frequency",
+          "startDate",
+          "categoryId",
+          "mode",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateRecurringDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID v7 généré par le client (idempotence)"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99999999999
+          },
+          "currency": {
+            "type": "string",
+            "example": "EUR",
+            "description": "Défaut : devise du compte"
+          },
+          "amountKind": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "estimated"
+            ],
+            "default": "fixed"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "weekly",
+              "monthly",
+              "quarterly",
+              "yearly",
+              "once"
+            ]
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "confirm"
+            ],
+            "default": "confirm"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "amount",
+          "frequency",
+          "startDate",
+          "categoryId"
+        ]
+      },
+      "UpdateRecurringDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99999999999
+          },
+          "amountKind": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "estimated"
+            ]
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "confirm"
+            ]
+          }
+        }
+      },
+      "OccurrenceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recurringExpenseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "paid",
+              "skipped"
+            ]
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99999999999,
+            "description": "Attendu (ajusté ou de la récurrence) ; payée : réel"
+          },
+          "adjusted": {
+            "type": "boolean",
+            "description": "Montant propre à cette échéance"
+          },
+          "currency": {
+            "type": "string",
+            "example": "EUR"
+          },
+          "amountKind": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "estimated"
+            ]
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expenseId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "recurringExpenseId",
+          "name",
+          "dueDate",
+          "status",
+          "amount",
+          "adjusted",
+          "currency",
+          "amountKind",
+          "categoryId",
+          "expenseId",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "AdjustOccurrenceDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99999999999,
+            "nullable": true,
+            "description": "NULL = montant de la récurrence"
+          }
+        },
+        "required": [
+          "amount"
+        ]
+      },
+      "PayOccurrenceDto": {
+        "type": "object",
+        "properties": {
+          "expenseId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID v7 de la dépense créée (idempotence)"
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99999999999,
+            "description": "Montant réel ; défaut : montant attendu"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "Défaut : date d’échéance"
+          }
+        },
+        "required": [
+          "expenseId"
         ]
       },
       "SyncCategoryDto": {
@@ -2825,6 +3714,151 @@
           "deletedAt"
         ]
       },
+      "SyncRecurringDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99999999999,
+            "description": "Unités mineures de `currency`"
+          },
+          "currency": {
+            "type": "string",
+            "example": "EUR"
+          },
+          "amountKind": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "estimated"
+            ]
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "weekly",
+              "monthly",
+              "quarterly",
+              "yearly",
+              "once"
+            ]
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Première échéance ; porte le jour (ADR-032)"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "confirm"
+            ],
+            "description": "auto : enregistrée à l’échéance"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Suppression logique ; NULL si active"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "amount",
+          "currency",
+          "amountKind",
+          "frequency",
+          "startDate",
+          "categoryId",
+          "mode",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
+      },
+      "SyncOccurrenceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recurringExpenseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "paid",
+              "skipped"
+            ]
+          },
+          "amount": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Montant propre à l’échéance ; NULL = montant de la récurrence"
+          },
+          "expenseId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deletedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Suppression logique ; NULL si active"
+          }
+        },
+        "required": [
+          "id",
+          "recurringExpenseId",
+          "dueDate",
+          "status",
+          "amount",
+          "expenseId",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
+      },
       "SyncPageDto": {
         "type": "object",
         "properties": {
@@ -2853,6 +3887,20 @@
               "$ref": "#/components/schemas/SyncLimitDto"
             }
           },
+          "recurringExpenses": {
+            "description": "Dépenses récurrentes (ADR-032)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncRecurringDto"
+            }
+          },
+          "occurrences": {
+            "description": "Échéances (ADR-032)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncOccurrenceDto"
+            }
+          },
           "nextCursor": {
             "type": "string",
             "nullable": true,
@@ -2869,6 +3917,8 @@
           "tags",
           "expenses",
           "limits",
+          "recurringExpenses",
+          "occurrences",
           "nextCursor",
           "nextUpdatedSince"
         ]

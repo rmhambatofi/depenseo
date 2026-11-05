@@ -11,6 +11,8 @@ import {
   category,
   expense,
   expenseTag,
+  occurrence,
+  recurringExpense,
   spendingLimit,
   tag,
   user,
@@ -56,6 +58,22 @@ const BODIES: Record<string, (owner: Tenant) => object> = {
   }),
   'POST /api/v1/notebooks/{notebookId}/limits': () => ({ id: newId(), amount: 666 }),
   'PATCH /api/v1/notebooks/{notebookId}/limits/{limitId}': () => ({ amount: 1 }),
+  'POST /api/v1/notebooks/{notebookId}/recurring-expenses': () => ({
+    id: newId(),
+    name: 'Intrusion',
+    amount: 666,
+    frequency: 'monthly',
+    startDate: '2026-04-07',
+    categoryId: newId(),
+  }),
+  'PATCH /api/v1/notebooks/{notebookId}/recurring-expenses/{recurringId}': () => ({
+    name: 'Renommée',
+    amount: 1,
+  }),
+  'PATCH /api/v1/notebooks/{notebookId}/occurrences/{occurrenceId}': () => ({ amount: 1 }),
+  'POST /api/v1/notebooks/{notebookId}/occurrences/{occurrenceId}/pay': () => ({
+    expenseId: newId(),
+  }),
   'PATCH /api/v1/notebooks/{notebookId}/expenses/{expenseId}': () => ({
     amount: 1,
     note: 'modifiée',
@@ -111,6 +129,9 @@ const RESOURCE_PARAMS: Record<string, (owner: Tenant, db: Database) => Promise<s
     await db.insert(expenseTag).values({ id: newId(), expenseId: id, tagId });
     return id;
   },
+  // Récurrence active de A avec une échéance en attente (payable par A : catégorie du plan).
+  recurringId: async (owner, db) => (await recurringOf(owner, db)).recurringId,
+  occurrenceId: async (owner, db) => (await recurringOf(owner, db)).occurrenceId,
   // Version de limite du jour de A (modifiable : seule la garde de carnet peut la protéger).
   // Une seule version par jour : réutilisée d'une route à l'autre.
   limitId: async (owner, db) => {
@@ -136,6 +157,43 @@ const RESOURCE_PARAMS: Record<string, (owner: Tenant, db: Database) => Promise<s
   },
 };
 
+/** Récurrence mensuelle de A et son échéance en attente, écrites en base. */
+async function recurringOf(owner: Tenant, db: Database) {
+  const recurringId = newId();
+  const occurrenceId = newId();
+  const now = new Date();
+  const [cat] = await db
+    .select({ id: category.id })
+    .from(category)
+    .where(and(eq(category.notebookId, owner.notebookId), isNotNull(category.systemKey)))
+    .limit(1);
+  await db.insert(recurringExpense).values({
+    id: recurringId,
+    notebookId: owner.notebookId,
+    name: 'Récurrence de A',
+    amount: 4_200,
+    currency: 'EUR',
+    amountKind: 'fixed',
+    frequency: 'monthly',
+    startDate: '2026-04-10',
+    categoryId: cat!.id,
+    mode: 'confirm',
+    generatedThrough: '2026-05-17',
+    createdAt: now,
+    updatedAt: now,
+  });
+  await db.insert(occurrence).values({
+    id: occurrenceId,
+    notebookId: owner.notebookId,
+    recurringExpenseId: recurringId,
+    dueDate: '2026-04-10',
+    status: 'pending',
+    createdAt: now,
+    updatedAt: now,
+  });
+  return { recurringId, occurrenceId };
+}
+
 /** Tables filles du carnet, relues après chaque appel de B : rien ne doit changer chez A. */
 const notebookRows = async (db: Database, notebookId: string) => ({
   categories: await db
@@ -154,6 +212,16 @@ const notebookRows = async (db: Database, notebookId: string) => ({
     .where(eq(spendingLimit.notebookId, notebookId))
     .orderBy(asc(spendingLimit.id)),
   tags: await db.select().from(tag).where(eq(tag.notebookId, notebookId)).orderBy(asc(tag.id)),
+  recurring: await db
+    .select()
+    .from(recurringExpense)
+    .where(eq(recurringExpense.notebookId, notebookId))
+    .orderBy(asc(recurringExpense.id)),
+  occurrences: await db
+    .select()
+    .from(occurrence)
+    .where(eq(occurrence.notebookId, notebookId))
+    .orderBy(asc(occurrence.id)),
   expenseTags: await db
     .select({ expenseId: expenseTag.expenseId, tagId: expenseTag.tagId })
     .from(expenseTag)

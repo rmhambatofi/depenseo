@@ -12,6 +12,7 @@ import {
 import { CurrentUser, type Principal } from '../auth/access-token.guard.js';
 import { ExpenseDto } from '../expenses/expenses.controller.js';
 import { PeriodSummaryDto } from '../limits/limits.controller.js';
+import { OccurrenceDto } from '../recurring/recurring.dto.js';
 import {
   CurrentNotebook,
   type NotebookAccess,
@@ -23,7 +24,15 @@ import {
   DashboardService,
   EVOLUTION_PERIODS,
   RECENT_EXPENSES,
+  UPCOMING_DAYS,
+  UPCOMING_OCCURRENCES,
+  type UpcomingOccurrence,
 } from './dashboard.service.js';
+
+export class UpcomingOccurrenceDto extends OccurrenceDto implements UpcomingOccurrence {
+  @ApiProperty({ description: 'Date d’échéance passée (fuseau du compte)' })
+  readonly overdue!: boolean;
+}
 
 export class CategoryShareDto implements CategoryShare {
   @ApiProperty({ format: 'uuid', description: 'Catégorie racine' })
@@ -70,6 +79,14 @@ export class DashboardDto implements DashboardView {
 
   @ApiProperty({ type: ExpenseDto, isArray: true, maxItems: RECENT_EXPENSES })
   readonly recent!: ExpenseDto[];
+
+  @ApiProperty({
+    type: UpcomingOccurrenceDto,
+    isArray: true,
+    maxItems: UPCOMING_OCCURRENCES,
+    description: `Échéances en attente dues d’ici ${UPCOMING_DAYS} jours, en retard comprises`,
+  })
+  readonly upcoming!: UpcomingOccurrenceDto[];
 
   @ApiProperty({ type: CategoryShareDto, isArray: true, description: 'Total décroissant' })
   readonly categories!: CategoryShareDto[];
