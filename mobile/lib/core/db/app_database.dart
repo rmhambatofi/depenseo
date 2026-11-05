@@ -149,11 +149,7 @@ class AppDatabase extends _$AppDatabase {
     String? merchant,
     List<String> tags = const [],
   }) {
-    // Milliseconde près, comme DATETIME(3) côté serveur.
-    final stamp = DateTime.fromMillisecondsSinceEpoch(
-      now.millisecondsSinceEpoch,
-      isUtc: true,
-    ).toIso8601String();
+    final stamp = utcStamp(now);
     return into(expenses).insert(
       ExpensesCompanion.insert(
         id: id,
@@ -207,6 +203,12 @@ class AppDatabase extends _$AppDatabase {
     return row?.data.values.first?.toString() ?? '';
   }
 }
+
+/// Horodatage ISO 8601 UTC à la milliseconde près, comme DATETIME(3) côté serveur.
+String utcStamp(DateTime now) => DateTime.fromMillisecondsSinceEpoch(
+  now.millisecondsSinceEpoch,
+  isUtc: true,
+).toIso8601String();
 
 final _hexKey = RegExp(r'^[0-9a-f]{64}$');
 

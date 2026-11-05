@@ -128,7 +128,7 @@ class SyncController extends Notifier<SyncPhase> {
     } finally {
       if (ref.mounted) {
         // Pas `quickEntryDataProvider` : le formulaire ouvert serait réinitialisé.
-        ref.invalidate(localExpensesProvider);
+        refreshLocalExpenses(ref.invalidate);
       }
     }
   }

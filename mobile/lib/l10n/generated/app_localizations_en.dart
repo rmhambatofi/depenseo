@@ -327,4 +327,86 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get expenseSyncConflict =>
       'Conflicts with the server (deleted elsewhere?)';
+
+  @override
+  String get expenseListTitle => 'Expenses';
+
+  @override
+  String get editExpenseTitle => 'Edit expense';
+
+  @override
+  String get expenseNotFound => 'This expense no longer exists.';
+
+  @override
+  String get deleteExpense => 'Delete expense';
+
+  @override
+  String get expenseDeleted => 'Expense deleted.';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get expenseConflictExplanation =>
+      'This expense was deleted on another device. Restore it to keep your version, or discard it.';
+
+  @override
+  String get restoreExpense => 'Restore';
+
+  @override
+  String get discardExpense => 'Discard';
+
+  @override
+  String get discardExpenseConfirm =>
+      'Discard this expense? It will stay deleted.';
+
+  @override
+  String get restoreFailed =>
+      'Could not restore. Check your connection and try again.';
+
+  @override
+  String get expenseRestored => 'Expense restored.';
+
+  @override
+  String get expenseDiscarded => 'Expense discarded.';
+
+  @override
+  String get searchLabel => 'Search';
+
+  @override
+  String get searchHint => 'Note or merchant';
+
+  @override
+  String get searchEmpty => 'No matching expenses.';
+
+  @override
+  String get filtersTitle => 'Filters';
+
+  @override
+  String get filtersActive => 'Filters on';
+
+  @override
+  String get filtersApply => 'Apply';
+
+  @override
+  String get filtersReset => 'Clear filters';
+
+  @override
+  String get periodLabel => 'Period';
+
+  @override
+  String get periodAny => 'All dates';
+
+  @override
+  String get minAmountLabel => 'Minimum amount';
+
+  @override
+  String get maxAmountLabel => 'Maximum amount';
+
+  @override
+  String get amountRangeInvalid =>
+      'The maximum must be greater than or equal to the minimum.';
+
+  @override
+  String get undoTooLate => 'Too late: the deletion has already been saved.';
 }

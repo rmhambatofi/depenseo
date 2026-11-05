@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,26 +8,45 @@ import 'package:intl/intl.dart';
 import '../../core/account/account_context.dart';
 import '../../core/dates/today.dart';
 import '../../core/db/app_database.dart';
+import '../../core/db/expense_store.dart';
 import '../../core/money/amount_input.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers.dart';
+import 'category_picker.dart';
+import 'expense_conflict_banner.dart';
 import 'expense_providers.dart';
 import 'tags_input.dart';
+
+/// Issue de l'écran ouvert sur une dépense existante (P6-06).
+enum ExpenseEditOutcome { saved, deleted, restored, discarded }
 
 /// Saisie rapide (F-DEP-01 à 03) : montant au clavier numérique, catégorie
 /// (dernière utilisée présélectionnée), date du jour dans le fuseau du compte ;
 /// enregistrée immédiatement dans la base locale, envoyée plus tard (P6-05).
+/// Avec [expenseId] : modification d'une dépense existante (F-DEP-10).
 class QuickEntryScreen extends ConsumerWidget {
-  const QuickEntryScreen({super.key});
+  const QuickEntryScreen({super.key, this.expenseId});
+
+  final String? expenseId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final data = ref.watch(quickEntryDataProvider);
+    final id = expenseId;
+    final data = ref.watch(
+      id == null ? quickEntryDataProvider : expenseEditDataProvider(id),
+    );
+    final title = Text(
+      id == null ? l10n.quickEntryTitle : l10n.editExpenseTitle,
+    );
     return switch (data) {
       AsyncData(:final value) => _QuickEntryForm(data: value),
+      AsyncError(error: ExpenseNotFound()) => Scaffold(
+        appBar: AppBar(title: title),
+        body: Center(child: Text(l10n.expenseNotFound)),
+      ),
       AsyncError() => Scaffold(
-        appBar: AppBar(title: Text(l10n.quickEntryTitle)),
+        appBar: AppBar(title: title),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -44,7 +65,7 @@ class QuickEntryScreen extends ConsumerWidget {
         ),
       ),
       _ => Scaffold(
-        appBar: AppBar(title: Text(l10n.quickEntryTitle)),
+        appBar: AppBar(title: title),
         body: const Center(child: CircularProgressIndicator()),
       ),
     };
@@ -70,13 +91,30 @@ class _QuickEntryFormState extends ConsumerState<_QuickEntryForm> {
     widget.data.account.timeZone,
     ref.read(clockProvider)(),
   );
-  late String _date = _today;
+  late String _date = _editing?.date ?? _today;
+  var _prefilled = false;
   String? _amountError;
   String? _categoryError;
   String? _tagsError;
   String? _noteError;
   String? _merchantError;
   bool _saving = false;
+
+  Expense? get _editing => widget.data.expense;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final e = _editing;
+    if (_prefilled || e == null) return;
+    _prefilled = true;
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final separator = NumberFormat.decimalPattern(locale).symbols.DECIMAL_SEP;
+    _amount.text = amountToInput(e.amount, e.currency, separator);
+    _note.text = e.note ?? '';
+    _merchant.text = e.merchant ?? '';
+    _tags.text = (jsonDecode(e.tags) as List).cast<String>().join(', ');
+  }
 
   @override
   void dispose() {
@@ -87,7 +125,7 @@ class _QuickEntryFormState extends ConsumerState<_QuickEntryForm> {
     super.dispose();
   }
 
-  String get _currency => widget.data.account.currency;
+  String get _currency => _editing?.currency ?? widget.data.account.currency;
 
   String _amountMessage(AppLocalizations l10n, AmountErrorKind kind) =>
       switch (kind) {
@@ -136,6 +174,30 @@ class _QuickEntryFormState extends ConsumerState<_QuickEntryForm> {
     final account = widget.data.account;
     try {
       final db = await ref.read(databaseProvider.future);
+      final editing = _editing;
+      if (editing != null) {
+        final found = await db.updateLocalExpense(
+          editing.id,
+          amount: amount.cents,
+          categoryId: _categoryId!,
+          date: _date,
+          note: note,
+          merchant: merchant,
+          tags: tags.names,
+          now: ref.read(clockProvider)(),
+        );
+        if (!mounted) return;
+        if (found) {
+          context.pop(ExpenseEditOutcome.saved);
+          return;
+        }
+        // Supprimée entre-temps (synchro) : rien n'a été écrit.
+        setState(() => _saving = false);
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(l10n.expenseNotFound)));
+        return;
+      }
       await db.transaction(() async {
         await db.insertLocalExpense(
           id: ref.read(idGeneratorProvider)(),
@@ -184,8 +246,19 @@ class _QuickEntryFormState extends ConsumerState<_QuickEntryForm> {
         : DateFormat.yMMMMd(locale).format(_components(_date));
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.quickEntryTitle),
+        title: Text(
+          _editing == null ? l10n.quickEntryTitle : l10n.editExpenseTitle,
+        ),
         actions: [
+          if (_editing != null)
+            IconButton(
+              key: const Key('delete-expense'),
+              tooltip: l10n.deleteExpense,
+              icon: const Icon(Icons.delete_outline),
+              onPressed: _saving
+                  ? null
+                  : () => context.pop(ExpenseEditOutcome.deleted),
+            ),
           TextButton(
             key: const Key('save-expense'),
             onPressed: _saving ? null : _save,
@@ -196,10 +269,15 @@ class _QuickEntryFormState extends ConsumerState<_QuickEntryForm> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (_editing case final e? when e.syncError == 'conflict')
+            ExpenseConflictBanner(
+              account: widget.data.account,
+              expenseId: e.id,
+            ),
           TextField(
             key: const Key('expense-amount'),
             controller: _amount,
-            autofocus: true,
+            autofocus: _editing == null,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [AmountInputFormatter(separator)],
             textInputAction: TextInputAction.done,
@@ -216,7 +294,7 @@ class _QuickEntryFormState extends ConsumerState<_QuickEntryForm> {
             style: Theme.of(context).textTheme.labelLarge,
           ),
           const SizedBox(height: 8),
-          _CategoryPicker(
+          CategoryPicker(
             categories: widget.data.categories,
             selectedId: _categoryId,
             onSelected: (id) => setState(() {
@@ -285,49 +363,4 @@ DateTime _components(String date) {
 String? _trimmedOrNull(String text) {
   final trimmed = text.trim();
   return trimmed.isEmpty ? null : trimmed;
-}
-
-/// Racines en puces ; les sous-catégories de la racine choisie apparaissent
-/// dessous (une racine reste un choix valide).
-class _CategoryPicker extends StatelessWidget {
-  const _CategoryPicker({
-    required this.categories,
-    required this.selectedId,
-    required this.onSelected,
-  });
-
-  final List<Category> categories;
-  final String? selectedId;
-  final ValueChanged<String> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    if (categories.isEmpty) {
-      return Text(AppLocalizations.of(context).categoriesUnavailable);
-    }
-    final roots = categories.where((c) => c.parentId == null).toList();
-    final selected = categories.where((c) => c.id == selectedId).firstOrNull;
-    final rootId = selected?.parentId ?? selected?.id;
-    final children = categories.where((c) => c.parentId == rootId).toList();
-    Widget chip(Category c) => ChoiceChip(
-      key: Key('category-${c.id}'),
-      label: Text('${c.icon} ${c.name}'),
-      selected: c.id == selectedId,
-      onSelected: (_) => onSelected(c.id),
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Wrap(spacing: 8, runSpacing: 4, children: roots.map(chip).toList()),
-        if (rootId != null && children.isNotEmpty) ...[
-          const Divider(),
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: children.map(chip).toList(),
-          ),
-        ],
-      ],
-    );
-  }
 }

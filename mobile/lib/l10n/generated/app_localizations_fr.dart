@@ -329,4 +329,86 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get expenseSyncConflict =>
       'En conflit avec le serveur (supprimée ailleurs ?)';
+
+  @override
+  String get expenseListTitle => 'Dépenses';
+
+  @override
+  String get editExpenseTitle => 'Modifier la dépense';
+
+  @override
+  String get expenseNotFound => 'Cette dépense n\'existe plus.';
+
+  @override
+  String get deleteExpense => 'Supprimer la dépense';
+
+  @override
+  String get expenseDeleted => 'Dépense supprimée.';
+
+  @override
+  String get undo => 'Annuler';
+
+  @override
+  String get expenseConflictExplanation =>
+      'Cette dépense a été supprimée sur un autre appareil. Restaurez-la pour garder votre version, ou abandonnez-la.';
+
+  @override
+  String get restoreExpense => 'Restaurer';
+
+  @override
+  String get discardExpense => 'Abandonner';
+
+  @override
+  String get discardExpenseConfirm =>
+      'Abandonner cette dépense ? Elle restera supprimée.';
+
+  @override
+  String get restoreFailed =>
+      'Restauration impossible. Vérifiez la connexion et réessayez.';
+
+  @override
+  String get expenseRestored => 'Dépense restaurée.';
+
+  @override
+  String get expenseDiscarded => 'Dépense abandonnée.';
+
+  @override
+  String get searchLabel => 'Rechercher';
+
+  @override
+  String get searchHint => 'Note ou commerçant';
+
+  @override
+  String get searchEmpty => 'Aucune dépense ne correspond.';
+
+  @override
+  String get filtersTitle => 'Filtres';
+
+  @override
+  String get filtersActive => 'Filtres actifs';
+
+  @override
+  String get filtersApply => 'Appliquer';
+
+  @override
+  String get filtersReset => 'Effacer les filtres';
+
+  @override
+  String get periodLabel => 'Période';
+
+  @override
+  String get periodAny => 'Toutes les dates';
+
+  @override
+  String get minAmountLabel => 'Montant minimum';
+
+  @override
+  String get maxAmountLabel => 'Montant maximum';
+
+  @override
+  String get amountRangeInvalid =>
+      'Le maximum doit être supérieur ou égal au minimum.';
+
+  @override
+  String get undoTooLate => 'Trop tard : la suppression est déjà enregistrée.';
 }

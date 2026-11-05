@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderOrFamily;
 import 'package:uuid/uuid.dart';
 
 import '../../core/account/account_context.dart';
 import '../../core/db/app_database.dart';
+import '../../core/db/expense_filter.dart';
+import '../../core/db/expense_store.dart';
 import '../../providers.dart';
 import '../auth/auth_controller.dart';
 
@@ -28,13 +31,20 @@ final idGeneratorProvider = Provider<String Function()>(
   (ref) => const Uuid().v7,
 );
 
-/// Données de l'écran de saisie : contexte, catégories, dernière catégorie utilisée.
+/// Données de l'écran de saisie : contexte, catégories, dernière catégorie
+/// utilisée ; [expense] = dépense modifiée (`null` en création).
 class QuickEntryData {
-  const QuickEntryData(this.account, this.categories, this.lastCategoryId);
+  const QuickEntryData(
+    this.account,
+    this.categories,
+    this.lastCategoryId, {
+    this.expense,
+  });
 
   final AccountContext account;
   final List<Category> categories;
   final String? lastCategoryId;
+  final Expense? expense;
 }
 
 final quickEntryDataProvider = FutureProvider.autoDispose<QuickEntryData>(
@@ -51,6 +61,37 @@ final quickEntryDataProvider = FutureProvider.autoDispose<QuickEntryData>(
     );
   },
 );
+
+/// Dépense à modifier (P6-06) ; erreur [ExpenseNotFound] si elle n'existe pas
+/// (ou plus) dans le carnet courant. Sa catégorie reste proposée même masquée.
+final expenseEditDataProvider = FutureProvider.autoDispose
+    .family<QuickEntryData, String>(retry: _noRetry, (ref, id) async {
+      final account = await ref.watch(accountContextProvider.future);
+      final db = await ref.watch(databaseProvider.future);
+      final expense = await db.expenseById(id);
+      if (expense == null ||
+          expense.notebookId != account.notebookId ||
+          expense.deletedAt != null) {
+        throw const ExpenseNotFound();
+      }
+      final categories = await db.selectableCategories(account.notebookId);
+      if (!categories.any((c) => c.id == expense.categoryId)) {
+        final current = await (db.select(
+          db.categories,
+        )..where((c) => c.id.equals(expense.categoryId))).getSingleOrNull();
+        if (current != null) categories.add(current);
+      }
+      return QuickEntryData(
+        account,
+        categories,
+        expense.categoryId,
+        expense: expense,
+      );
+    });
+
+class ExpenseNotFound implements Exception {
+  const ExpenseNotFound();
+}
 
 /// Dépense de la copie locale, avec le nom de sa catégorie (`null` si la
 /// catégorie n'est pas encore synchronisée).
@@ -74,5 +115,56 @@ final localExpensesProvider =
           LocalExpenseItem(e, name),
       ];
     });
+
+/// Critères de l'écran de liste (F-DEP-09), réinitialisés à sa fermeture.
+final expenseFilterProvider =
+    NotifierProvider.autoDispose<ExpenseFilterController, ExpenseFilter>(
+      ExpenseFilterController.new,
+    );
+
+class ExpenseFilterController extends Notifier<ExpenseFilter> {
+  @override
+  ExpenseFilter build() => const ExpenseFilter();
+
+  void setText(String text) => state = state.withText(text);
+
+  void setCriteria(ExpenseFilter criteria) =>
+      state = state.withCriteriaOf(criteria);
+}
+
+/// Catégories proposées dans les filtres (masquées comprises).
+final filterCategoriesProvider = FutureProvider.autoDispose<List<Category>>(
+  retry: _noRetry,
+  (ref) async {
+    final account = await ref.watch(accountContextProvider.future);
+    final db = await ref.watch(databaseProvider.future);
+    return db.filterableCategories(account.notebookId);
+  },
+);
+
+/// Résultats de la recherche locale (consultable hors connexion), rafraîchis
+/// après chaque modification et chaque synchro.
+final expenseSearchProvider =
+    FutureProvider.autoDispose<List<LocalExpenseItem>>(retry: _noRetry, (
+      ref,
+    ) async {
+      final filter = ref.watch(expenseFilterProvider);
+      final account = await ref.watch(accountContextProvider.future);
+      final db = await ref.watch(databaseProvider.future);
+      return [
+        for (final (e, name) in await db.searchExpenses(
+          account.notebookId,
+          filter,
+        ))
+          LocalExpenseItem(e, name),
+      ];
+    });
+
+/// À appeler après toute écriture locale sur les dépenses
+/// (`refreshLocalExpenses(ref.invalidate)`).
+void refreshLocalExpenses(void Function(ProviderOrFamily) invalidate) {
+  invalidate(localExpensesProvider);
+  invalidate(expenseSearchProvider);
+}
 
 Duration? _noRetry(int retryCount, Object error) => null;

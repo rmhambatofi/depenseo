@@ -8,6 +8,7 @@ import 'features/auth/password_reset_screens.dart';
 import 'features/auth/register_screen.dart';
 import 'features/auth/storage_error_screen.dart';
 import 'features/auth/verify_email_screen.dart';
+import 'features/expenses/expense_list_screen.dart';
 import 'features/expenses/quick_entry_screen.dart';
 import 'features/home/home_screen.dart';
 import 'features/settings/pin_setup_screen.dart';
@@ -50,9 +51,21 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) => authRedirect(refresh.value, state.uri.path),
     routes: [
       GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+      // Routes à plat (pas de liste sous l'écran poussé) ; `new` avant `:id`.
+      GoRoute(
+        path: '/expenses',
+        builder: (context, state) => const ExpenseListScreen(),
+      ),
       GoRoute(
         path: '/expenses/new',
         builder: (context, state) => const QuickEntryScreen(),
+      ),
+      GoRoute(
+        path: '/expenses/:expenseId',
+        builder: (context, state) => QuickEntryScreen(
+          key: ValueKey(state.pathParameters['expenseId']),
+          expenseId: state.pathParameters['expenseId'],
+        ),
       ),
       GoRoute(
         path: '/settings',

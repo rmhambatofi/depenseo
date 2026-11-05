@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
-import '../../core/money/amount_format.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../auth/auth_controller.dart';
 import '../expenses/expense_providers.dart';
+import '../expenses/expense_tile.dart';
 import '../sync/sync_controller.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -32,6 +31,12 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
           IconButton(
+            key: const Key('open-expenses'),
+            tooltip: l10n.expenseListTitle,
+            icon: const Icon(Icons.search),
+            onPressed: () => context.push('/expenses'),
+          ),
+          IconButton(
             key: const Key('open-settings'),
             tooltip: l10n.settingsTitle,
             icon: const Icon(Icons.settings_outlined),
@@ -56,7 +61,7 @@ class HomeScreen extends ConsumerWidget {
           }
           final saved = await context.push<bool>('/expenses/new');
           if (saved == true) {
-            ref.invalidate(localExpensesProvider);
+            refreshLocalExpenses(ref.invalidate);
             ref.read(syncControllerProvider.notifier).request().ignore();
           }
           if (saved == true && context.mounted) {
@@ -78,50 +83,15 @@ class _RecentExpenses extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    final items = ref.watch(localExpensesProvider).value ?? const [];
+    final items = visibleExpenses(
+      ref,
+      ref.watch(localExpensesProvider).value ?? const [],
+    );
     if (items.isEmpty) return Center(child: Text(l10n.homeEmpty));
     return ListView.builder(
       key: const Key('recent-expenses'),
       itemCount: items.length,
-      itemBuilder: (context, i) {
-        final item = items[i];
-        final e = item.expense;
-        final status = e.syncError == 'conflict'
-            ? (Icons.sync_problem_outlined, l10n.expenseSyncConflict)
-            : e.syncError != null
-            ? (Icons.error_outline, l10n.expenseSyncRejected)
-            : e.pendingSync
-            ? (Icons.cloud_upload_outlined, l10n.expensePendingSync)
-            : null;
-        return ListTile(
-          key: Key('expense-${e.id}'),
-          title: Text(item.categoryName ?? l10n.categoryNotSynced),
-          subtitle: Text(
-            [
-              _formatDate(e.date, locale),
-              if (e.merchant != null) e.merchant!,
-            ].join(' · '),
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (status != null)
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(end: 8),
-                  child: Icon(status.$1, size: 18, semanticLabel: status.$2),
-                ),
-              Text(formatAmount(e.amount, e.currency, locale)),
-            ],
-          ),
-        );
-      },
+      itemBuilder: (context, i) => ExpenseTile(item: items[i]),
     );
   }
-}
-
-/// Date calendaire `AAAA-MM-JJ` affichée telle quelle, sans fuseau.
-String _formatDate(String date, String locale) {
-  final [y, m, d] = date.split('-').map(int.parse).toList();
-  return DateFormat.yMMMd(locale).format(DateTime.utc(y, m, d));
 }

@@ -53,6 +53,16 @@ final _shape = RegExp(
   '^(?:(\\d{1,3}(?:[$_spaces]\\d{3})+)|(\\d*))(?:[.,](\\d+))?\$',
 );
 
+/// Montant en unités mineures écrit pour le champ de saisie (sans groupes,
+/// séparateur décimal [separator]) : relu à l'identique par [parseAmountInput].
+String amountToInput(int minor, String currency, String separator) {
+  final digits = minorUnits[currency] ?? 2;
+  if (digits == 0) return '$minor';
+  final text = minor.toString().padLeft(digits + 1, '0');
+  final cut = text.length - digits;
+  return '${text.substring(0, cut)}$separator${text.substring(cut)}';
+}
+
 /// Analyse une saisie de montant (mêmes règles que `parseAmountInput` de
 /// `packages/shared`, ADR-011) : un seul séparateur décimal, virgule ou point ;
 /// espaces seulement entre groupes de trois chiffres ; pas de signe. Refuse en

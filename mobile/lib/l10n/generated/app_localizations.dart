@@ -691,6 +691,162 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'En conflit avec le serveur (supprimée ailleurs ?)'**
   String get expenseSyncConflict;
+
+  /// No description provided for @expenseListTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenses'**
+  String get expenseListTitle;
+
+  /// No description provided for @editExpenseTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier la dépense'**
+  String get editExpenseTitle;
+
+  /// No description provided for @expenseNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette dépense n\'existe plus.'**
+  String get expenseNotFound;
+
+  /// No description provided for @deleteExpense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer la dépense'**
+  String get deleteExpense;
+
+  /// No description provided for @expenseDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépense supprimée.'**
+  String get expenseDeleted;
+
+  /// No description provided for @undo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get undo;
+
+  /// No description provided for @expenseConflictExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette dépense a été supprimée sur un autre appareil. Restaurez-la pour garder votre version, ou abandonnez-la.'**
+  String get expenseConflictExplanation;
+
+  /// No description provided for @restoreExpense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restaurer'**
+  String get restoreExpense;
+
+  /// No description provided for @discardExpense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abandonner'**
+  String get discardExpense;
+
+  /// No description provided for @discardExpenseConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abandonner cette dépense ? Elle restera supprimée.'**
+  String get discardExpenseConfirm;
+
+  /// No description provided for @restoreFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restauration impossible. Vérifiez la connexion et réessayez.'**
+  String get restoreFailed;
+
+  /// No description provided for @expenseRestored.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépense restaurée.'**
+  String get expenseRestored;
+
+  /// No description provided for @expenseDiscarded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépense abandonnée.'**
+  String get expenseDiscarded;
+
+  /// No description provided for @searchLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher'**
+  String get searchLabel;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Note ou commerçant'**
+  String get searchHint;
+
+  /// No description provided for @searchEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune dépense ne correspond.'**
+  String get searchEmpty;
+
+  /// No description provided for @filtersTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtres'**
+  String get filtersTitle;
+
+  /// No description provided for @filtersActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtres actifs'**
+  String get filtersActive;
+
+  /// No description provided for @filtersApply.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appliquer'**
+  String get filtersApply;
+
+  /// No description provided for @filtersReset.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer les filtres'**
+  String get filtersReset;
+
+  /// No description provided for @periodLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Période'**
+  String get periodLabel;
+
+  /// No description provided for @periodAny.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes les dates'**
+  String get periodAny;
+
+  /// No description provided for @minAmountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant minimum'**
+  String get minAmountLabel;
+
+  /// No description provided for @maxAmountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant maximum'**
+  String get maxAmountLabel;
+
+  /// No description provided for @amountRangeInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le maximum doit être supérieur ou égal au minimum.'**
+  String get amountRangeInvalid;
+
+  /// No description provided for @undoTooLate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop tard : la suppression est déjà enregistrée.'**
+  String get undoTooLate;
 }
 
 class _AppLocalizationsDelegate
