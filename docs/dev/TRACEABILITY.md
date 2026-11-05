@@ -67,7 +67,7 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | NF-PERF-02 p95 API < 300 ms | P7-06 | `apps/api/bench/p95.bench.ts` (P7-06, autocannon, seuil en CI) |
 | NF-DISP-01 Sauvegarde, RPO 1 h, RTO 4 h | P4-08, P7-07 | `api/test/backup/export-restore.spec.ts`, `api/test/backup/backup-files.spec.ts`, `docs/dev/BACKUP.md` |
 | NF-OFF-01 Hors ligne, synchro sans doublon | P2-02, P2-04, P6-05 | `api/test/expenses/expenses-crud.spec.ts` (double envoi, simultané), `api/test/sync/sync-cursor.spec.ts`, `api/test/sync/sync-purge.spec.ts` (purge 30 j), `mobile/test/sync/offline_sync_test.dart` (rejeu sans doublon, conflits), `mobile/test/sync/sync_flow_test.dart` (déclencheurs, consultation hors ligne) |
-| NF-QUA-01 Couverture ≥ 70 % logique métier | P7-02 | seuil `coverage.thresholds` vitest + `flutter test --coverage` vérifié en CI |
+| NF-QUA-01 Couverture ≥ 70 % logique métier | P7-02 | `api/vitest.config.ts` (`coverage.thresholds` 70 % sur tout le code source, lancé par `pnpm test`), `scripts/lcov-threshold.test.mjs` (seuil mobile, fichiers non chargés refusés), `.github/workflows/ci.yml` (`flutter test --coverage` puis seuil), ADR-061 |
 | NF-QUA-02 ≥ 99,5 % sessions sans plantage (Sentry UE) | P7-05 | `api/test/observability/sentry-scrub.spec.ts` (P7-05), `mobile/test/observability/sentry_config_test.dart` (P7-05) |
 | NF-QUA-03 CI, environnements séparés, même moteur partout | P0-01, P0-02, P0-03, P7-07 | `.github/workflows/ci.yml` (MariaDB 10.6 via `docker compose up -d db`), `scripts/db.test.mjs` (`SELECT VERSION()` = MariaDB 10.6) |
 | NF-QUA-04 Accessibilité WCAG 2.1 AA | P7-04 | `mobile/test/a11y/guidelines_test.dart` (P7-04, `meetsGuideline`), `docs/dev/A11Y.md` (P7-04) |

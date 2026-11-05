@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "//": "Projet TypeScript des scripts racine, pour le lint typé (le projet par défaut d'eslint est limité à 8 fichiers). Pas de vérification de types : `checkJs` désactivé.",
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "declaration": false,
+    "types": ["node"]
+  },
+  "include": ["*.mjs"]
+}

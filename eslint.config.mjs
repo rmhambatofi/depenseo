@@ -36,12 +36,7 @@ export default tseslint.config(
     languageOptions: {
       parserOptions: {
         projectService: {
-          allowDefaultProject: [
-            '*.mjs',
-            'scripts/*.mjs',
-            'packages/*/scripts/*.mjs',
-            'scripts/lint-fixtures/*.ts',
-          ],
+          allowDefaultProject: ['*.mjs', 'packages/*/scripts/*.mjs', 'scripts/lint-fixtures/*.ts'],
         },
         tsconfigRootDir: import.meta.dirname,
       },

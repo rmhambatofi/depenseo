@@ -46,6 +46,7 @@ jobs:
         env:
           DB_WAIT_TIMEOUT: '120'
 
+      # Inclut la couverture de l'API et son seuil (NF-QUA-01, `vitest run --coverage`).
       - run: pnpm test
 
       # Contrat OpenAPI et client généré (P5-06) : la régénération ne doit produire aucun diff.
@@ -115,10 +116,20 @@ jobs:
         working-directory: mobile
         run: flutter analyze
 
-      - name: flutter test
+      # Couverture ≥ 70 % des lignes de lib/ hors code généré (NF-QUA-01, ADR-061).
+      - name: flutter test (avec couverture)
         if: steps.detect.outputs.present == 'true'
         working-directory: mobile
-        run: flutter test
+        run: flutter test --coverage
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.detect.outputs.present == 'true'
+        with:
+          node-version-file: .nvmrc
+
+      - name: Seuil de couverture mobile
+        if: steps.detect.outputs.present == 'true'
+        run: node scripts/lcov-threshold.mjs mobile 70
 
       - name: flutter test sous 4 fuseaux (NF-FMT-05)
         if: steps.detect.outputs.present == 'true'

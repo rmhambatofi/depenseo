@@ -63,7 +63,8 @@ async function emptyRestoreTarget(): Promise<void> {
   }
 }
 
-describe('export horaire chiffré et restauration (P4-08, NF-DISP-01)', () => {
+// Délai relevé : sous couverture v8 (`pnpm test`), la restauration passe de 0,7 s à plus de 5 s.
+describe('export horaire chiffré et restauration (P4-08, NF-DISP-01)', { timeout: 30_000 }, () => {
   const now = new Date(Date.UTC(2028, 0, 14, 10, 0, 0));
   const clock = new FakeClock(now.getTime());
   const { pool, db } = testDb(2);

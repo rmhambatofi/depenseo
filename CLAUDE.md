@@ -29,7 +29,8 @@ pnpm install                 # racine
 docker compose up -d db && scripts/db-wait.sh   # MariaDB 10.6 locale (port 3307) — requise par `pnpm test`
 pnpm -r typecheck            # tsc sur tous les paquets
 pnpm -r lint                 # eslint
-pnpm --filter api test       # vitest (unitaires + intégration contre MariaDB)
+pnpm --filter api test       # vitest + couverture ≥ 70 % (unitaires + intégration contre MariaDB)
+pnpm --filter api exec vitest run <fichier>   # un seul fichier, sans seuil de couverture
 pnpm --filter api test:tz    # suite multi-fuseaux
 pnpm --filter api migrate    # migrations Drizzle
 pnpm --filter api openapi    # régénère openapi.json puis packages/api-client
