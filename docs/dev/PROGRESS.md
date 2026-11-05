@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P6-03 (verrouillage biométrie/code avec délai, contenu masqué dans le sélecteur d'apps, blocage optionnel des captures).
-- Dernier commit : 7e249a4 feat(mobile): Flutter skeleton with SQLCipher database, secure token storage and fr/en (P6-01)
+- Dernier commit : 5b9ea8b feat(mobile): auth flows with serialized token refresh, email links and Apple/Google sign-in (P6-02)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (14 racine, 155 shared, 5 api-client, 19 admin, 807 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build`, `pnpm --filter @depenseo/admin test:e2e` (3 Playwright), `pnpm check:admin-code` verts ; mobile : `flutter analyze` propre, `flutter test` 93 verts
 
