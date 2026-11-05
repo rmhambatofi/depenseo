@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../core/account/account_context.dart';
-import '../../core/dates/today.dart';
+import '../../core/dates/date_display.dart';
 import '../../core/premium/subscription_api.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../expenses/expense_providers.dart';
@@ -17,13 +16,6 @@ String planLabel(AppLocalizations l10n, Plan plan) => switch (plan) {
   Plan.trial => l10n.planTrial,
   Plan.premium => l10n.planPremium,
 };
-
-/// Date calendaire d'un horodatage UTC dans le fuseau du compte, affichée
-/// selon la langue.
-String _localDate(String timeZone, DateTime instant, String locale) {
-  final p = todayIn(timeZone, instant).split('-').map(int.parse).toList();
-  return DateFormat.yMMMd(locale).format(DateTime(p[0], p[1], p[2]));
-}
 
 /// Offre en cours, essai de 14 jours, achat, restauration et résiliation
 /// vers le store (F-ABO-01…03, §5, ADR-058). En ligne seulement.
@@ -192,11 +184,11 @@ class _SubscriptionBodyState extends ConsumerState<_SubscriptionBody> {
 
     final String summary = switch (status) {
       SubscriptionStatus(plan: Plan.premium, :final premiumUntil?) =>
-        l10n.planPremiumUntil(_localDate(tz, premiumUntil, locale)),
+        l10n.planPremiumUntil(formatInstantDate(tz, premiumUntil, locale)),
       // Fin = minuit local au début du jour 15 : le dernier jour inclus est la veille.
       SubscriptionStatus(plan: Plan.trial, :final trialEndsAt?) =>
         l10n.planTrialUntil(
-          _localDate(
+          formatInstantDate(
             tz,
             trialEndsAt.subtract(const Duration(milliseconds: 1)),
             locale,

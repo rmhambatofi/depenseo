@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
+import '../../core/dates/date_display.dart';
 import '../../core/money/amount_format.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../sync/sync_controller.dart';
@@ -85,10 +85,4 @@ Future<void> openExpense(BuildContext context, WidgetRef ref, String id) async {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(message)));
-}
-
-/// Date calendaire `AAAA-MM-JJ` affichée telle quelle, sans fuseau.
-String formatCalendarDate(String date, String locale) {
-  final [y, m, d] = date.split('-').map(int.parse).toList();
-  return DateFormat.yMMMd(locale).format(DateTime.utc(y, m, d));
 }

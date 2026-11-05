@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/dates/date_display.dart';
 import '../../core/limits/limit_api.dart';
 import '../../core/limits/limit_models.dart';
 import '../../core/money/amount_input.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../expenses/expense_providers.dart';
-import '../expenses/expense_tile.dart' show formatCalendarDate;
 import 'limit_providers.dart';
 import 'limits_screen.dart' show limitMessage;
 

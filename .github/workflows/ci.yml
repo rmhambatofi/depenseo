@@ -119,3 +119,8 @@ jobs:
         if: steps.detect.outputs.present == 'true'
         working-directory: mobile
         run: flutter test
+
+      - name: flutter test sous 4 fuseaux (NF-FMT-05)
+        if: steps.detect.outputs.present == 'true'
+        working-directory: mobile
+        run: tool/test_tz.sh

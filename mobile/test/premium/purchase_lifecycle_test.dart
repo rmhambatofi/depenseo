@@ -165,7 +165,7 @@ void main() {
         status: statusJson('trial', trialEndsAt: '2026-11-03T23:00:00.000Z'),
       );
       expect(planText(tester), 'Essai Premium jusqu’au 3 nov. 2026 inclus');
-    });
+    }, tags: 'tz');
 
     testWidgets('America/Montreal : échéance UTC du lendemain affichée la '
         'veille', (tester) async {
@@ -175,7 +175,7 @@ void main() {
         status: statusJson('premium', premiumUntil: '2026-12-06T03:00:00.000Z'),
       );
       expect(planText(tester), 'Premium jusqu’au 5 déc. 2026');
-    });
+    }, tags: 'tz');
 
     testWidgets('Europe/Lisbon, anglais : fin d’essai à minuit UTC', (
       tester,
@@ -187,6 +187,6 @@ void main() {
         status: statusJson('trial', trialEndsAt: '2026-11-19T00:00:00.000Z'),
       );
       expect(planText(tester), 'Premium trial until Nov 18, 2026 (included)');
-    });
+    }, tags: 'tz');
   });
 }

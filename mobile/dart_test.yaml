@@ -1,0 +1,5 @@
+# Étiquettes des suites de test (flutter test --tags …).
+tags:
+  # Calculs et affichages de dates (NF-FMT-02, 03, 05) : rejoués sous les
+  # 4 fuseaux de l'hôte par tool/test_tz.sh.
+  tz:

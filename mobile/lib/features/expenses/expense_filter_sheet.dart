@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/dates/date_display.dart';
 import '../../core/dates/today.dart';
 import '../../core/db/app_database.dart';
 import '../../core/db/expense_filter.dart';
@@ -105,11 +106,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
   }
 
   Future<void> _pickPeriod() async {
-    DateTime? parts(String? d) {
-      if (d == null) return null;
-      final [y, m, day] = d.split('-').map(int.parse).toList();
-      return DateTime(y, m, day);
-    }
+    DateTime? parts(String? d) => d == null ? null : parsePlainDate(d);
 
     final from = parts(_from);
     final to = parts(_to);
@@ -135,10 +132,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
     final categories =
         ref.watch(filterCategoriesProvider).value ?? const <Category>[];
     final separator = _separator;
-    String show(String d) {
-      final [y, m, day] = d.split('-').map(int.parse).toList();
-      return DateFormat.yMMMd(locale).format(DateTime(y, m, day));
-    }
+    String show(String d) => formatCalendarDate(d, locale);
 
     final period = switch ((_from, _to)) {
       (final f?, final t?) => '${show(f)} – ${show(t)}',

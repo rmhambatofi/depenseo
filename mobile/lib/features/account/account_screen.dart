@@ -3,10 +3,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../core/account/account_api.dart';
 import '../../core/account/account_context.dart';
+import '../../core/dates/date_display.dart';
 import '../../core/dates/today.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers.dart';
@@ -187,18 +187,12 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
     messenger.showSnackBar(SnackBar(content: Text(l10n.accountDeleted)));
   }
 
-  /// Composantes d'une date `AAAA-MM-JJ`, sans fuseau (affichage, sélecteur).
-  static DateTime _components(String date) {
-    final p = date.split('-').map(int.parse).toList();
-    return DateTime(p[0], p[1], p[2]);
-  }
-
   Future<void> _pick(String current, void Function(String) apply) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _components(current),
+      initialDate: parsePlainDate(current),
       firstDate: DateTime(2000),
-      lastDate: _components(_today),
+      lastDate: parsePlainDate(_today),
     );
     if (picked != null && mounted) {
       setState(() => apply(formatPlainDate(picked)));
@@ -210,7 +204,7 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
     final theme = Theme.of(context);
-    String date(String d) => DateFormat.yMMMd(locale).format(_components(d));
+    String date(String d) => formatCalendarDate(d, locale);
 
     final idle = _busy == _Busy.none;
     final subscription = ref.watch(subscriptionStatusProvider).value;

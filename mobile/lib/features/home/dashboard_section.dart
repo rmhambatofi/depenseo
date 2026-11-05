@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/dashboard/dashboard_api.dart';
+import '../../core/dates/date_display.dart';
 import '../../core/money/amount_format.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../expenses/expense_tile.dart' show formatCalendarDate;
 import '../limits/limits_screen.dart' show LimitSummaryCard;
 import 'dashboard_charts.dart';
 import 'dashboard_providers.dart';

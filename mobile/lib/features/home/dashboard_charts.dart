@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/dashboard/dashboard_api.dart';
+import '../../core/dates/date_display.dart';
 import '../../core/money/amount_format.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../expenses/expense_tile.dart' show formatCalendarDate;
 import 'dashboard_providers.dart';
 
 // Graphiques de l'accueil (F-TB-02, ADR-055). Les montants ne passent en

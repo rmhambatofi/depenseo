@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/dates/date_display.dart';
 import '../../core/money/amount_input.dart';
 import '../../core/recurring/recurring_api.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../expenses/expense_providers.dart';
-import '../expenses/expense_tile.dart' show formatCalendarDate;
 import 'recurring_providers.dart';
 import 'recurring_screen.dart';
 

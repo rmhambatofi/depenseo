@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/account/account_context.dart';
+import '../../core/dates/date_display.dart';
 import '../../core/dates/today.dart';
 import '../../core/db/app_database.dart';
 import '../../core/db/expense_store.dart';
@@ -226,7 +227,7 @@ class _QuickEntryFormState extends ConsumerState<_QuickEntryForm> {
   }
 
   Future<void> _pickDate() async {
-    final current = _components(_date);
+    final current = parsePlainDate(_date);
     final picked = await showDatePicker(
       context: context,
       initialDate: current,
@@ -243,7 +244,7 @@ class _QuickEntryFormState extends ConsumerState<_QuickEntryForm> {
     final separator = NumberFormat.decimalPattern(locale).symbols.DECIMAL_SEP;
     final dateText = _date == _today
         ? l10n.today
-        : DateFormat.yMMMMd(locale).format(_components(_date));
+        : formatCalendarDate(_date, locale, long: true);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -351,13 +352,6 @@ class _QuickEntryFormState extends ConsumerState<_QuickEntryForm> {
       ),
     );
   }
-}
-
-/// Date calendaire en composantes locales, pour l'affichage et le sélecteur
-/// uniquement (jamais d'analyse de chaîne en instant).
-DateTime _components(String date) {
-  final [y, m, d] = date.split('-').map(int.parse).toList();
-  return DateTime(y, m, d);
 }
 
 String? _trimmedOrNull(String text) {

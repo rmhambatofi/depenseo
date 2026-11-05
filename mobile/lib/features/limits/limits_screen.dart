@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/dates/date_display.dart';
 import '../../core/limits/limit_api.dart';
 import '../../core/limits/limit_models.dart';
 import '../../core/money/amount_format.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../expenses/expense_tile.dart' show formatCalendarDate;
 import 'limit_form.dart';
 import 'limit_providers.dart';
 

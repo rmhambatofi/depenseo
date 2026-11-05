@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/dates/date_display.dart';
 import '../../core/dates/today.dart';
 import '../../core/money/amount_input.dart';
 import '../../core/recurring/recurring_api.dart';
@@ -10,7 +11,6 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../providers.dart';
 import '../expenses/category_picker.dart';
 import '../expenses/expense_providers.dart';
-import '../expenses/expense_tile.dart' show formatCalendarDate;
 import 'occurrence_actions.dart' show amountErrorMessage;
 import 'recurring_providers.dart';
 import 'recurring_screen.dart';
@@ -96,10 +96,9 @@ class _RecurringFormState extends ConsumerState<RecurringForm> {
   }
 
   Future<void> _pickStartDate() async {
-    final [y, m, d] = _startDate.split('-').map(int.parse).toList();
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime(y, m, d),
+      initialDate: parsePlainDate(_startDate),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
