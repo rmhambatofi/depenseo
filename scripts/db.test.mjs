@@ -51,12 +51,20 @@ test('jeu de caractères et collation serveur : utf8mb4 / utf8mb4_unicode_520_ci
 
 test('les bases depenseo et depenseo_test existent en utf8mb4_unicode_520_ci', () => {
   const rows = query(
-    "SELECT SCHEMA_NAME, DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME LIKE 'depenseo%' ORDER BY SCHEMA_NAME",
+    "SELECT SCHEMA_NAME, DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME IN ('depenseo', 'depenseo_test') ORDER BY SCHEMA_NAME",
   );
   assert.deepEqual(rows, [
     ['depenseo', 'utf8mb4', 'utf8mb4_unicode_520_ci'],
     ['depenseo_test', 'utf8mb4', 'utf8mb4_unicode_520_ci'],
   ]);
+});
+
+// Cible vide du test de restauration (P4-08) : sa collation est remise en latin1 par ce test même.
+test('la base depenseo_restore_test existe (docs/dev/BACKUP.md si volume antérieur à P4-08)', () => {
+  const rows = query(
+    "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = 'depenseo_restore_test'",
+  );
+  assert.deepEqual(rows, [['depenseo_restore_test']]);
 });
 
 test('serveur non UTC et REPEATABLE READ, comme un mutualisé : l’API devra les forcer (P1-02)', () => {

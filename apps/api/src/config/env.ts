@@ -14,6 +14,17 @@ const clientIds = z
       .filter((id) => id.length > 0),
   );
 
+/** mysql://compte:mot_de_passe@hôte:port/base ; base obligatoire, pas de paramètres de requête. */
+export const databaseUrl = z.string().refine((value) => {
+  if (!URL.canParse(value)) return false;
+  const url = new URL(value);
+  // Paramètres de requête refusés : ils seraient ignorés par connection.ts.
+  return url.protocol === 'mysql:' && url.pathname.length > 1 && url.search === '';
+});
+
+/** Clé AES-256 en base64 (32 octets). */
+export const aes256Key = z.string().regex(/^[A-Za-z0-9+/]{43}=$/);
+
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
@@ -21,12 +32,7 @@ const schema = z.object({
   /** Clé HMAC des jetons d'accès (P1-06) : au moins 32 caractères. */
   JWT_ACCESS_SECRET: z.string().min(32),
   /** mysql://compte:mot_de_passe@hôte:port/base — compte API (DML seul, §8.2). */
-  DATABASE_URL: z.string().refine((value) => {
-    if (!URL.canParse(value)) return false;
-    const url = new URL(value);
-    // Base obligatoire ; pas de paramètres de requête : ils seraient ignorés par connection.ts.
-    return url.protocol === 'mysql:' && url.pathname.length > 1 && url.search === '';
-  }),
+  DATABASE_URL: databaseUrl,
   /** Connexions simultanées par processus Passenger (ADR-014). */
   DB_POOL_SIZE: z.coerce.number().int().min(1).max(20).default(5),
   /** Connexion Apple (ADR-020) : bundle ID iOS et Services ID web acceptés pour `aud`. */
@@ -41,10 +47,7 @@ const schema = z.object({
     .string()
     .refine((value) => isAbsolute(value))
     .optional(),
-  FILE_ENCRYPTION_KEY: z
-    .string()
-    .regex(/^[A-Za-z0-9+/]{43}=$/)
-    .optional(),
+  FILE_ENCRYPTION_KEY: aes256Key.optional(),
 });
 
 const FILE_STORAGE_KEYS = ['FILE_STORAGE_DIR', 'FILE_ENCRYPTION_KEY'] as const;

@@ -51,7 +51,7 @@ Couverture des exigences « M » : `docs/dev/TRACEABILITY.md` (à tenir à jour 
 - [x] P4-05 Export CSV (gratuit) et Excel .xlsx (Premium) des dépenses sur une période : tâche de fond, fichier chiffré AES-256-GCM hors dossier public, servi par l'API avec lien expirable (15 min). Tests : contenu CSV (montants formatés selon la langue, dates AAAA-MM-JJ), fichier sur disque illisible sans la clé, lien expiré → 404. (F-EXP-01, NF-SEC-01, §8.1)
 - [x] P4-06 `DELETE /me` : purge immédiate et définitive de toutes les données de l'utilisateur (y compris suppressions logiques, fichiers d'export, tâches, appareils), carnets via `purgeNotebook` (ADR-024). Test qui parcourt **toutes** les tables de `information_schema` et vérifie qu'aucune ligne ne référence l'utilisateur. (F-AUTH-07)
 - [x] P4-07 `POST /me/export` : export complet des données personnelles en JSON et CSV (zip chiffré, tâche de fond, lien expirable). Test : chaque table liée à l'utilisateur est présente dans l'export. (F-AUTH-08)
-- [ ] P4-08 Export horaire chiffré de la base (`scripts/db-export.ts`) + procédure de restauration documentée dans `docs/dev/BACKUP.md` (y indiquer la durée de rétention : des comptes supprimés y subsistent jusqu'à rotation, ADR-037) ; test d'intégration export → restauration dans une base vide → données identiques. (NF-DISP-01, NF-SEC-01, §8.2)
+- [x] P4-08 Export horaire chiffré de la base (`scripts/db-export.ts`) + procédure de restauration documentée dans `docs/dev/BACKUP.md` (y indiquer la durée de rétention : des comptes supprimés y subsistent jusqu'à rotation, ADR-037) ; test d'intégration export → restauration dans une base vide → données identiques. (NF-DISP-01, NF-SEC-01, §8.2)
 
 ## Phase 5 — API : abonnements et back-office
 

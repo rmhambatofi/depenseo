@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P4-08 (export horaire chiffré de la base + `docs/dev/BACKUP.md`).
-- Dernier commit : 18ceb38 feat(api): GDPR personal data export POST /me/export (F-AUTH-08)
+- Prochaine tâche : P5-01 (abonnements, `StoreReceiptVerifier`, essai 14 j, `Entitlements`).
+- Dernier commit : feat(api): hourly encrypted database export and restore (NF-DISP-01)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (155 shared, 633 api), `pnpm test:tz` vert (api : 84 par fuseau), `pnpm --filter api build` vert ; `test/me`, `test/exports`, `test/access` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (10 racine, 155 shared, 643 api), `pnpm test:tz` vert (api : 84 par fuseau), `pnpm --filter api build` vert ; `test/backup`, `test/me` stables sur 3 relances
 
 ## Pièges connus (à lire avant de coder)
 
@@ -124,6 +124,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Export RGPD (P4-07, ADR-038) : `src/account-export/` — `POST /me/export`, `GET /me/export/{id}`, `…/file` (zip : `depenseo.json`, `csv/<table>.csv`, `LISEZMOI.txt`), tâche `account_export.generate`, table `account_export` (migration 0014), purge commune dans `purge-expired-exports`. Périmètre = liste `SOURCES` de `personal-data.ts` ; exclusions `EXCLUDED_TABLES` (job) et `OMITTED_PROPERTIES` (secrets). Fixture partagée `test/support/populated-account.ts` (`populatedAccount(app, db, store, now)`) : **toute nouvelle table** = l'y ajouter, l'ajouter à `SOURCES` (sinon `account-export.spec` échoue : nombre de lignes comparé table par table) et à `deleteAccount`. Nouvelle colonne secrète texte → `OMITTED_PROPERTIES` + `SECRET_PROPERTIES` du test ; colonne binaire non prévue → la génération lève. Suite : juillet 2027 ; purge testée en mars 2023 (compte sans connexion). Toute route `/me/*` doit être classée dans `test/access/cross-tenant.spec.ts`. Ne pas passer `test/me` en mutation pendant qu'un sous-agent lance vitest (base vidée par le `globalSetup`).
 - Reliquats mineurs P4-07 : `handle`/`finish` dupliqués entre `export-job.ts` et `account-export-job.ts` (helper commun possible) ; pas de plafond de demandes en attente par compte ; collecte hors transaction (ADR-038).
 
+- Sauvegardes (P4-08, ADR-039) : `src/backup/` — `db-dump.ts` (export SQL Node, instantané `WITH CONSISTENT SNAPSHOT`, une instruction par ligne, `sqlLiteral` refuse tout type hors chaîne/entier sûr/Buffer/NULL), `db-restore.ts` (base vide seulement, en-tête + marque de fin vérifiées), `backup-files.ts` (gzip + DPF1, clé `BACKUP_ENCRYPTION_KEY`, rotation `BACKUP_RETENTION_HOURS`). Scripts `apps/api/scripts/db-export.ts`/`db-restore.ts`. Procédure : `docs/dev/BACKUP.md`. **Toute nouvelle vue/déclencheur/routine** casse `test/backup/export-restore.spec.ts` (non exportés). Base de test `depenseo_restore_test` (migrator) : volume Docker antérieur → la créer à la main (commande dans BACKUP.md) ; `scripts/db.test.mjs` vérifie qu'elle existe. `databaseUrl`/`aes256Key` zod exportés de `src/config/env.ts`.
+- Une suite qui doit comparer l'état de `depenseo_test` alors que d'autres suites écrivent en parallèle : relire **dans le même instantané** (hook `afterDump`) et exclure les tables `zz_test_*` des autres suites.
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -134,6 +137,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-05 session 27 — P4-08 fait : export horaire chiffré (SQL Node, instantané cohérent, gzip + AES-256-GCM, clé dédiée, rotation 48 h), restauration vers base vide (`db:restore`), `BACKUP.md` (cron, rétention/comptes supprimés, restauration, rotation de clé, journal des tests trimestriels), ADR-039. Test export → restauration → schéma/collation/données identiques (valeurs limites). Relecture : 0 bloquant, 3 importants traités (types de valeur refusés, secrets hors ligne de commande, reprise après échec). 4 mutations tuées.
 
 - 2026-11-05 session 26 — P4-07 fait : export RGPD `POST /me/export` (zip JSON + CSV chiffré au repos, tâche de fond, lien 15 min), ADR-038, fixture commune extraite. Relecture : 0 bloquant, 4 importants traités (comptage par table, liste de secrets en dur + TOTP, audit limité aux cibles du compte, tests course/échec/503). 10 mutations tuées.
 

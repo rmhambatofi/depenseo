@@ -16,6 +16,8 @@
     "openapi": "pnpm build && node dist/scripts/openapi.js",
     "migrate": "pnpm build && node dist/scripts/migrate.js",
     "jobs:run": "node dist/scripts/jobs-run.js",
+    "db:export": "node dist/scripts/db-export.js",
+    "db:restore": "node dist/scripts/db-restore.js",
     "db:generate": "drizzle-kit generate"
   },
   "devDependencies": {
