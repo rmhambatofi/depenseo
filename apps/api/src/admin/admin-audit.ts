@@ -10,7 +10,9 @@ export type AdminAuditAction =
   | 'admin.login'
   | 'admin.login_failed'
   | 'admin.login_blocked'
-  | 'admin.access';
+  | 'admin.access'
+  | 'admin.user_view'
+  | 'admin.job_retry';
 
 export interface AdminAuditEntry {
   actorUserId: string | null;

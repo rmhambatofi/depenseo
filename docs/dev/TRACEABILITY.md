@@ -62,7 +62,7 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | NF-SEC-03 Contrôle d'accès serveur sur chaque ressource | P1-09 (+ chaque tâche API) | `api/test/access/cross-tenant.spec.ts` (toutes les routes d'`openapi.json`) |
 | NF-SEC-04 OWASP MASVS L2 | P7-03 | `docs/dev/MASVS.md`, `api/test/security/rate-limit.spec.ts`, `api/test/security/headers.spec.ts` |
 | NF-SEC-05 Captures bloquées (option), sélecteur d'apps masqué | P6-03 | `mobile/test/security/app_switcher_mask_test.dart` |
-| NF-SEC-06 Aucun montant/PII dans les logs, audit admin | P1-01, P5-03, P5-04, P7-05 | `api/test/logging/redaction.spec.ts`, `api/test/admin/admin-session.spec.ts` (audit), `api/test/observability/sentry-scrub.spec.ts` |
+| NF-SEC-06 Aucun montant/PII dans les logs, audit admin | P1-01, P5-03, P5-04, P7-05 | `api/test/logging/redaction.spec.ts`, `api/test/admin/admin-session.spec.ts` (audit), `api/test/admin/admin-routes.spec.ts` (audit, minimisation), `api/test/admin/admin-stats.spec.ts`, `api/test/observability/sentry-scrub.spec.ts` |
 | NF-PERF-01 Accueil < 2 s | P7-06 | `mobile/integration_test/startup_perf_test.dart` (mesure consignée dans `docs/dev/PERF.md`) |
 | NF-PERF-02 p95 API < 300 ms | P7-06 | `apps/api/bench/p95.bench.ts` (autocannon, seuil en CI) |
 | NF-DISP-01 Sauvegarde, RPO 1 h, RTO 4 h | P4-08, P7-07 | `api/test/backup/export-restore.spec.ts`, `backup-files.spec.ts`, `docs/dev/BACKUP.md` |

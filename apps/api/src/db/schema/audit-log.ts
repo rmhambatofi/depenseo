@@ -20,5 +20,7 @@ export const auditLog = mysqlTable(
   (t) => [
     index('audit_log_created_idx').on(t.createdAt),
     index('audit_log_actor_idx').on(t.actorUserId, t.createdAt),
+    /** Recherche des accès à une cible (compte consulté, tâche relancée), ADR-043. */
+    index('audit_log_target_idx').on(t.targetId, t.createdAt),
   ],
 );

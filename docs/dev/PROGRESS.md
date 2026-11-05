@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P5-04 (routes admin : utilisateurs sans montants, abonnements, tâches en échec, statistiques, audit).
-- Dernier commit : 0385661 feat(api): admin role by script, TOTP login, /admin cookie session, 404 and audit (F-ADM-01/03)
+- Prochaine tâche : P5-05 (`apps/admin` React-admin servi par l'API à une session admin, Playwright, script anti-code admin).
+- Dernier commit : feat(api): admin routes for users, subscriptions, failed jobs, stats and audit (F-ADM-01)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (10 racine, 155 shared, 781 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build` vert
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (10 racine, 155 shared, 797 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build` vert
 
 ## Pièges connus (à lire avant de coder)
 
@@ -137,6 +137,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Énumérer les routes montées (y compris hors OpenAPI) : `app.getHttpAdapter().getInstance().router.stack` (Express 5), ignorer les chemins contenant `*`.
 - `auditOf` trie par `created_at` : un test qui avance l'horloge puis la recule produit des lignes « futures » ; asserter par `toContain`, pas par `.at(-1)`.
 - Script Python d'édition multiple : s'il échoue sur la 1re substitution (`assert`), **aucune** des suivantes n'est appliquée — relancer après correction et contrôler par `grep -c`.
+- Routes admin (P5-04, ADR-043) : `src/admin/admin-routes.controller.ts` (5 contrôleurs : `users`, `subscriptions`, `jobs` + `POST jobs/:jobId/retry`, `stats`, `audit`), services `admin-users.service.ts`/`admin-ops.service.ts`, paramètres `admin-query.ts` (curseur `(created_at, id)` décroissant, `toPage`). Audit : `admin.user_view` (cible `user`) et `admin.job_retry` (cible `job`) en plus d'`admin.access` ; index `audit_log_target_idx` (migration 0018). **P5-05** : écrans React-admin sur ces formes `{items, nextCursor}` ; trancher la base `depenseo_admin` (§8.3, ADR-043). Suites : mars 2028 (`admin-routes.spec`), **avril 2029** (`admin-stats.spec`, assertions exactes : aucune autre suite ne doit y créer de compte, d'essai ou d'abonnement actif).
+- Reliquats mineurs P5-04 : test de liste des tâches cherche sa ligne dans les 100 premiers échecs (base partagée) ; consultation d'une fiche inexistante non tracée avec l'id ; tris complets sans index (`user.created_at`, `job.created_at`).
 - Reliquats mineurs P5-03 : pas de test de concurrence du plafond d'échecs TOTP ; compte de base distinct `depenseo_admin` (§8.3) non branché ; `/admin` 404 pour tous tant que P5-05 ne sert pas la page de connexion (adapter `admin-access.spec.ts`).
 
 ## Actions humaines (non bloquantes)
@@ -153,6 +155,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-05 session 31 — P5-04 fait : routes admin lecture seule (comptes avec compteurs sans montant, fiche tracée `admin.user_view`, abonnements filtrés, tâches en échec + relance `failed`→`pending` tracée, statistiques par compteurs, audit filtrable), pagination par curseur ; migration 0018 ; ADR-043. Relecture : 0 bloquant, 3 importants traités (test de départage du curseur + pagination de l'audit, index cible + décision de non-purge, base `depenseo_admin` reportée à P5-05). 5 mutations tuées.
 
 - 2026-11-05 session 30 — P5-03 fait : rôle admin par script (`grant-admin`, secret TOTP AES-GCM, URI affichée une fois en terminal), connexion `POST /admin/api/session` (TOTP RFC 6238 maison, ±1 pas, anti-rejeu `admin_totp_last_step`, 5 échecs/15 min), cookie `HttpOnly; Secure; SameSite=Strict; Path=/admin` 30 min, 404 indiscernable partout, audit de chaque accès (colonne `route`) ; migration 0017 ; ADR-042. Relecture : 0 bloquant, 2 importants traités (secret hors terminal refusé, test back-office désactivé) + mineurs (empreinte d'enrôlement, clé distincte, compte sans mot de passe, contournement Bearer limité à `/admin/`). 8 mutations tuées. Passation après 1 tâche (~20 fichiers lus).
 
