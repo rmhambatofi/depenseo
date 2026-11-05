@@ -8,9 +8,9 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 
 | Exigence M | Tâche(s) PLAN | Test(s) prévus |
 | --- | --- | --- |
-| F-AUTH-01 Inscription e-mail + vérification | P1-05, P1-06, P6-02 | `api/test/auth/register.spec.ts`, `api/test/auth/login.spec.ts`, `mobile/test/auth/register_test.dart` |
+| F-AUTH-01 Inscription e-mail + vérification | P1-05, P1-06, P6-02 | `api/test/auth/register.spec.ts`, `api/test/auth/login.spec.ts`, `mobile/test/auth/account_flow_test.dart` (inscription, lien de vérification), `mobile/test/auth/login_flow_test.dart` |
 | F-AUTH-02 Connexion Apple et Google | P1-08, P6-02 | `api/test/auth/social-login.spec.ts` (jetons factices signés), `mobile/test/auth/social_login_test.dart` |
-| F-AUTH-03 Reset mot de passe 30 min usage unique | P1-07, P6-02 | `api/test/auth/password-reset.spec.ts` (expiré à 30 min + 1 s, second usage refusé) |
+| F-AUTH-03 Reset mot de passe 30 min usage unique | P1-07, P6-02 | `api/test/auth/password-reset.spec.ts` (expiré à 30 min + 1 s, second usage refusé), `mobile/test/auth/account_flow_test.dart` (demande, lien, lien invalide) |
 | F-AUTH-04 Verrouillage biométrie/code, délai réglable | P6-03 | `mobile/test/security/app_lock_test.dart` |
 | F-AUTH-07 Suppression du compte et des données | P4-06, P6-12 | `api/test/me/account-deletion.spec.ts` (parcours de toutes les tables), `mobile/test/account/delete_account_test.dart` |
 | F-AUTH-08 Export des données personnelles JSON + CSV | P4-07, P6-12 | `api/test/me/account-export.spec.ts` (toutes les tables par information_schema), `mobile/test/account/personal_export_test.dart` |
@@ -58,7 +58,7 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | NF-FMT-07 `DATE` lu en chaîne, connexion en UTC | P1-02 | `api/test/db/session.tz.spec.ts` |
 | NF-FMT-08 Pas de `new Date('AAAA-MM-JJ')`, `Intl.NumberFormat` | P0-01, P0-04 | `eslint-rules.test.ts` (fixture rejetée par `no-restricted-syntax`), `shared/src/amount.test.ts` |
 | NF-SEC-01 Chiffrement transit/repos, clés hors code, rotation | P4-05, P4-08, P7-03, P7-07 | `api/test/exports/file-crypto.spec.ts`, `exports.spec.ts` (fichier illisible sans la clé), `api/test/backup/export-restore.spec.ts`, `docs/dev/DEPLOY.md` (rotation) |
-| NF-SEC-02 Jetons 15 min, refresh révocables, stockage sécurisé | P1-06, P6-01, P6-02 | `api/test/auth/tokens.spec.ts`, `mobile/test/auth/token_storage_test.dart` |
+| NF-SEC-02 Jetons 15 min, refresh révocables, stockage sécurisé | P1-06, P6-01, P6-02 | `api/test/auth/tokens.spec.ts`, `mobile/test/token_store_test.dart`, `mobile/test/session_refresh_test.dart` (refresh unique sérialisé), `mobile/test/auth/reinstall_guard_test.dart` |
 | NF-SEC-03 Contrôle d'accès serveur sur chaque ressource | P1-09 (+ chaque tâche API) | `api/test/access/cross-tenant.spec.ts` (toutes les routes d'`openapi.json`) |
 | NF-SEC-04 OWASP MASVS L2 | P7-03 | `docs/dev/MASVS.md`, `api/test/security/rate-limit.spec.ts`, `api/test/security/headers.spec.ts` |
 | NF-SEC-05 Captures bloquées (option), sélecteur d'apps masqué | P6-03 | `mobile/test/security/app_switcher_mask_test.dart` |

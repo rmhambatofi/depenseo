@@ -115,6 +115,270 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucune dépense pour le moment.'**
   String get homeEmpty;
+
+  /// No description provided for @logout.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se déconnecter'**
+  String get logout;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse e-mail'**
+  String get emailLabel;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe'**
+  String get passwordLabel;
+
+  /// No description provided for @newPasswordLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau mot de passe'**
+  String get newPasswordLabel;
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion'**
+  String get loginTitle;
+
+  /// No description provided for @loginSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter'**
+  String get loginSubmit;
+
+  /// No description provided for @loginWithApple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Apple'**
+  String get loginWithApple;
+
+  /// No description provided for @loginWithGoogle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Google'**
+  String get loginWithGoogle;
+
+  /// No description provided for @goToRegister.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un compte'**
+  String get goToRegister;
+
+  /// No description provided for @goToForgotPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe oublié ?'**
+  String get goToForgotPassword;
+
+  /// No description provided for @goToLogin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aller à la connexion'**
+  String get goToLogin;
+
+  /// No description provided for @registerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un compte'**
+  String get registerTitle;
+
+  /// No description provided for @registerSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon compte'**
+  String get registerSubmit;
+
+  /// No description provided for @acceptTermsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’accepte les conditions générales d’utilisation et la politique de confidentialité.'**
+  String get acceptTermsLabel;
+
+  /// No description provided for @termsRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acceptez les conditions pour continuer.'**
+  String get termsRequired;
+
+  /// No description provided for @registerSentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez votre adresse'**
+  String get registerSentTitle;
+
+  /// No description provided for @registerSentBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si cette adresse peut être utilisée, un lien de vérification vient d’y être envoyé. Ouvrez-le sur ce téléphone pour activer votre compte.'**
+  String get registerSentBody;
+
+  /// No description provided for @socialTermsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau compte'**
+  String get socialTermsTitle;
+
+  /// No description provided for @socialTermsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte n’existe encore pour cette adresse. Pour le créer, acceptez les conditions générales d’utilisation et la politique de confidentialité.'**
+  String get socialTermsBody;
+
+  /// No description provided for @socialTermsAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter et créer'**
+  String get socialTermsAccept;
+
+  /// No description provided for @cancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get cancel;
+
+  /// No description provided for @forgotTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe oublié'**
+  String get forgotTitle;
+
+  /// No description provided for @forgotSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevoir un lien'**
+  String get forgotSubmit;
+
+  /// No description provided for @forgotSent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si un compte existe pour cette adresse, un lien de réinitialisation valable 30 minutes vient d’être envoyé.'**
+  String get forgotSent;
+
+  /// No description provided for @resetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau mot de passe'**
+  String get resetTitle;
+
+  /// No description provided for @resetSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get resetSubmit;
+
+  /// No description provided for @resetDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe modifié. Connectez-vous avec le nouveau mot de passe.'**
+  String get resetDone;
+
+  /// No description provided for @verifyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification de l’adresse'**
+  String get verifyTitle;
+
+  /// No description provided for @verifyDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse vérifiée. Vous pouvez vous connecter.'**
+  String get verifyDone;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez une adresse e-mail valide.'**
+  String get invalidEmail;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'8 caractères minimum.'**
+  String get passwordTooShort;
+
+  /// No description provided for @passwordTooLong.
+  ///
+  /// In fr, this message translates to:
+  /// **'128 caractères maximum.'**
+  String get passwordTooLong;
+
+  /// No description provided for @errorInvalidCredentials.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse ou mot de passe incorrect.'**
+  String get errorInvalidCredentials;
+
+  /// No description provided for @errorEmailNotVerified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse non vérifiée : ouvrez le lien reçu par e-mail.'**
+  String get errorEmailNotVerified;
+
+  /// No description provided for @errorInvalidLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce lien est invalide, expiré ou déjà utilisé. Demandez-en un nouveau.'**
+  String get errorInvalidLink;
+
+  /// No description provided for @errorInvalidInput.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez les informations saisies.'**
+  String get errorInvalidInput;
+
+  /// No description provided for @errorIdentityRejected.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion n’a pas pu être vérifiée. Réessayez.'**
+  String get errorIdentityRejected;
+
+  /// No description provided for @errorAccountNotLinkable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un compte existe déjà avec cette adresse : connectez-vous par e-mail ou réinitialisez le mot de passe.'**
+  String get errorAccountNotLinkable;
+
+  /// No description provided for @errorProviderUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce mode de connexion est momentanément indisponible.'**
+  String get errorProviderUnavailable;
+
+  /// No description provided for @errorNetwork.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de connexion au serveur. Réessayez.'**
+  String get errorNetwork;
+
+  /// No description provided for @errorUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue. Réessayez.'**
+  String get errorUnknown;
+
+  /// No description provided for @storageErrorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stockage sécurisé inaccessible'**
+  String get storageErrorTitle;
+
+  /// No description provided for @storageErrorBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depenseo ne peut pas lire son coffre sécurisé. Déverrouillez l’appareil puis réessayez.'**
+  String get storageErrorBody;
+
+  /// No description provided for @retry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get retry;
 }
 
 class _AppLocalizationsDelegate

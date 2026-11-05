@@ -1,17 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import 'l10n/generated/app_localizations.dart';
 import 'router.dart';
 import 'theme.dart';
-
-final routerProvider = Provider<GoRouter>((ref) {
-  final router = buildRouter();
-  ref.onDispose(router.dispose);
-  return router;
-});
 
 class DepenseoApp extends ConsumerWidget {
   /// [locale] force la langue (tests) ; par défaut, celle de l'appareil, repli fr.
