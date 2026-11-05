@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P7-01 (vérifier `docs/dev/TRACEABILITY.md` : chaque test cité existe et passe, aucune ligne vide ; §11.1). Faire recenser par `explorer` les chemins cités introuvables (P6-14 en a déjà corrigé 2 sur NF-FMT).
-- Dernier commit : chore(dev): finish P6-14 (fonctionnel : test(mobile): date display across 4 time zones and DST… NF-FMT-02, 03, 05)
+- Dernier commit : 5755a7f chore(dev): finish P6-14 (fonctionnel : 4ba3fe3 test(mobile): date display across 4 time zones and DST… NF-FMT-02, 03, 05)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (14 racine, 155 shared, 5 api-client, 19 admin, 807 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build`, `pnpm --filter @depenseo/admin test:e2e` (3 Playwright), `pnpm check:admin-code` verts ; mobile : `flutter analyze` propre, `flutter test` 386 verts + `tool/test_tz.sh` 31 × 4 fuseaux (P6-14) ; suites pnpm non relancées en P6-07…P6-12 (aucun code TS modifié ; tests racine et `format:check` verts en P6-12) ; `flutter build apk --debug` et `flutter build ios --debug --simulator` OK (P6-13, avec in_app_purchase/url_launcher)
 
