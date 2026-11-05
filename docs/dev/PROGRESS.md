@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P6-04 (saisie rapide : bouton « + », clavier numérique localisé, enregistrement local immédiat).
-- Dernier commit : feat(mobile): app lock with passcode/biometrics, delay, app-switcher masking and optional screenshot blocking (P6-03)
+- Dernier commit : fe95702 feat(mobile): app lock with passcode/biometrics, delay, app-switcher masking and optional screenshot blocking (P6-03)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (14 racine, 155 shared, 5 api-client, 19 admin, 807 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build`, `pnpm --filter @depenseo/admin test:e2e` (3 Playwright), `pnpm check:admin-code` verts ; mobile : `flutter analyze` propre, `flutter test` 119 verts ; `flutter build apk --debug` et `flutter build ios --debug --simulator` OK (P6-03)
 
