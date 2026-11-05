@@ -7,9 +7,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P4-07 (`POST /me/export`, export RGPD complet).
-- Dernier commit : feat(api): account deletion DELETE /me with full purge (F-AUTH-07)
+- Dernier commit : 4110f13 feat(api): account deletion DELETE /me with full purge (F-AUTH-07)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (155 shared, 624 api), `pnpm test:tz` vert (api : 84 par fuseau), `pnpm --filter api build` vert ; `test/recurring`, `test/sync`, `test/access`, `test/categories`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (155 shared, 624 api), `pnpm test:tz` vert (api : 84 par fuseau), `pnpm --filter api build` vert ; `test/me/account-deletion.spec.ts` stable sur 3 relances ; `test/recurring`, `test/sync`, `test/access`, `test/categories`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -117,6 +117,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Exports (P4-05, ADR-036) : `src/exports/` — `POST/GET …/exports`, `GET …/exports/{exportId}/file`, tâche `export.generate`, purge `purge-expired-exports` (`scheduledTasks({ files })`). Fichiers : `EncryptedFileStore` (`file-store.ts`, AES-256-GCM, id en AAD) **à réutiliser en P4-07/P4-08** ; env `FILE_STORAGE_DIR` + `FILE_ENCRYPTION_KEY` (les deux ou aucune ; `TEST_ENV` les fournit, dossier tmp par pid). Premium provisoire : `src/subscriptions/entitlements.ts` (`user.plan ∈ {premium, trial}`) **à remplacer en P5-01**. `decimalAmount` ajouté à `@depenseo/shared`. **P4-06** : effacer les fichiers des `export_file` de l'utilisateur avant la cascade. Suite `test/exports/exports.spec.ts` en février 2026.
 - **Prettier/Python** : un script Python qui réécrit un fichier peut transformer `\uFEFF`/`\uFFFE` en caractères littéraux (constaté en P4-05) ; vérifier par `grep -c $'\xef\xbb\xbf'` et rétablir par `perl -CSD -pi -e 's/\x{FEFF}/\\uFEFF/g'`.
 - Supertest, corps binaire : `.buffer(true).parse(binary)` avec un parseur qui concatène les `data` (voir `test/exports/exports.spec.ts`).
+- Mutation rapide d'un fichier **non suivi** : `git diff --stat` n'affiche rien (utiliser `git diff --no-index`) ; restaurer depuis une copie `/tmp` et contrôler par `grep -c`.
 - zsh : une variable contenant plusieurs chemins (`T="a b"; vitest run $T`) n'est **pas** découpée → aucun test lancé, sortie vide. Utiliser un tableau `T=(a b)`.
 
 - Suppression de compte (P4-06, ADR-037) : `deleteAccount(tx, userId, files)` (`src/me/account-deletion.ts`) ; `purgeNotebook` purge aussi `spending_limit`. `ExportsModule` exporte `FILE_STORE`. **Toute nouvelle table** casse `test/me/account-deletion.spec.ts` tant que la fixture `populated()` n'y insère pas une ligne du compte (vérification générique `test/support/user-references.ts` : `ownedIds` = fermeture par colonnes BINARY(16), `referencingRows` = UUID + INSTR sur colonnes texte/json ; blob/varbinary → erreur). **P4-07** : réutiliser `ownedIds`/la même liste de tables pour prouver que l'export couvre chaque table. **P5-01** : purger les tables d'abonnement dans `deleteAccount`. Suite en mai 2027.
