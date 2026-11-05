@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P5-06 (`packages/api-client` généré depuis `openapi.json`, vérifié en CI ; voir piège OpenAPI `type: 'integer'`).
-- Dernier commit : feat(admin): React-admin back-office served to admin sessions only, e2e and no-admin-code check (F-ADM-01/02/03)
+- Dernier commit : 15ff4d3 feat(admin): React-admin back-office served to admin sessions only, e2e and no-admin-code check (F-ADM-01/02/03)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (14 racine, 155 shared, 19 admin, 806 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build`, `pnpm --filter @depenseo/admin test:e2e` (3 Playwright), `pnpm check:admin-code` verts
 
@@ -137,9 +137,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Énumérer les routes montées (y compris hors OpenAPI) : `app.getHttpAdapter().getInstance().router.stack` (Express 5), ignorer les chemins contenant `*`.
 - `auditOf` trie par `created_at` : un test qui avance l'horloge puis la recule produit des lignes « futures » ; asserter par `toContain`, pas par `.at(-1)`.
 - Script Python d'édition multiple : s'il échoue sur la 1re substitution (`assert`), **aucune** des suivantes n'est appliquée — relancer après correction et contrôler par `grep -c`.
-- Routes admin (P5-04, ADR-043) : `src/admin/admin-routes.controller.ts` (5 contrôleurs : `users`, `subscriptions`, `jobs` + `POST jobs/:jobId/retry`, `stats`, `audit`), services `admin-users.service.ts`/`admin-ops.service.ts`, paramètres `admin-query.ts` (curseur `(created_at, id)` décroissant, `toPage`). Audit : `admin.user_view` (cible `user`) et `admin.job_retry` (cible `job`) en plus d'`admin.access` ; index `audit_log_target_idx` (migration 0018). **P5-05** : écrans React-admin sur ces formes `{items, nextCursor}` ; trancher la base `depenseo_admin` (§8.3, ADR-043). Suites : mars 2028 (`admin-routes.spec`), **avril 2029** (`admin-stats.spec`, assertions exactes : aucune autre suite ne doit y créer de compte, d'essai ou d'abonnement actif).
+- Routes admin (P5-04, ADR-043) : `src/admin/admin-routes.controller.ts` (5 contrôleurs : `users`, `subscriptions`, `jobs` + `POST jobs/:jobId/retry`, `stats`, `audit`), services `admin-users.service.ts`/`admin-ops.service.ts`, paramètres `admin-query.ts` (curseur `(created_at, id)` décroissant, `toPage`). Audit : `admin.user_view` (cible `user`) et `admin.job_retry` (cible `job`) en plus d'`admin.access` ; index `audit_log_target_idx` (migration 0018). Suites : mars 2028 (`admin-routes.spec`), **avril 2029** (`admin-stats.spec`, assertions exactes : aucune autre suite ne doit y créer de compte, d'essai ou d'abonnement actif).
 - Reliquats mineurs P5-04 : test de liste des tâches cherche sa ligne dans les 100 premiers échecs (base partagée) ; consultation d'une fiche inexistante non tracée avec l'id ; tris complets sans index (`user.created_at`, `job.created_at`).
-- Reliquats mineurs P5-03 : pas de test de concurrence du plafond d'échecs TOTP ; compte de base distinct `depenseo_admin` (§8.3) non branché ; `/admin` 404 pour tous tant que P5-05 ne sert pas la page de connexion (adapter `admin-access.spec.ts`).
+- Reliquats mineurs P5-03 : pas de test de concurrence du plafond d'échecs TOTP ; compte de base distinct `depenseo_admin` (§8.3) non branché.
 
 ## Actions humaines (non bloquantes)
 
