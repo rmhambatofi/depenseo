@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P4-06 (`DELETE /me`, purge complète).
-- Dernier commit : 8b00d15 feat(api): expense export CSV/xlsx with encrypted expiring files (F-EXP-01, NF-SEC-01)
+- Prochaine tâche : P4-07 (`POST /me/export`, export RGPD complet).
+- Dernier commit : feat(api): account deletion DELETE /me with full purge (F-AUTH-07)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (155 shared, 620 api), `pnpm test:tz` vert (api : 84 par fuseau), `pnpm --filter api build` vert ; `test/recurring`, `test/sync`, `test/access`, `test/categories`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (155 shared, 624 api), `pnpm test:tz` vert (api : 84 par fuseau), `pnpm --filter api build` vert ; `test/recurring`, `test/sync`, `test/access`, `test/categories`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -119,6 +119,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Supertest, corps binaire : `.buffer(true).parse(binary)` avec un parseur qui concatène les `data` (voir `test/exports/exports.spec.ts`).
 - zsh : une variable contenant plusieurs chemins (`T="a b"; vitest run $T`) n'est **pas** découpée → aucun test lancé, sortie vide. Utiliser un tableau `T=(a b)`.
 
+- Suppression de compte (P4-06, ADR-037) : `deleteAccount(tx, userId, files)` (`src/me/account-deletion.ts`) ; `purgeNotebook` purge aussi `spending_limit`. `ExportsModule` exporte `FILE_STORE`. **Toute nouvelle table** casse `test/me/account-deletion.spec.ts` tant que la fixture `populated()` n'y insère pas une ligne du compte (vérification générique `test/support/user-references.ts` : `ownedIds` = fermeture par colonnes BINARY(16), `referencingRows` = UUID + INSTR sur colonnes texte/json ; blob/varbinary → erreur). **P4-07** : réutiliser `ownedIds`/la même liste de tables pour prouver que l'export couvre chaque table. **P5-01** : purger les tables d'abonnement dans `deleteAccount`. Suite en mai 2027.
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -129,6 +131,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-05 session 25 — P4-06 fait : `DELETE /me` (204, immédiat, 401 si déjà supprimé), purge en une transaction (tâches citant compte/carnets/exports, audit pseudonymisé, `purgeNotebook`, cascade `user`, fichiers chiffrés effacés avant validation) ; ADR-037 ; test générique sur information_schema. Une relecture (0 bloquant ; 4 importants traités : carnet partagé documenté + TODO(F-PAR), test membre du carnet d'autrui, audit des cibles carnet/export, sauvegardes notées en P4-08). Contre-épreuves : 5 mutations tuées.
 
 - 2026-11-05 session 24 — P4-05 fait : export CSV (gratuit) / xlsx (Premium provisoire par `user.plan`) sur période, tâche de fond, fichier AES-256-GCM hors dossier public, téléchargement 15 min par le demandeur seul, purge ; migration 0013 ; ADR-036 ; `fflate` 0.8.3. Deux relectures (0 bloquant ; 3 importants corrigés : fichier indéchiffrable → 404, export `failed` au dernier essai, test de la course « déjà prêt »). Contre-épreuves : 7 mutations tuées. Passation après 1 tâche (~25 fichiers lus).
 

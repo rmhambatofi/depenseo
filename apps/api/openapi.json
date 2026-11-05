@@ -350,6 +350,26 @@
         "tags": [
           "me"
         ]
+      },
+      "delete": {
+        "operationId": "MeController_remove",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Compte et toutes ses données effacés immédiatement et définitivement (F-AUTH-07) : carnets, dépenses (y compris supprimées), récurrences, limites, exports, appareils, sessions"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide, expiré, ou compte déjà supprimé"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
       }
     },
     "/api/v1/me/devices/{deviceId}": {

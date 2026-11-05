@@ -18,5 +18,6 @@ import { FILE_STORE } from './file-store.token.js';
       useFactory: (config: AppConfig) => createFileStore(config) ?? null,
     },
   ],
+  exports: [FILE_STORE],
 })
 export class ExportsModule {}

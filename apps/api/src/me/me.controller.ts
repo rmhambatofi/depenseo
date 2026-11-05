@@ -1,10 +1,11 @@
 // Profil du compte connecté (§8.3, NF-FMT-04, ADR-022) : lecture, et modification des préférences
 // (langue, fuseau IANA, devise, heures de rappel). Les dates de consentement sont en lecture seule.
 import { SUPPORTED_CURRENCIES, TIME_ZONE_MAX_LENGTH } from '@depenseo/shared';
-import { Body, Controller, Get, Header, Inject, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, HttpCode, Inject, Patch } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiProperty,
   ApiPropertyOptional,
@@ -17,10 +18,14 @@ import { LANGUAGES } from '../auth/auth.service.js';
 import { CLOCK, type Clock } from '../clock.js';
 import type { Database } from '../db/connection.js';
 import { DB } from '../db/database.module.js';
+import { withTransaction } from '../db/transaction.js';
 import { user } from '../db/schema/index.js';
 import { ProblemException } from '../errors/problem.exception.js';
+import type { EncryptedFileStore } from '../exports/file-store.js';
+import { FILE_STORE } from '../exports/file-store.token.js';
 import { parseBody } from '../http/parse-body.js';
 import { LOCAL_TIME_PATTERN } from '../notifications/reminder-time.js';
+import { deleteAccount } from './account-deletion.js';
 import { profilePatchSchema } from './profile.js';
 
 type Language = (typeof LANGUAGES)[number];
@@ -116,6 +121,7 @@ export class MeController {
   constructor(
     @Inject(DB) private readonly db: Database,
     @Inject(CLOCK) private readonly clock: Clock,
+    @Inject(FILE_STORE) private readonly files: EncryptedFileStore | null,
   ) {}
 
   @Get()
@@ -140,6 +146,23 @@ export class MeController {
       .set({ ...patch, updatedAt: this.clock.now() })
       .where(eq(user.id, principal.userId));
     return this.load(principal.userId);
+  }
+
+  @Delete()
+  @HttpCode(204)
+  @ApiNoContentResponse({
+    description:
+      'Compte et toutes ses données effacés immédiatement et définitivement (F-AUTH-07) : carnets, ' +
+      'dépenses (y compris supprimées), récurrences, limites, exports, appareils, sessions',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Jeton d’accès absent, invalide, expiré, ou compte déjà supprimé',
+  })
+  async remove(@CurrentUser() principal: Principal): Promise<void> {
+    const deleted = await withTransaction(this.db, (tx) =>
+      deleteAccount(tx, principal.userId, this.files),
+    );
+    if (!deleted) throw new ProblemException(401, 'Authentification requise');
   }
 
   private async load(userId: string): Promise<MeDto> {

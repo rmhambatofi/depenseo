@@ -46,6 +46,7 @@ const ACCOUNT_ROUTES_TESTED_ELSEWHERE = [
   'DELETE /api/v1/me/devices/{deviceId}',
   'GET /api/v1/me/notification-settings',
   'PATCH /api/v1/me/notification-settings',
+  'DELETE /api/v1/me',
 ];
 
 /** Corps valides par route d'écriture (sinon `{}`), pour que l'appelant ne soit pas refusé. */
