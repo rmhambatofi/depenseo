@@ -62,6 +62,26 @@ describe('loadWorkerConfig', () => {
     });
     expect(() => loadWorkerConfig({})).toThrow(/DATABASE_URL/);
   });
+
+  it('stockage des fichiers (ADR-036) : les deux variables ou aucune, clé AES-256 et chemin absolu', () => {
+    const key = TEST_ENV.FILE_ENCRYPTION_KEY;
+    const without = Object.fromEntries(
+      Object.entries(TEST_ENV).filter(([name]) => !name.startsWith('FILE_')),
+    );
+    expect(loadConfig(without).FILE_STORAGE_DIR).toBeUndefined();
+    expect(() => loadConfig({ ...without, FILE_STORAGE_DIR: '/srv/files' })).toThrow(
+      /FILE_ENCRYPTION_KEY : absente/,
+    );
+    expect(() =>
+      loadWorkerConfig({ DATABASE_URL: TEST_ENV.DATABASE_URL, FILE_ENCRYPTION_KEY: key }),
+    ).toThrow(/FILE_STORAGE_DIR : absente/);
+    const short = Buffer.alloc(16).toString('base64');
+    expect(() => loadConfig({ ...TEST_ENV, FILE_ENCRYPTION_KEY: short })).toThrow(ConfigError);
+    expect(() => loadConfig({ ...TEST_ENV, FILE_ENCRYPTION_KEY: short })).not.toThrow(short);
+    expect(() => loadConfig({ ...TEST_ENV, FILE_STORAGE_DIR: 'relatif/fichiers' })).toThrow(
+      /FILE_STORAGE_DIR : invalide/,
+    );
+  });
 });
 
 describe('loadMailConfig', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { asCents, formatAmount, isCents, parseAmountInput } from './money.js';
+import { asCents, decimalAmount, formatAmount, isCents, parseAmountInput } from './money.js';
 import { asCurrencyCode } from './currency.js';
 
 const EUR = asCurrencyCode('EUR');
@@ -120,5 +120,21 @@ describe('formatAmount (NF-FMT-06, NF-FMT-08)', () => {
     expect(formatAmount(asCents(1234), asCurrencyCode('JPY'), 'en-US')).toBe('¥1,234');
     expect(formatAmount(asCents(1234), asCurrencyCode('TND'), 'en-US')).toMatch(/1\.234$/);
     expect(formatAmount(asCents(123456), asCurrencyCode('HUF'), 'en-US')).toMatch(/1,234\.56$/);
+  });
+});
+
+describe('decimalAmount (exports, F-EXP-01)', () => {
+  it('écrit la chaîne décimale exacte selon les décimales ISO 4217, sans groupement', () => {
+    expect(decimalAmount(asCents(123456), EUR)).toBe('1234.56');
+    expect(decimalAmount(asCents(5), EUR)).toBe('0.05');
+    expect(decimalAmount(asCents(0), EUR)).toBe('0.00');
+    expect(decimalAmount(asCents(-4250), EUR)).toBe('-42.50');
+    expect(decimalAmount(asCents(1500), asCurrencyCode('JPY'))).toBe('1500');
+    expect(decimalAmount(asCents(1234), asCurrencyCode('TND'))).toBe('1.234');
+  });
+
+  it('accepte un séparateur décimal (virgule en français)', () => {
+    expect(decimalAmount(asCents(123456), EUR, ',')).toBe('1234,56');
+    expect(decimalAmount(asCents(99_999_999_999), EUR, ',')).toBe('999999999,99');
   });
 });

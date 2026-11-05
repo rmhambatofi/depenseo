@@ -15,16 +15,25 @@ export function asCents(value: number): Cents {
 }
 
 /**
+ * Chaîne décimale exacte d'un montant (« 1234.56 », JPY « 1500 »), sans groupement ni symbole :
+ * calcul sur la chaîne des centimes, aucune division flottante. Utilisée par les exports (F-EXP-01).
+ */
+export function decimalAmount(cents: Cents, currency: CurrencyCode, separator = '.'): string {
+  const digits = minorUnitDigits(currency);
+  const negative = cents < 0; // -0 n'est pas < 0 : rendu « 0.00 »
+  const abs = String(Math.abs(cents)).padStart(digits + 1, '0');
+  const integer = abs.slice(0, abs.length - digits);
+  const fraction = abs.slice(abs.length - digits);
+  return `${negative ? '-' : ''}${integer}${digits > 0 ? `${separator}${fraction}` : ''}`;
+}
+
+/**
  * Formate un montant selon la locale (« 1 234,56 € » en fr-FR, NF-FMT-06).
  * Le montant est passé à Intl sous forme de chaîne décimale exacte : aucune division flottante.
  */
 export function formatAmount(cents: Cents, currency: CurrencyCode, locale: string): string {
   const digits = minorUnitDigits(currency);
-  const negative = cents < 0; // -0 n'est pas < 0 : rendu « 0,00 € »
-  const abs = String(Math.abs(cents)).padStart(digits + 1, '0');
-  const integer = abs.slice(0, abs.length - digits);
-  const fraction = abs.slice(abs.length - digits);
-  const decimal = `${negative ? '-' : ''}${integer}${digits > 0 ? `.${fraction}` : ''}`;
+  const decimal = decimalAmount(cents, currency);
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,

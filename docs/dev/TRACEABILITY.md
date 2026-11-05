@@ -31,7 +31,7 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | F-LIM-04 Alertes 80 %, 100 %, dépassement significatif | P3-03 | `api/test/limits/limit-alerts.spec.ts` (idempotence, 110 %/120 %) |
 | F-LIM-05 Inclure ou non les récurrences | P3-01, P3-02, P6-08 | `api/test/limits/period-summary.spec.ts`, `api/test/limits/period-summary-http.spec.ts` (cas avec/sans récurrences) |
 | F-LIM-09 Changement de limite sans réécrire l'historique | P3-01, P6-08 | `api/test/limits/limit-history.spec.ts`, `api/test/limits/limits-crud.spec.ts` |
-| F-EXP-01 Export Excel et CSV sur période | P4-05, P6-12 | `api/test/exports/expense-export.spec.ts`, `mobile/test/account/expense_export_test.dart` |
+| F-EXP-01 Export Excel et CSV sur période | P4-05, P6-12 | `api/test/exports/exports.spec.ts`, `csv.spec.ts`, `xlsx.spec.ts`, `mobile/test/account/expense_export_test.dart` |
 | F-TB-01 Accueil : jauge, échéances, dernières dépenses | P3-05, P4-01, P6-10 | `api/test/dashboard/dashboard.spec.ts`, `api/test/recurring/occurrences.spec.ts` (`upcoming`), `mobile/test/home/home_screen_test.dart` |
 | F-TB-02 Graphiques : répartition, cumul vs précédente, 12 périodes | P3-05, P6-10 | `api/test/dashboard/dashboard.tz.spec.ts`, `mobile/test/home/charts_test.dart` |
 | F-NOT-01 Push : 80/100 %, échéance, dépense inhabituelle | P3-03, P3-04, P4-02, P4-04, P6-11 | `api/test/limits/limit-alerts.spec.ts`, `api/test/notifications/unusual-expense.spec.ts`, `api/test/notifications/notify-handler.spec.ts`, `api/test/notifications/push-senders.spec.ts`, `api/test/notifications/devices.spec.ts` |
@@ -57,7 +57,7 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | NF-FMT-06 Format des nombres selon la langue, saisie tolérante | P0-04, P6-04 | `shared/src/amount.test.ts` (`formatAmount` fr → « 1 234,56 € »), `mobile/test/expenses/amount_input_test.dart` |
 | NF-FMT-07 `DATE` lu en chaîne, connexion en UTC | P1-02 | `api/test/db/session.tz.spec.ts` |
 | NF-FMT-08 Pas de `new Date('AAAA-MM-JJ')`, `Intl.NumberFormat` | P0-01, P0-04 | `eslint-rules.test.ts` (fixture rejetée par `no-restricted-syntax`), `shared/src/amount.test.ts` |
-| NF-SEC-01 Chiffrement transit/repos, clés hors code, rotation | P4-05, P4-08, P7-03, P7-07 | `api/test/exports/encrypted-file.spec.ts`, `api/test/backup/export-restore.spec.ts`, `docs/dev/DEPLOY.md` (rotation) |
+| NF-SEC-01 Chiffrement transit/repos, clés hors code, rotation | P4-05, P4-08, P7-03, P7-07 | `api/test/exports/file-crypto.spec.ts`, `exports.spec.ts` (fichier illisible sans la clé), `api/test/backup/export-restore.spec.ts`, `docs/dev/DEPLOY.md` (rotation) |
 | NF-SEC-02 Jetons 15 min, refresh révocables, stockage sécurisé | P1-06, P6-01, P6-02 | `api/test/auth/tokens.spec.ts`, `mobile/test/auth/token_storage_test.dart` |
 | NF-SEC-03 Contrôle d'accès serveur sur chaque ressource | P1-09 (+ chaque tâche API) | `api/test/access/cross-tenant.spec.ts` (toutes les routes d'`openapi.json`) |
 | NF-SEC-04 OWASP MASVS L2 | P7-03 | `docs/dev/MASVS.md`, `api/test/security/rate-limit.spec.ts`, `api/test/security/headers.spec.ts` |

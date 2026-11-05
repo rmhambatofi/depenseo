@@ -1,5 +1,7 @@
 // Démarre l'application complète (préfixe, filtres, journal) avec un flux de journal capturé.
 import type { Server } from 'node:http';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { Writable } from 'node:stream';
 import type { INestApplication } from '@nestjs/common';
 import { createApp, type CreateAppOptions } from '../../src/app.js';
@@ -12,6 +14,9 @@ export const TEST_ENV = {
   DATABASE_URL: TEST_DATABASE_URL,
   APPLE_CLIENT_IDS: 'app.depenseo.ios, app.depenseo.web',
   GOOGLE_CLIENT_IDS: 'depenseo-android.apps.googleusercontent.com',
+  /** Dossier propre au processus de test (fichiers d'export chiffrés, ADR-036). */
+  FILE_STORAGE_DIR: join(tmpdir(), `depenseo-test-files-${process.pid}`),
+  FILE_ENCRYPTION_KEY: 'ZGVwZW5zZW8tdGVzdC1rZXktMzItYnl0ZXMtLS0tLS0=',
 } as const;
 
 export class LogCapture extends Writable {

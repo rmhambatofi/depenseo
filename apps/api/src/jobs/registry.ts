@@ -6,6 +6,9 @@ import {
   type VerificationEmailDeps,
   verificationEmailHandler,
 } from '../auth/verification-email.job.js';
+import { type ExportJobDeps, generateExportHandler } from '../exports/export-job.js';
+import { purgeExpiredExports } from '../exports/export-purge.js';
+import type { EncryptedFileStore } from '../exports/file-store.js';
 import type { JobHandler } from './job-runner.js';
 import { scheduleDailyReminders } from '../notifications/daily-reminders.js';
 import { type NotifyDeps, notifyHandler } from '../notifications/notify.handler.js';
@@ -15,15 +18,23 @@ import { generateDueOccurrences } from '../recurring/occurrence-generation.js';
 import { purgeDeletedSyncRows } from '../sync/deleted-rows-purge.js';
 import { purgeFinishedJobs, type ScheduledTask } from './scheduler.js';
 
-/** Dépendances des gestionnaires : base, horloge, e-mail, push. */
-export type JobDeps = VerificationEmailDeps & NotifyDeps;
+/** Dépendances des gestionnaires : base, horloge, e-mail, push, fichiers chiffrés. */
+export type JobDeps = VerificationEmailDeps & NotifyDeps & ExportJobDeps;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- registre hétérogène
 export function jobHandlers(deps: JobDeps): JobHandler<any>[] {
-  return [verificationEmailHandler(deps), passwordResetEmailHandler(deps), notifyHandler(deps)];
+  return [
+    verificationEmailHandler(deps),
+    passwordResetEmailHandler(deps),
+    notifyHandler(deps),
+    generateExportHandler(deps),
+  ];
 }
 
-export function scheduledTasks(): ScheduledTask[] {
+/** `files` absent (stockage non configuré) : aucun export n'existe, pas de purge de fichiers. */
+export function scheduledTasks(
+  deps: { files?: EncryptedFileStore | undefined } = {},
+): ScheduledTask[] {
   return [
     purgeFinishedJobs(),
     purgeExpiredRefreshTokens(),
@@ -32,5 +43,6 @@ export function scheduledTasks(): ScheduledTask[] {
     processDueOccurrences(),
     scheduleOccurrenceReminders(),
     scheduleDailyReminders(),
+    ...(deps.files ? [purgeExpiredExports(deps.files)] : []),
   ];
 }

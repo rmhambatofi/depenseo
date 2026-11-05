@@ -1,5 +1,6 @@
 // Configuration lue uniquement dans les variables d'environnement (NF-SEC-01, ADR-013).
 // Un secret absent ou invalide empêche le démarrage ; le message nomme la variable, jamais sa valeur.
+import { isAbsolute } from 'node:path';
 import { z } from 'zod';
 
 /** Liste d'identifiants séparés par des virgules ; vide ou absente = fournisseur désactivé. */
@@ -32,7 +33,34 @@ const schema = z.object({
   APPLE_CLIENT_IDS: clientIds,
   /** Connexion Google (ADR-020) : identifiants de client OAuth (Android, iOS, web) pour `aud`. */
   GOOGLE_CLIENT_IDS: clientIds,
+  /**
+   * Fichiers servis par l'API (exports, ADR-036) : dossier absolu **hors du dossier public**, et
+   * clé AES-256 en base64 (32 octets). Les deux ou aucune ; absentes = exports indisponibles (503).
+   */
+  FILE_STORAGE_DIR: z
+    .string()
+    .refine((value) => isAbsolute(value))
+    .optional(),
+  FILE_ENCRYPTION_KEY: z
+    .string()
+    .regex(/^[A-Za-z0-9+/]{43}=$/)
+    .optional(),
 });
+
+const FILE_STORAGE_KEYS = ['FILE_STORAGE_DIR', 'FILE_ENCRYPTION_KEY'] as const;
+
+/** Variables qui ne vont que par groupe complet (toutes ou aucune). */
+function assertComplete<T extends Partial<Record<(typeof FILE_STORAGE_KEYS)[number], unknown>>>(
+  config: T,
+): T {
+  const missing = FILE_STORAGE_KEYS.filter((key) => config[key] === undefined);
+  if (missing.length > 0 && missing.length < FILE_STORAGE_KEYS.length) {
+    throw new ConfigError(
+      `Configuration invalide, démarrage refusé — ${missing.map((k) => `${k} : absente`).join(' ; ')}`,
+    );
+  }
+  return config;
+}
 
 export type AppConfig = Readonly<z.infer<typeof schema>>;
 
@@ -46,6 +74,8 @@ const workerSchema = schema.pick({
   LOG_LEVEL: true,
   DATABASE_URL: true,
   DB_POOL_SIZE: true,
+  FILE_STORAGE_DIR: true,
+  FILE_ENCRYPTION_KEY: true,
 });
 export type WorkerConfig = Readonly<z.infer<typeof workerSchema>>;
 
@@ -74,11 +104,11 @@ export function loadMailConfig(env: Readonly<Record<string, string | undefined>>
 }
 
 export function loadConfig(env: Readonly<Record<string, string | undefined>>): AppConfig {
-  return parseEnv(schema, env);
+  return assertComplete(parseEnv(schema, env));
 }
 
 export function loadWorkerConfig(env: Readonly<Record<string, string | undefined>>): WorkerConfig {
-  return parseEnv(workerSchema, env);
+  return assertComplete(parseEnv(workerSchema, env));
 }
 
 export function parseEnv<T extends z.ZodType>(

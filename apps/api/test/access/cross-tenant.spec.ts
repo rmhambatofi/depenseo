@@ -12,13 +12,16 @@ import {
   category,
   expense,
   expenseTag,
+  exportFile,
   occurrence,
   recurringExpense,
   spendingLimit,
   tag,
   user,
 } from '../../src/db/schema/index.js';
+import { loadConfig } from '../../src/config/env.js';
 import { newId } from '../../src/db/uuid.js';
+import { createFileStore } from '../../src/exports/file-store.js';
 import {
   callAs,
   problemWithoutInstance,
@@ -28,7 +31,7 @@ import {
   routesOf,
   type Tenant,
 } from '../support/access.js';
-import { startTestApp } from '../support/app.js';
+import { startTestApp, TEST_ENV } from '../support/app.js';
 import { FakeClock } from '../support/clock.js';
 import { testDb } from '../support/jobs.js';
 import { notebooksOf } from '../support/notebooks.js';
@@ -82,6 +85,12 @@ const BODIES: Record<string, (owner: Tenant) => object> = {
   'PATCH /api/v1/notebooks/{notebookId}/occurrences/{occurrenceId}': () => ({ amount: 1 }),
   'POST /api/v1/notebooks/{notebookId}/occurrences/{occurrenceId}/pay': () => ({
     expenseId: newId(),
+  }),
+  'POST /api/v1/notebooks/{notebookId}/exports': () => ({
+    id: newId(),
+    format: 'csv',
+    from: '2026-04-01',
+    to: '2026-04-30',
   }),
   'PATCH /api/v1/notebooks/{notebookId}/expenses/{expenseId}': () => ({
     amount: 1,
@@ -141,6 +150,25 @@ const RESOURCE_PARAMS: Record<string, (owner: Tenant, db: Database) => Promise<s
   // Récurrence active de A avec une échéance en attente (payable par A : catégorie du plan).
   recurringId: async (owner, db) => (await recurringOf(owner, db)).recurringId,
   occurrenceId: async (owner, db) => (await recurringOf(owner, db)).occurrenceId,
+  // Export CSV prêt de A, fichier chiffré écrit : état et téléchargement réussissent pour A.
+  exportId: async (owner, db) => {
+    const id = newId();
+    const now = new Date();
+    await db.insert(exportFile).values({
+      id,
+      notebookId: owner.notebookId,
+      userId: owner.id,
+      format: 'csv',
+      dateFrom: '2026-04-01',
+      dateTo: '2026-04-30',
+      status: 'ready',
+      expiresAt: new Date(Date.UTC(2027, 0, 1)),
+      createdAt: now,
+      updatedAt: now,
+    });
+    await createFileStore(loadConfig(TEST_ENV))!.write(id, Buffer.from('Date;Montant\r\n'));
+    return id;
+  },
   // Version de limite du jour de A (modifiable : seule la garde de carnet peut la protéger).
   // Une seule version par jour : réutilisée d'une route à l'autre.
   limitId: async (owner, db) => {
@@ -231,6 +259,11 @@ const notebookRows = async (db: Database, notebookId: string) => ({
     .from(occurrence)
     .where(eq(occurrence.notebookId, notebookId))
     .orderBy(asc(occurrence.id)),
+  exports: await db
+    .select()
+    .from(exportFile)
+    .where(eq(exportFile.notebookId, notebookId))
+    .orderBy(asc(exportFile.id)),
   expenseTags: await db
     .select({ expenseId: expenseTag.expenseId, tagId: expenseTag.tagId })
     .from(expenseTag)
