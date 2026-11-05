@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/account/account_context.dart';
 import '../../core/sync/sync_engine.dart';
 import '../../providers.dart';
+import '../categories/category_providers.dart';
 import '../expenses/expense_providers.dart';
 
 enum SyncPhase { idle, syncing, upToDate, offline }
@@ -129,6 +130,7 @@ class SyncController extends Notifier<SyncPhase> {
       if (ref.mounted) {
         // Pas `quickEntryDataProvider` : le formulaire ouvert serait réinitialisé.
         refreshLocalExpenses(ref.invalidate);
+        refreshCategories(ref.invalidate);
       }
     }
   }

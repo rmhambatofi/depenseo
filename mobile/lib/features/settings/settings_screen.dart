@@ -21,6 +21,14 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           ListTile(
+            key: const Key('open-categories'),
+            leading: const Icon(Icons.category_outlined),
+            title: Text(l10n.categoriesTitle),
+            subtitle: Text(l10n.categoriesSettingsHint),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/settings/categories'),
+          ),
+          ListTile(
             title: Text(
               l10n.settingsSecurity,
               style: TextStyle(color: Theme.of(context).colorScheme.primary),

@@ -847,6 +847,126 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Trop tard : la suppression est déjà enregistrée.'**
   String get undoTooLate;
+
+  /// No description provided for @categoriesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégories'**
+  String get categoriesTitle;
+
+  /// No description provided for @categoriesSettingsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom, icône, couleur et masquage'**
+  String get categoriesSettingsHint;
+
+  /// No description provided for @categoryAdd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle catégorie'**
+  String get categoryAdd;
+
+  /// No description provided for @categoryEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier la catégorie'**
+  String get categoryEdit;
+
+  /// No description provided for @categoryNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom'**
+  String get categoryNameLabel;
+
+  /// No description provided for @categoryNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez un nom.'**
+  String get categoryNameRequired;
+
+  /// No description provided for @categoryNameTooLong.
+  ///
+  /// In fr, this message translates to:
+  /// **'100 caractères au plus.'**
+  String get categoryNameTooLong;
+
+  /// No description provided for @categoryIconLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Icône (emoji)'**
+  String get categoryIconLabel;
+
+  /// No description provided for @categoryIconRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez une icône.'**
+  String get categoryIconRequired;
+
+  /// No description provided for @categoryIconTooLong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Icône trop longue.'**
+  String get categoryIconTooLong;
+
+  /// No description provided for @categoryColorLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couleur'**
+  String get categoryColorLabel;
+
+  /// No description provided for @categoryColorOption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couleur {hex}'**
+  String categoryColorOption(String hex);
+
+  /// No description provided for @categoryParentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégorie parente'**
+  String get categoryParentLabel;
+
+  /// No description provided for @categoryParentNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune (catégorie principale)'**
+  String get categoryParentNone;
+
+  /// No description provided for @categoryHidden.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquée : non proposée à la saisie'**
+  String get categoryHidden;
+
+  /// No description provided for @categoryShownInEntry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposer « {name} » à la saisie'**
+  String categoryShownInEntry(String name);
+
+  /// No description provided for @categoryWriteOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion requise pour modifier les catégories. Réessayez une fois en ligne.'**
+  String get categoryWriteOffline;
+
+  /// No description provided for @categoryWriteInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modification refusée : vérifiez les champs.'**
+  String get categoryWriteInvalid;
+
+  /// No description provided for @categoryWriteGone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette catégorie n\'existe plus.'**
+  String get categoryWriteGone;
+
+  /// No description provided for @categoryHiddenWithParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non proposée à la saisie : sa catégorie parente est masquée'**
+  String get categoryHiddenWithParent;
 }
 
 class _AppLocalizationsDelegate

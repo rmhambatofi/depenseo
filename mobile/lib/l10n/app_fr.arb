@@ -131,5 +131,39 @@
   "minAmountLabel": "Montant minimum",
   "maxAmountLabel": "Montant maximum",
   "amountRangeInvalid": "Le maximum doit être supérieur ou égal au minimum.",
-  "undoTooLate": "Trop tard : la suppression est déjà enregistrée."
+  "undoTooLate": "Trop tard : la suppression est déjà enregistrée.",
+  "categoriesTitle": "Catégories",
+  "categoriesSettingsHint": "Nom, icône, couleur et masquage",
+  "categoryAdd": "Nouvelle catégorie",
+  "categoryEdit": "Modifier la catégorie",
+  "categoryNameLabel": "Nom",
+  "categoryNameRequired": "Saisissez un nom.",
+  "categoryNameTooLong": "100 caractères au plus.",
+  "categoryIconLabel": "Icône (emoji)",
+  "categoryIconRequired": "Choisissez une icône.",
+  "categoryIconTooLong": "Icône trop longue.",
+  "categoryColorLabel": "Couleur",
+  "categoryColorOption": "Couleur {hex}",
+  "@categoryColorOption": {
+    "placeholders": {
+      "hex": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryParentLabel": "Catégorie parente",
+  "categoryParentNone": "Aucune (catégorie principale)",
+  "categoryHidden": "Masquée : non proposée à la saisie",
+  "categoryShownInEntry": "Proposer « {name} » à la saisie",
+  "@categoryShownInEntry": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryWriteOffline": "Connexion requise pour modifier les catégories. Réessayez une fois en ligne.",
+  "categoryWriteInvalid": "Modification refusée : vérifiez les champs.",
+  "categoryWriteGone": "Cette catégorie n'existe plus.",
+  "categoryHiddenWithParent": "Non proposée à la saisie : sa catégorie parente est masquée"
 }

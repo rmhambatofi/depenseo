@@ -46,8 +46,8 @@ void main() {
       await engine.run(nb);
 
       // 409 avant restauration, puis POST idempotent (ligne existante).
-    expect(posts(), 2);
-    expect(api.calls('PATCH /notebooks/$nb/expenses/$e1'), hasLength(1));
+      expect(posts(), 2);
+      expect(api.calls('PATCH /notebooks/$nb/expenses/$e1'), hasLength(1));
       expect(server.expenses[e1]!['amount'], 999);
       expect(server.expenses[e1]!['note'], 'gardée');
       final row = await local(e1);

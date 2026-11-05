@@ -409,4 +409,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get undoTooLate => 'Too late: the deletion has already been saved.';
+
+  @override
+  String get categoriesTitle => 'Categories';
+
+  @override
+  String get categoriesSettingsHint => 'Name, icon, colour and hiding';
+
+  @override
+  String get categoryAdd => 'New category';
+
+  @override
+  String get categoryEdit => 'Edit category';
+
+  @override
+  String get categoryNameLabel => 'Name';
+
+  @override
+  String get categoryNameRequired => 'Enter a name.';
+
+  @override
+  String get categoryNameTooLong => '100 characters at most.';
+
+  @override
+  String get categoryIconLabel => 'Icon (emoji)';
+
+  @override
+  String get categoryIconRequired => 'Choose an icon.';
+
+  @override
+  String get categoryIconTooLong => 'Icon too long.';
+
+  @override
+  String get categoryColorLabel => 'Colour';
+
+  @override
+  String categoryColorOption(String hex) {
+    return 'Colour $hex';
+  }
+
+  @override
+  String get categoryParentLabel => 'Parent category';
+
+  @override
+  String get categoryParentNone => 'None (main category)';
+
+  @override
+  String get categoryHidden => 'Hidden: not offered when adding expenses';
+
+  @override
+  String categoryShownInEntry(String name) {
+    return 'Offer “$name” when adding expenses';
+  }
+
+  @override
+  String get categoryWriteOffline =>
+      'A connection is needed to change categories. Try again once online.';
+
+  @override
+  String get categoryWriteInvalid => 'Change refused: check the fields.';
+
+  @override
+  String get categoryWriteGone => 'This category no longer exists.';
+
+  @override
+  String get categoryHiddenWithParent =>
+      'Not offered when adding expenses: its parent category is hidden';
 }

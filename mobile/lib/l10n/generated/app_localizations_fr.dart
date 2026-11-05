@@ -411,4 +411,71 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get undoTooLate => 'Trop tard : la suppression est déjà enregistrée.';
+
+  @override
+  String get categoriesTitle => 'Catégories';
+
+  @override
+  String get categoriesSettingsHint => 'Nom, icône, couleur et masquage';
+
+  @override
+  String get categoryAdd => 'Nouvelle catégorie';
+
+  @override
+  String get categoryEdit => 'Modifier la catégorie';
+
+  @override
+  String get categoryNameLabel => 'Nom';
+
+  @override
+  String get categoryNameRequired => 'Saisissez un nom.';
+
+  @override
+  String get categoryNameTooLong => '100 caractères au plus.';
+
+  @override
+  String get categoryIconLabel => 'Icône (emoji)';
+
+  @override
+  String get categoryIconRequired => 'Choisissez une icône.';
+
+  @override
+  String get categoryIconTooLong => 'Icône trop longue.';
+
+  @override
+  String get categoryColorLabel => 'Couleur';
+
+  @override
+  String categoryColorOption(String hex) {
+    return 'Couleur $hex';
+  }
+
+  @override
+  String get categoryParentLabel => 'Catégorie parente';
+
+  @override
+  String get categoryParentNone => 'Aucune (catégorie principale)';
+
+  @override
+  String get categoryHidden => 'Masquée : non proposée à la saisie';
+
+  @override
+  String categoryShownInEntry(String name) {
+    return 'Proposer « $name » à la saisie';
+  }
+
+  @override
+  String get categoryWriteOffline =>
+      'Connexion requise pour modifier les catégories. Réessayez une fois en ligne.';
+
+  @override
+  String get categoryWriteInvalid =>
+      'Modification refusée : vérifiez les champs.';
+
+  @override
+  String get categoryWriteGone => 'Cette catégorie n\'existe plus.';
+
+  @override
+  String get categoryHiddenWithParent =>
+      'Non proposée à la saisie : sa catégorie parente est masquée';
 }

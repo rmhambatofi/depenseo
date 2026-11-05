@@ -8,6 +8,8 @@ import 'features/auth/password_reset_screens.dart';
 import 'features/auth/register_screen.dart';
 import 'features/auth/storage_error_screen.dart';
 import 'features/auth/verify_email_screen.dart';
+import 'features/categories/categories_screen.dart';
+import 'features/categories/category_edit_screen.dart';
 import 'features/expenses/expense_list_screen.dart';
 import 'features/expenses/quick_entry_screen.dart';
 import 'features/home/home_screen.dart';
@@ -74,6 +76,24 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'pin',
             builder: (context, state) => const PinSetupScreen(),
+          ),
+          GoRoute(
+            path: 'categories',
+            builder: (context, state) => const CategoriesScreen(),
+            routes: [
+              // `new` avant `:categoryId`.
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => const CategoryEditScreen(),
+              ),
+              GoRoute(
+                path: ':categoryId',
+                builder: (context, state) => CategoryEditScreen(
+                  key: ValueKey(state.pathParameters['categoryId']),
+                  categoryId: state.pathParameters['categoryId'],
+                ),
+              ),
+            ],
           ),
         ],
       ),
