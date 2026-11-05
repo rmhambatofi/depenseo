@@ -12,6 +12,8 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../providers.dart';
 import '../auth/auth_controller.dart';
 import '../expenses/expense_providers.dart';
+import '../premium/premium_providers.dart';
+import '../premium/subscription_screen.dart';
 import '../sync/sync_controller.dart';
 import 'delete_account_dialog.dart';
 
@@ -66,7 +68,14 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
   );
   late String _from = '${_today.substring(0, 8)}01';
   late String _to = _today;
-  ExportFormat _format = ExportFormat.csv;
+  ExportFormat _chosen = ExportFormat.csv;
+
+  /// Hors Premium (droits lus sur l'API), l'Excel est en lecture seule :
+  /// option désactivée, CSV retenu (§5, ADR-041). État inconnu : l'API tranche.
+  /// Mis à jour par `build` depuis l'état observé.
+  bool _excelLocked = false;
+
+  ExportFormat get _format => _excelLocked ? ExportFormat.csv : _chosen;
   _Busy _busy = _Busy.none;
 
   void _snack(String text) => ScaffoldMessenger.of(context)
@@ -204,6 +213,9 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
     String date(String d) => DateFormat.yMMMd(locale).format(_components(d));
 
     final idle = _busy == _Busy.none;
+    final subscription = ref.watch(subscriptionStatusProvider).value;
+    final plan = subscription?.plan;
+    final excelLocked = _excelLocked = subscription?.premiumActive == false;
     Widget header(String text) => Semantics(
       header: true,
       child: ListTile(
@@ -254,11 +266,12 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
               ButtonSegment(
                 value: ExportFormat.xlsx,
                 label: Text(l10n.exportExcel),
+                enabled: !excelLocked,
               ),
             ],
             selected: {_format},
             onSelectionChanged: idle
-                ? (s) => setState(() => _format = s.single)
+                ? (s) => setState(() => _chosen = s.single)
                 : null,
           ),
         ),
@@ -271,7 +284,23 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
             onPressed: idle ? _exportExpenses : null,
           ),
         ),
+        if (excelLocked)
+          Padding(
+            key: const Key('excel-locked'),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(l10n.exportExcelLocked),
+          ),
         progress(_Busy.expenses),
+        header(l10n.subscriptionTitle),
+        ListTile(
+          key: const Key('open-subscription'),
+          leading: const Icon(Icons.workspace_premium_outlined),
+          title: Text(
+            plan == null ? l10n.subscriptionTitle : planLabel(l10n, plan),
+          ),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.push('/settings/subscription'),
+        ),
         header(l10n.accountDataTitle),
         ListTile(
           key: const Key('export-personal'),

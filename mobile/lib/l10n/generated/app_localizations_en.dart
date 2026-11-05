@@ -943,4 +943,94 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountDeleted => 'Your account has been deleted.';
+
+  @override
+  String get subscriptionTitle => 'Subscription';
+
+  @override
+  String get planFree => 'Free plan';
+
+  @override
+  String get planTrial => 'Premium trial';
+
+  @override
+  String get planPremium => 'Premium';
+
+  @override
+  String planTrialUntil(String date) {
+    return 'Premium trial until $date (included)';
+  }
+
+  @override
+  String planPremiumUntil(String date) {
+    return 'Premium until $date';
+  }
+
+  @override
+  String get planReadOnly =>
+      'Without Premium, Premium features become read-only: no data is deleted and CSV export remains free.';
+
+  @override
+  String get premiumIncludes => 'Premium: Excel export of expenses.';
+
+  @override
+  String get trialStart => 'Try Premium free for 14 days';
+
+  @override
+  String get trialHint => 'No commitment: no payment method required.';
+
+  @override
+  String get trialStarted => 'Premium trial activated.';
+
+  @override
+  String get trialUsed =>
+      'The free trial has already been used on this account.';
+
+  @override
+  String get subscriptionOffline => 'Subscription unavailable offline.';
+
+  @override
+  String get subscriptionFailed => 'The operation failed. Please try again.';
+
+  @override
+  String get storeUnavailable => 'Purchases are not available on this device.';
+
+  @override
+  String get restorePurchases => 'Restore purchases';
+
+  @override
+  String get restoreRequested => 'Looking for your purchases in the store…';
+
+  @override
+  String get manageSubscription => 'Manage or cancel subscription';
+
+  @override
+  String get manageSubscriptionHint =>
+      'Opens the store’s subscription settings';
+
+  @override
+  String get purchaseActivated => 'Premium activated. Thank you!';
+
+  @override
+  String get purchaseRestored => 'Purchase restored.';
+
+  @override
+  String get purchasePending => 'Purchase awaiting store approval.';
+
+  @override
+  String get purchaseInvalid => 'This purchase could not be verified.';
+
+  @override
+  String get purchaseOtherAccount =>
+      'This purchase is already linked to another Depenseo account.';
+
+  @override
+  String get purchaseRetryLater =>
+      'Verification not possible right now: it will be retried automatically.';
+
+  @override
+  String get purchaseFailed => 'The purchase did not go through.';
+
+  @override
+  String get exportExcelLocked => 'Excel export requires Premium.';
 }

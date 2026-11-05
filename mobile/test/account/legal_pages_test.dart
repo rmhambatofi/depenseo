@@ -9,7 +9,7 @@ import 'account_harness.dart';
 
 Future<void> openLegal(WidgetTester tester, {Locale? locale}) async {
   await openAccount(tester, locale: locale ?? const Locale('fr'));
-  await tester.ensureVisible(byKey('open-legal'));
+  await reveal(tester, 'open-legal');
   await tester.tap(byKey('open-legal'));
   await tester.pumpAndSettle();
 }

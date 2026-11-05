@@ -1783,6 +1783,168 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Votre compte a été supprimé.'**
   String get accountDeleted;
+
+  /// No description provided for @subscriptionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement'**
+  String get subscriptionTitle;
+
+  /// No description provided for @planFree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Offre gratuite'**
+  String get planFree;
+
+  /// No description provided for @planTrial.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essai Premium'**
+  String get planTrial;
+
+  /// No description provided for @planPremium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premium'**
+  String get planPremium;
+
+  /// No description provided for @planTrialUntil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essai Premium jusqu’au {date} inclus'**
+  String planTrialUntil(String date);
+
+  /// No description provided for @planPremiumUntil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premium jusqu’au {date}'**
+  String planPremiumUntil(String date);
+
+  /// No description provided for @planReadOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors Premium, les fonctions Premium passent en lecture seule : aucune donnée n’est supprimée et l’export CSV reste gratuit.'**
+  String get planReadOnly;
+
+  /// No description provided for @premiumIncludes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premium : export Excel des dépenses.'**
+  String get premiumIncludes;
+
+  /// No description provided for @trialStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essayer Premium gratuitement pendant 14 jours'**
+  String get trialStart;
+
+  /// No description provided for @trialHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans engagement : aucun moyen de paiement demandé.'**
+  String get trialHint;
+
+  /// No description provided for @trialStarted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essai Premium activé.'**
+  String get trialStarted;
+
+  /// No description provided for @trialUsed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’essai gratuit a déjà été utilisé sur ce compte.'**
+  String get trialUsed;
+
+  /// No description provided for @subscriptionOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement indisponible hors connexion.'**
+  String get subscriptionOffline;
+
+  /// No description provided for @subscriptionFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’opération a échoué. Réessayez.'**
+  String get subscriptionFailed;
+
+  /// No description provided for @storeUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les achats ne sont pas disponibles sur cet appareil.'**
+  String get storeUnavailable;
+
+  /// No description provided for @restorePurchases.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restaurer mes achats'**
+  String get restorePurchases;
+
+  /// No description provided for @restoreRequested.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche de vos achats auprès du store…'**
+  String get restoreRequested;
+
+  /// No description provided for @manageSubscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer ou résilier l’abonnement'**
+  String get manageSubscription;
+
+  /// No description provided for @manageSubscriptionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvre la gestion des abonnements du store'**
+  String get manageSubscriptionHint;
+
+  /// No description provided for @purchaseActivated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premium activé. Merci !'**
+  String get purchaseActivated;
+
+  /// No description provided for @purchaseRestored.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat restauré.'**
+  String get purchaseRestored;
+
+  /// No description provided for @purchasePending.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat en attente de validation par le store.'**
+  String get purchasePending;
+
+  /// No description provided for @purchaseInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet achat n’a pas pu être vérifié.'**
+  String get purchaseInvalid;
+
+  /// No description provided for @purchaseOtherAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet achat est déjà lié à un autre compte Depenseo.'**
+  String get purchaseOtherAccount;
+
+  /// No description provided for @purchaseRetryLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification impossible pour l’instant : elle sera retentée automatiquement.'**
+  String get purchaseRetryLater;
+
+  /// No description provided for @purchaseFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’achat n’a pas abouti.'**
+  String get purchaseFailed;
+
+  /// No description provided for @exportExcelLocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Export Excel réservé à Premium.'**
+  String get exportExcelLocked;
 }
 
 class _AppLocalizationsDelegate

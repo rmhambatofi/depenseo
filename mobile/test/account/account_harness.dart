@@ -100,3 +100,13 @@ Future<void> tapUntil(
   await tester.tap(finder);
   await settleUntil(tester, done);
 }
+
+/// Fait défiler la liste paresseuse de l'écran Compte jusqu'à [key].
+Future<void> reveal(WidgetTester tester, String key) async {
+  await tester.scrollUntilVisible(
+    find.byKey(Key(key)),
+    200,
+    scrollable: find.byType(Scrollable).last,
+  );
+  await tester.pumpAndSettle();
+}

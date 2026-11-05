@@ -10,7 +10,7 @@ import '../support/settle.dart';
 import 'account_harness.dart';
 
 Future<void> openDialog(WidgetTester tester) async {
-  await tester.ensureVisible(byKey('delete-account'));
+  await reveal(tester, 'delete-account');
   await tester.tap(byKey('delete-account'));
   await tester.pumpAndSettle();
 }

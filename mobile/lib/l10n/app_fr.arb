@@ -475,5 +475,46 @@
   },
   "deleteAccountConfirm": "Supprimer définitivement",
   "deleteFailed": "La suppression a échoué. Réessayez.",
-  "accountDeleted": "Votre compte a été supprimé."
+  "accountDeleted": "Votre compte a été supprimé.",
+  "subscriptionTitle": "Abonnement",
+  "planFree": "Offre gratuite",
+  "planTrial": "Essai Premium",
+  "planPremium": "Premium",
+  "planTrialUntil": "Essai Premium jusqu’au {date} inclus",
+  "@planTrialUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planPremiumUntil": "Premium jusqu’au {date}",
+  "@planPremiumUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planReadOnly": "Hors Premium, les fonctions Premium passent en lecture seule : aucune donnée n’est supprimée et l’export CSV reste gratuit.",
+  "premiumIncludes": "Premium : export Excel des dépenses.",
+  "trialStart": "Essayer Premium gratuitement pendant 14 jours",
+  "trialHint": "Sans engagement : aucun moyen de paiement demandé.",
+  "trialStarted": "Essai Premium activé.",
+  "trialUsed": "L’essai gratuit a déjà été utilisé sur ce compte.",
+  "subscriptionOffline": "Abonnement indisponible hors connexion.",
+  "subscriptionFailed": "L’opération a échoué. Réessayez.",
+  "storeUnavailable": "Les achats ne sont pas disponibles sur cet appareil.",
+  "restorePurchases": "Restaurer mes achats",
+  "restoreRequested": "Recherche de vos achats auprès du store…",
+  "manageSubscription": "Gérer ou résilier l’abonnement",
+  "manageSubscriptionHint": "Ouvre la gestion des abonnements du store",
+  "purchaseActivated": "Premium activé. Merci !",
+  "purchaseRestored": "Achat restauré.",
+  "purchasePending": "Achat en attente de validation par le store.",
+  "purchaseInvalid": "Cet achat n’a pas pu être vérifié.",
+  "purchaseOtherAccount": "Cet achat est déjà lié à un autre compte Depenseo.",
+  "purchaseRetryLater": "Vérification impossible pour l’instant : elle sera retentée automatiquement.",
+  "purchaseFailed": "L’achat n’a pas abouti.",
+  "exportExcelLocked": "Export Excel réservé à Premium."
 }

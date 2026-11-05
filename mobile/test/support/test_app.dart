@@ -13,6 +13,7 @@ import 'package:depenseo/core/lock/screen_security.dart';
 import 'package:depenseo/core/push/push_service.dart';
 import 'package:depenseo/features/account/account_screen.dart';
 import 'package:depenseo/features/notifications/push_registration.dart';
+import 'package:depenseo/features/premium/premium_providers.dart';
 import 'package:depenseo/features/sync/sync_controller.dart';
 import 'package:depenseo/providers.dart';
 import 'package:depenseo/router.dart';
@@ -23,6 +24,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'fake_api.dart';
+import 'fake_store.dart';
 import 'memory_secure_store.dart';
 
 /// SDK natifs Apple/Google simulés : renvoie [credential] (`null` = annulé).
@@ -135,6 +137,10 @@ class TestApp {
   final FakeScreenSecurity screen = FakeScreenSecurity();
   final FakePushService push = FakePushService();
   final FakeFileSharer files = FakeFileSharer();
+  final FakeStore storeGateway = FakeStore();
+
+  /// Liens ouverts hors de l'app (gestion de l'abonnement).
+  final List<Uri> openedUrls = [];
 
   /// Nouveaux essais de synchro : aucun par défaut (pas de minuterie en fin de test).
   List<Duration> syncRetryDelays = const [];
@@ -174,6 +180,11 @@ class TestApp {
         screenSecurityProvider.overrideWithValue(screen),
         pushServiceProvider.overrideWithValue(push),
         fileSharerProvider.overrideWithValue(files),
+        storeGatewayProvider.overrideWithValue(storeGateway),
+        urlOpenerProvider.overrideWithValue((uri) async {
+          openedUrls.add(uri);
+          return true;
+        }),
         // Interrogation des exports sans attente réelle.
         exportSleepProvider.overrideWithValue((_) async {}),
         syncRetryDelaysProvider.overrideWith((ref) => syncRetryDelays),

@@ -17,6 +17,7 @@ import 'features/expenses/quick_entry_screen.dart';
 import 'features/home/home_screen.dart';
 import 'features/limits/limits_screen.dart';
 import 'features/notifications/notification_settings_screen.dart';
+import 'features/premium/subscription_screen.dart';
 import 'features/recurring/recurring_edit_screen.dart';
 import 'features/recurring/recurring_screen.dart';
 import 'features/settings/pin_setup_screen.dart';
@@ -86,6 +87,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'account',
             builder: (context, state) => const AccountScreen(),
+          ),
+          GoRoute(
+            path: 'subscription',
+            builder: (context, state) => const SubscriptionScreen(),
           ),
           GoRoute(
             path: 'legal',

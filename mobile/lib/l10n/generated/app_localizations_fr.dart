@@ -952,4 +952,94 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get accountDeleted => 'Votre compte a été supprimé.';
+
+  @override
+  String get subscriptionTitle => 'Abonnement';
+
+  @override
+  String get planFree => 'Offre gratuite';
+
+  @override
+  String get planTrial => 'Essai Premium';
+
+  @override
+  String get planPremium => 'Premium';
+
+  @override
+  String planTrialUntil(String date) {
+    return 'Essai Premium jusqu’au $date inclus';
+  }
+
+  @override
+  String planPremiumUntil(String date) {
+    return 'Premium jusqu’au $date';
+  }
+
+  @override
+  String get planReadOnly =>
+      'Hors Premium, les fonctions Premium passent en lecture seule : aucune donnée n’est supprimée et l’export CSV reste gratuit.';
+
+  @override
+  String get premiumIncludes => 'Premium : export Excel des dépenses.';
+
+  @override
+  String get trialStart => 'Essayer Premium gratuitement pendant 14 jours';
+
+  @override
+  String get trialHint => 'Sans engagement : aucun moyen de paiement demandé.';
+
+  @override
+  String get trialStarted => 'Essai Premium activé.';
+
+  @override
+  String get trialUsed => 'L’essai gratuit a déjà été utilisé sur ce compte.';
+
+  @override
+  String get subscriptionOffline => 'Abonnement indisponible hors connexion.';
+
+  @override
+  String get subscriptionFailed => 'L’opération a échoué. Réessayez.';
+
+  @override
+  String get storeUnavailable =>
+      'Les achats ne sont pas disponibles sur cet appareil.';
+
+  @override
+  String get restorePurchases => 'Restaurer mes achats';
+
+  @override
+  String get restoreRequested => 'Recherche de vos achats auprès du store…';
+
+  @override
+  String get manageSubscription => 'Gérer ou résilier l’abonnement';
+
+  @override
+  String get manageSubscriptionHint =>
+      'Ouvre la gestion des abonnements du store';
+
+  @override
+  String get purchaseActivated => 'Premium activé. Merci !';
+
+  @override
+  String get purchaseRestored => 'Achat restauré.';
+
+  @override
+  String get purchasePending => 'Achat en attente de validation par le store.';
+
+  @override
+  String get purchaseInvalid => 'Cet achat n’a pas pu être vérifié.';
+
+  @override
+  String get purchaseOtherAccount =>
+      'Cet achat est déjà lié à un autre compte Depenseo.';
+
+  @override
+  String get purchaseRetryLater =>
+      'Vérification impossible pour l’instant : elle sera retentée automatiquement.';
+
+  @override
+  String get purchaseFailed => 'L’achat n’a pas abouti.';
+
+  @override
+  String get exportExcelLocked => 'Export Excel réservé à Premium.';
 }
