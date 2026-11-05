@@ -6,6 +6,7 @@ import {
   type VerificationEmailDeps,
   verificationEmailHandler,
 } from '../auth/verification-email.job.js';
+import { generateAccountExportHandler } from '../account-export/account-export-job.js';
 import { type ExportJobDeps, generateExportHandler } from '../exports/export-job.js';
 import { purgeExpiredExports } from '../exports/export-purge.js';
 import type { EncryptedFileStore } from '../exports/file-store.js';
@@ -28,6 +29,7 @@ export function jobHandlers(deps: JobDeps): JobHandler<any>[] {
     passwordResetEmailHandler(deps),
     notifyHandler(deps),
     generateExportHandler(deps),
+    generateAccountExportHandler(deps),
   ];
 }
 

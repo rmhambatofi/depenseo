@@ -39,14 +39,17 @@ import { PUBLIC_ROUTES } from '../support/public-routes.js';
 
 /** Routes du compte connecté, sans identifiant de ressource dans le chemin. */
 const ACCOUNT_ROUTES = ['GET /api/v1/me', 'PATCH /api/v1/me', 'GET /api/v1/notebooks'];
-/** Routes de compte sans identifiant dans la réponse (204, réglages) : isolation éprouvée par
- * `test/notifications/devices.spec.ts` (appareil d'un autre compte : 409 / inchangé). */
+/** Routes de compte éprouvées ailleurs : `test/notifications/devices.spec.ts` (appareil d'un autre
+ * compte : 409 / inchangé), `test/me/account-export.spec.ts` (export d'un autre compte : 409 / 404). */
 const ACCOUNT_ROUTES_TESTED_ELSEWHERE = [
   'PUT /api/v1/me/devices/{deviceId}',
   'DELETE /api/v1/me/devices/{deviceId}',
   'GET /api/v1/me/notification-settings',
   'PATCH /api/v1/me/notification-settings',
   'DELETE /api/v1/me',
+  'POST /api/v1/me/export',
+  'GET /api/v1/me/export/{exportId}',
+  'GET /api/v1/me/export/{exportId}/file',
 ];
 
 /** Corps valides par route d'écriture (sinon `{}`), pour que l'appelant ne soit pas refusé. */

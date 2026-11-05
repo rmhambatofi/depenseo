@@ -19,6 +19,7 @@ import { RecurringModule } from './recurring/recurring.module.js';
 import { NotebooksModule } from './notebooks/notebooks.module.js';
 import { SyncModule } from './sync/sync.module.js';
 import { ExportsModule } from './exports/exports.module.js';
+import { AccountExportModule } from './account-export/account-export.module.js';
 import { pinoHttpOptions } from './logging/pino-options.js';
 
 @Module({})
@@ -43,6 +44,7 @@ export class AppModule {
         ClockModule.register(clock),
         AuthModule.register(idTokenKeys),
         MeModule,
+        AccountExportModule,
         NotificationsModule,
         NotebooksModule,
         CategoriesModule,

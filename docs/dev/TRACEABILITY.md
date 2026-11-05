@@ -13,7 +13,7 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | F-AUTH-03 Reset mot de passe 30 min usage unique | P1-07, P6-02 | `api/test/auth/password-reset.spec.ts` (expiré à 30 min + 1 s, second usage refusé) |
 | F-AUTH-04 Verrouillage biométrie/code, délai réglable | P6-03 | `mobile/test/security/app_lock_test.dart` |
 | F-AUTH-07 Suppression du compte et des données | P4-06, P6-12 | `api/test/me/account-deletion.spec.ts` (parcours de toutes les tables), `mobile/test/account/delete_account_test.dart` |
-| F-AUTH-08 Export des données personnelles JSON + CSV | P4-07, P6-12 | `api/test/me/personal-export.spec.ts`, `mobile/test/account/personal_export_test.dart` |
+| F-AUTH-08 Export des données personnelles JSON + CSV | P4-07, P6-12 | `api/test/me/account-export.spec.ts` (toutes les tables par information_schema), `mobile/test/account/personal_export_test.dart` |
 | F-DEP-01 Saisie < 10 s, bouton « + » permanent | P6-04 | `mobile/test/expenses/quick_entry_test.dart` (≤ 3 interactions) |
 | F-DEP-02 Clavier localisé, virgule/point | P0-04, P6-04 | `shared/src/amount.test.ts` (`parseAmountInput`), `mobile/test/expenses/amount_input_test.dart` |
 | F-DEP-03 Champs montant, catégorie, date, note, marchand, étiquettes | P2-02, P6-04 | `api/test/expenses/expenses-crud.spec.ts`, `mobile/test/expenses/quick_entry_test.dart` |

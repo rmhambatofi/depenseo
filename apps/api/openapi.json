@@ -372,6 +372,139 @@
         ]
       }
     },
+    "/api/v1/me/export": {
+      "post": {
+        "operationId": "AccountExportController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccountExportDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Demande enregistrée (archive zip JSON + CSV), ou existante si rejeu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountExportDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Corps invalide"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "409": {
+            "description": "Identifiant déjà utilisé"
+          },
+          "503": {
+            "description": "Stockage des fichiers non configuré"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/api/v1/me/export/{exportId}": {
+      "get": {
+        "operationId": "AccountExportController_get",
+        "parameters": [
+          {
+            "name": "exportId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountExportDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Export introuvable (ou d’un autre compte)"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/api/v1/me/export/{exportId}/file": {
+      "get": {
+        "operationId": "AccountExportController_download",
+        "parameters": [
+          {
+            "name": "exportId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Archive zip déchiffrée (depenseo.json, csv/<table>.csv, LISEZMOI.txt)",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "404": {
+            "description": "Export introuvable (ou d’un autre compte), pas encore prêt ou lien expiré"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
     "/api/v1/me/devices/{deviceId}": {
       "put": {
         "operationId": "NotificationsController_register",
@@ -2636,6 +2769,49 @@
             "description": "Heure locale du rappel quotidien de saisie ; null = désactivé"
           }
         }
+      },
+      "CreateAccountExportDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID v7 tiré par le client (rejeu sans doublon)"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "AccountExportDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "ready",
+              "expired",
+              "failed"
+            ],
+            "description": "`ready` : téléchargeable jusqu’à `expiresAt` ; `expired` : lien périmé"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Fin de validité du lien (15 min après génération)"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "expiresAt"
+        ]
       },
       "DeviceDto": {
         "type": "object",

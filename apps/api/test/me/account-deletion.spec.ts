@@ -2,35 +2,22 @@
 // compte. La vérification parcourt **toutes** les tables d'information_schema : une table ajoutée
 // plus tard doit être couverte par la fixture (premier test) puis par la purge (second test).
 // Plage : mai 2027 (aucune autre suite ; aucune tâche périodique lancée ici).
-import { createHash, randomBytes } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import type { INestApplication } from '@nestjs/common';
-import { and, eq, sql } from 'drizzle-orm';
 import type mysql from 'mysql2/promise';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import {
-  auditLog,
-  category,
-  emailToken,
-  job,
-  limitAlert,
-  notebookMember,
-  notificationSetting,
-  spendingLimit,
-  userIdentity,
-} from '../../src/db/schema/index.js';
+import { notebookMember } from '../../src/db/schema/index.js';
 import { newId } from '../../src/db/uuid.js';
 import type { EncryptedFileStore } from '../../src/exports/file-store.js';
 import { FILE_STORE } from '../../src/exports/file-store.token.js';
-import { createTenant, type Tenant } from '../support/access.js';
+import type { Tenant } from '../support/access.js';
 import { http, startTestApp } from '../support/app.js';
 import { FakeClock } from '../support/clock.js';
 import { migratorConnection } from '../support/db.js';
-import { auth, expenseClient } from '../support/expenses.js';
+import { auth } from '../support/expenses.js';
 import { testDb } from '../support/jobs.js';
-import { insertDevice } from '../support/push.js';
-import { recurringClient } from '../support/recurring.js';
+import { populatedAccount } from '../support/populated-account.js';
 import { allTables, ownedIds, referencingRows } from '../support/user-references.js';
 
 describe('suppression du compte DELETE /me (F-AUTH-07)', () => {
@@ -40,8 +27,6 @@ describe('suppression du compte DELETE /me (F-AUTH-07)', () => {
   let app: INestApplication;
   let connection: mysql.Connection;
   let store: EncryptedFileStore;
-  const expenses = expenseClient(() => app, db, clock);
-  const recurring = recurringClient(() => app);
 
   beforeAll(async () => {
     ({ app } = await startTestApp({ clock }));
@@ -55,115 +40,8 @@ describe('suppression du compte DELETE /me (F-AUTH-07)', () => {
     await pool.promise().end();
   });
 
-  const subcategory = async (t: Tenant) => {
-    const [row] = await db
-      .select({ id: category.id })
-      .from(category)
-      .where(and(eq(category.notebookId, t.notebookId), sql`${category.parentId} is not null`))
-      .limit(1);
-    return row!.id;
-  };
-
-  /** Compte complet : une ligne dans chaque table, suppressions logiques et fichier compris. */
-  async function populated(): Promise<Tenant & { exportId: string }> {
-    const t = await createTenant(app, db, now);
-    const categoryId = await subcategory(t);
-
-    const kept = await expenses.create(t, {
-      id: newId(),
-      amount: 1_250,
-      categoryId,
-      date: '2027-05-09',
-      tags: ['vacances'],
-    });
-    expect(kept.status).toBe(201);
-    const dropped = await expenses.create(t, {
-      id: newId(),
-      amount: 300,
-      categoryId,
-      date: '2027-05-08',
-    });
-    expect((await expenses.remove(t, (dropped.body as { id: string }).id)).status).toBe(204);
-
-    const rec = await recurring.create(
-      t,
-      recurring.body(categoryId, { startDate: '2027-05-20', frequency: 'monthly' }),
-    );
-    expect(rec.status).toBe(201);
-
-    const exportId = newId();
-    const exported = await request(http(app))
-      .post(`/api/v1/notebooks/${t.notebookId}/exports`)
-      .set(auth(t))
-      .send({ id: exportId, format: 'csv', from: '2027-05-01', to: '2027-05-31' });
-    expect(exported.status).toBe(202);
-    await store.write(exportId, Buffer.from('date;montant\n'));
-
-    const stamps = { createdAt: now, updatedAt: now };
-    await db.insert(spendingLimit).values({
-      id: newId(),
-      notebookId: t.notebookId,
-      categoryId,
-      periodKind: 'month',
-      startDay: 1,
-      amount: 10_000,
-      currency: 'EUR',
-      includeRecurring: true,
-      effectiveDate: '2027-05-10',
-      ...stamps,
-    });
-    await db.insert(limitAlert).values({
-      id: newId(),
-      notebookId: t.notebookId,
-      periodStart: '2027-05-01',
-      threshold: 80,
-      ...stamps,
-    });
-    await insertDevice(db, t.id, 'ios', now);
-    await db
-      .insert(notificationSetting)
-      .values({ id: newId(), userId: t.id, quietStart: '22:00', quietEnd: '07:00', ...stamps });
-    await db.insert(userIdentity).values({
-      id: newId(),
-      userId: t.id,
-      provider: 'apple',
-      subjectHash: createHash('sha256').update(newId()).digest(),
-      createdAt: now,
-    });
-    await db.insert(emailToken).values({
-      id: newId(),
-      userId: t.id,
-      purpose: 'reset_password',
-      tokenHash: randomBytes(32),
-      expiresAt: new Date(now.getTime() + 3_600_000),
-      createdAt: now,
-    });
-    await db.insert(auditLog).values({
-      id: newId(),
-      actorUserId: t.id,
-      action: 'admin.view_user',
-      targetType: 'user',
-      targetId: t.id,
-      createdAt: now,
-    });
-    await db.insert(auditLog).values({
-      id: newId(),
-      actorUserId: newId(),
-      action: 'admin.view_notebook',
-      targetType: 'notebook',
-      targetId: t.notebookId,
-      createdAt: now,
-    });
-    await db.insert(job).values({
-      id: newId(),
-      type: 'notify',
-      payload: JSON.stringify({ kind: 'daily_reminder', userId: t.id, date: '2027-05-10' }),
-      runAt: now,
-      uniqueKey: `daily-reminder:${t.id}:2027-05-10`,
-      ...stamps,
-    });
-    return { ...t, exportId };
-  }
+  /** Compte complet : une ligne dans chaque table, suppressions logiques et fichiers compris. */
+  const populated = () => populatedAccount(app, db, store, now);
 
   const footprint = async (t: Tenant) => {
     const ids = await ownedIds(connection, [t.id, t.notebookId]);
@@ -209,9 +87,11 @@ describe('suppression du compte DELETE /me (F-AUTH-07)', () => {
       { target_id: null, action: 'admin.view_user' },
     ]);
     expect(existsSync(store.pathOf(victim.exportId))).toBe(false);
+    expect(existsSync(store.pathOf(victim.accountExportId))).toBe(false);
 
     expect((await footprint(bystander)).rows).toEqual(others.rows);
     expect(existsSync(store.pathOf(bystander.exportId))).toBe(true);
+    expect(existsSync(store.pathOf(bystander.accountExportId))).toBe(true);
   });
 
   it('après suppression : jeton encore signé → 401, connexion impossible, DELETE rejoué → 401', async () => {

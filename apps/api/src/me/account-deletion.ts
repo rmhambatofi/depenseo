@@ -2,10 +2,10 @@
 // Une seule transaction : verrou du compte puis des carnets possédés, tâches de fond qui le
 // désignent, pseudonymisation du journal d'audit, purge des carnets (`purgeNotebook`), suppression
 // du compte (la cascade emporte sessions, jetons, identités, appareils, réglages, adhésions,
-// exports), enfin effacement des fichiers d'export chiffrés avant la validation.
+// exports de dépenses et RGPD), enfin effacement des fichiers chiffrés avant la validation.
 import { eq, inArray, or, sql } from 'drizzle-orm';
 import type { Tx } from '../auth/session.service.js';
-import { auditLog, exportFile, job, notebook, user } from '../db/schema/index.js';
+import { accountExport, auditLog, exportFile, job, notebook, user } from '../db/schema/index.js';
 import type { EncryptedFileStore } from '../exports/file-store.js';
 import { purgeNotebook } from '../notebooks/purge-notebook.js';
 
@@ -41,6 +41,13 @@ export async function deleteAccount(
           : eq(exportFile.userId, userId),
       )
   ).map((row) => row.id);
+  const accountExportIds = (
+    await tx
+      .select({ id: accountExport.id })
+      .from(accountExport)
+      .where(eq(accountExport.userId, userId))
+  ).map((row) => row.id);
+  exportIds.push(...accountExportIds);
 
   await deleteJobsMentioning(tx, [userId, ...owned, ...exportIds]);
 

@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P4-07 (`POST /me/export`, export RGPD complet).
-- Dernier commit : 4110f13 feat(api): account deletion DELETE /me with full purge (F-AUTH-07)
+- Prochaine tâche : P4-08 (export horaire chiffré de la base + `docs/dev/BACKUP.md`).
+- Dernier commit : feat(api): GDPR personal data export POST /me/export (F-AUTH-08)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (155 shared, 624 api), `pnpm test:tz` vert (api : 84 par fuseau), `pnpm --filter api build` vert ; `test/me/account-deletion.spec.ts` stable sur 3 relances ; `test/recurring`, `test/sync`, `test/access`, `test/categories`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (155 shared, 633 api), `pnpm test:tz` vert (api : 84 par fuseau), `pnpm --filter api build` vert ; `test/me`, `test/exports`, `test/access` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -121,6 +121,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - zsh : une variable contenant plusieurs chemins (`T="a b"; vitest run $T`) n'est **pas** découpée → aucun test lancé, sortie vide. Utiliser un tableau `T=(a b)`.
 
 - Suppression de compte (P4-06, ADR-037) : `deleteAccount(tx, userId, files)` (`src/me/account-deletion.ts`) ; `purgeNotebook` purge aussi `spending_limit`. `ExportsModule` exporte `FILE_STORE`. **Toute nouvelle table** casse `test/me/account-deletion.spec.ts` tant que la fixture `populated()` n'y insère pas une ligne du compte (vérification générique `test/support/user-references.ts` : `ownedIds` = fermeture par colonnes BINARY(16), `referencingRows` = UUID + INSTR sur colonnes texte/json ; blob/varbinary → erreur). **P4-07** : réutiliser `ownedIds`/la même liste de tables pour prouver que l'export couvre chaque table. **P5-01** : purger les tables d'abonnement dans `deleteAccount`. Suite en mai 2027.
+- Export RGPD (P4-07, ADR-038) : `src/account-export/` — `POST /me/export`, `GET /me/export/{id}`, `…/file` (zip : `depenseo.json`, `csv/<table>.csv`, `LISEZMOI.txt`), tâche `account_export.generate`, table `account_export` (migration 0014), purge commune dans `purge-expired-exports`. Périmètre = liste `SOURCES` de `personal-data.ts` ; exclusions `EXCLUDED_TABLES` (job) et `OMITTED_PROPERTIES` (secrets). Fixture partagée `test/support/populated-account.ts` (`populatedAccount(app, db, store, now)`) : **toute nouvelle table** = l'y ajouter, l'ajouter à `SOURCES` (sinon `account-export.spec` échoue : nombre de lignes comparé table par table) et à `deleteAccount`. Nouvelle colonne secrète texte → `OMITTED_PROPERTIES` + `SECRET_PROPERTIES` du test ; colonne binaire non prévue → la génération lève. Suite : juillet 2027 ; purge testée en mars 2023 (compte sans connexion). Toute route `/me/*` doit être classée dans `test/access/cross-tenant.spec.ts`.
+- Reliquats mineurs P4-07 : `handle`/`finish` dupliqués entre `export-job.ts` et `account-export-job.ts` (helper commun possible) ; pas de plafond de demandes en attente par compte ; collecte hors transaction (ADR-038).
 
 ## Actions humaines (non bloquantes)
 
@@ -132,6 +134,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-05 session 26 — P4-07 fait : export RGPD `POST /me/export` (zip JSON + CSV chiffré au repos, tâche de fond, lien 15 min), ADR-038, fixture commune extraite. Relecture : 0 bloquant, 4 importants traités (comptage par table, liste de secrets en dur + TOTP, audit limité aux cibles du compte, tests course/échec/503). 10 mutations tuées.
 
 - 2026-11-05 session 25 — P4-06 fait : `DELETE /me` (204, immédiat, 401 si déjà supprimé), purge en une transaction (tâches citant compte/carnets/exports, audit pseudonymisé, `purgeNotebook`, cascade `user`, fichiers chiffrés effacés avant validation) ; ADR-037 ; test générique sur information_schema. Une relecture (0 bloquant ; 4 importants traités : carnet partagé documenté + TODO(F-PAR), test membre du carnet d'autrui, audit des cibles carnet/export, sauvegardes notées en P4-08). Contre-épreuves : 5 mutations tuées.
 
@@ -148,6 +152,5 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - 2026-11-05 session 19 — P3-04 fait : dépense inhabituelle (≥ 3 × médiane de la racine, même devise, J−90…J, ≥ 5 dépenses, ≥ 2 000) à la création, tâche `notify` sans montant ; ADR-030 ; suite tz de la fenêtre. Une relecture (0 bloquant, 0 important ; 4 mineurs corrigés). Contre-épreuves faites (5 mutations : exclusion de soi, devise, supprimées, racine, fenêtre).
 
-- 2026-11-05 session 18 — P3-03 fait : alertes de limite 80/100/110…200 % sur la période en cours (fuseau de l'auteur), tâche `notify` dans la transaction d'écriture, clé `limit:<carnet>:<début>:<seuil>`, table `limit_alert` (migration 0008) ; ADR-029. Une relecture (1 bloquant corrigé : seuil non plafonné → débordement SMALLINT → 500 ; plafond 200 %). Contre-épreuves faites (mémoire du seuil, fuseau, restauration, récurrences).
 
-- 2026-11-04 — Amorçage et socle, sessions 1-17 (résumé) : P3-02 (jauge `GET …/limits/current`, ADR-028) ; P3-01 (limite globale, versions datées, ADR-027) ; P2-04 (sync différentielle, purge des suppressions, ADR-026) ; P2-03 (liste/recherche des dépenses, curseur, ADR-025) ; P2-02 (dépenses, étiquettes, migration 0005, ADR-024) ; P2-01 (catégories, plan par défaut, ADR-023) ; P1-10 (`GET/PATCH /me`, shared compilé, ADR-022) ; P1-09 (carnet personnel, garde de carnet, harnais d'isolement, ADR-021) ; P1-08 (connexion Apple/Google, ADR-020) ; P1-07 (réinitialisation du mot de passe, ADR-019) ; P1-06 (sessions JWT 15 min + refresh rotatif, garde globale, ADR-018) ; P1-05 (inscription argon2id, vérification e-mail, ADR-017) ; P1-04 (file `job`, `runJobs` SKIP LOCKED, ADR-016) ; kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013), P1-02 (pool réglé par connexion, `withTransaction`, UUID ↔ BINARY(16), ADR-014), P1-03 (7 tables du socle, migrations sous `GET_LOCK`, test d'invariants, ADR-015).
+- 2026-11-04 — Amorçage et socle, sessions 1-18 (résumé) : P3-03 (alertes de limite 80/100/110…200 %, `limit_alert`, ADR-029) ; P3-02 (jauge `GET …/limits/current`, ADR-028) ; P3-01 (limite globale, versions datées, ADR-027) ; P2-04 (sync différentielle, purge des suppressions, ADR-026) ; P2-03 (liste/recherche des dépenses, curseur, ADR-025) ; P2-02 (dépenses, étiquettes, migration 0005, ADR-024) ; P2-01 (catégories, plan par défaut, ADR-023) ; P1-10 (`GET/PATCH /me`, shared compilé, ADR-022) ; P1-09 (carnet personnel, garde de carnet, harnais d'isolement, ADR-021) ; P1-08 (connexion Apple/Google, ADR-020) ; P1-07 (réinitialisation du mot de passe, ADR-019) ; P1-06 (sessions JWT 15 min + refresh rotatif, garde globale, ADR-018) ; P1-05 (inscription argon2id, vérification e-mail, ADR-017) ; P1-04 (file `job`, `runJobs` SKIP LOCKED, ADR-016) ; kit (CLAUDE.md, PLAN.md, hooks, agents), plan renuméroté + `TRACEABILITY.md` ; P0-02 (MariaDB compose, ADR-010), P0-03 (CI, run GitHub en attente de push humain), P0-04 (shared montants/dates, ADR-011), P0-05 (périodes + todayIn, ADR-012), P1-01 (squelette API, ADR-013), P1-02 (pool réglé par connexion, `withTransaction`, UUID ↔ BINARY(16), ADR-014), P1-03 (7 tables du socle, migrations sous `GET_LOCK`, test d'invariants, ADR-015).

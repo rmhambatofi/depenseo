@@ -6,15 +6,15 @@
 import { asCents, asCurrencyCode, decimalAmount } from '@depenseo/shared';
 import { EXPORT_LABELS, type ExportLanguage, type ExportRow } from './export-format.js';
 
-const BOM = '\uFEFF';
+export const BOM = '\uFEFF';
 const FORMULA_START = /^[=+\-@\t\r]/;
 
-function cell(value: string, separator: string): string {
+export function csvCell(value: string, separator: string): string {
   if (/["\r\n]/.test(value) || value.includes(separator)) return `"${value.replace(/"/g, '""')}"`;
   return value;
 }
 
-function text(value: string | null): string {
+export function csvText(value: string | null): string {
   if (value === null) return '';
   return FORMULA_START.test(value) ? `'${value}` : value;
 }
@@ -23,17 +23,17 @@ export function buildCsv(rows: readonly ExportRow[], language: ExportLanguage): 
   const labels = EXPORT_LABELS[language];
   const separator = language === 'fr' ? ';' : ',';
   const decimal = language === 'fr' ? ',' : '.';
-  const line = (values: string[]) => values.map((v) => cell(v, separator)).join(separator);
+  const line = (values: string[]) => values.map((v) => csvCell(v, separator)).join(separator);
   const body = rows.map((row) =>
     line([
       row.date,
       decimalAmount(asCents(row.amount), asCurrencyCode(row.currency), decimal),
       row.currency,
-      text(row.category),
-      text(row.subcategory),
-      text(row.merchant),
-      text(row.note),
-      text(row.tags.join(', ')),
+      csvText(row.category),
+      csvText(row.subcategory),
+      csvText(row.merchant),
+      csvText(row.note),
+      csvText(row.tags.join(', ')),
       labels.source[row.source],
     ]),
   );
