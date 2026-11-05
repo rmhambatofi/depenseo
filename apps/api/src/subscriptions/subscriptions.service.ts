@@ -105,6 +105,41 @@ export class SubscriptionsService {
     }
   }
 
+  /**
+   * Notification d'un store (ADR-041) : relit l'achat auprès du store et met à jour sa ligne si un
+   * compte l'a déjà présenté. Achat inconnu du store ou d'aucun compte : ignoré (l'application le
+   * présentera par `verify`). Store injoignable → 503, pour que le store relivre la notification.
+   */
+  async refresh(proof: PurchaseProof): Promise<void> {
+    let purchase: VerifiedPurchase;
+    try {
+      purchase = await this.verifier.verify(proof);
+    } catch (error) {
+      if (error instanceof InvalidReceiptError) return;
+      if (error instanceof StoreUnavailableError) {
+        throw new ProblemException(503, 'Vérification par le store indisponible');
+      }
+      throw error;
+    }
+    if (purchase.store !== proof.store || !PREMIUM_PRODUCTS.includes(purchase.productCode)) return;
+    const now = this.clock.now();
+    await this.db
+      .update(subscription)
+      .set({
+        productCode: purchase.productCode,
+        status: purchase.status,
+        expiresAt: purchase.expiresAt,
+        verifiedAt: now,
+        updatedAt: now,
+      })
+      .where(
+        and(
+          eq(subscription.store, purchase.store),
+          eq(subscription.purchaseKeyHash, purchaseKeyHash(purchase.purchaseKey)),
+        ),
+      );
+  }
+
   private record(userId: string, purchase: VerifiedPurchase): Promise<EntitlementsView> {
     return withTransaction(this.db, async (tx) => {
       const now = this.clock.now();

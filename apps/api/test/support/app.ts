@@ -30,11 +30,16 @@ export class LogCapture extends Writable {
   }
 }
 
-export async function startTestApp(
-  options: Pick<CreateAppOptions, 'clock' | 'idTokenKeys' | 'storeVerifier'> = {},
-): Promise<{ app: INestApplication; logs: LogCapture }> {
+export async function startTestApp({
+  env = {},
+  ...options
+}: Pick<CreateAppOptions, 'clock' | 'idTokenKeys' | 'storeVerifier' | 'storeNotificationKeys'> & {
+  /** Variables ajoutées à `TEST_ENV` (ex. configuration des stores). */
+  env?: Record<string, string>;
+} = {}): Promise<{ app: INestApplication; logs: LogCapture }> {
   const logs = new LogCapture();
-  const app = await createApp(loadConfig(TEST_ENV), { ...options, logDestination: logs });
+  const config = loadConfig({ ...TEST_ENV, ...env });
+  const app = await createApp(config, { ...options, logDestination: logs });
   await app.init();
   return { app, logs };
 }

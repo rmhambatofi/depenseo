@@ -8,6 +8,7 @@ import { AppModule } from './app.module.js';
 import type { IdTokenKeys } from './auth/id-token-verifier.js';
 import type { Clock } from './clock.js';
 import type { AppConfig } from './config/env.js';
+import type { StoreNotificationKeys } from './subscriptions/store-notifications.service.js';
 import type { StoreReceiptVerifier } from './subscriptions/store-receipt-verifier.js';
 import { ProblemDetailsFilter } from './errors/problem-details.filter.js';
 
@@ -22,6 +23,8 @@ export interface CreateAppOptions {
   idTokenKeys?: IdTokenKeys;
   /** Vérification des achats (tests) ; App Store Server API et Google Play par défaut. */
   storeVerifier?: StoreReceiptVerifier;
+  /** Racines Apple et clés Google des notifications des stores (tests) ; celles des stores sinon. */
+  storeNotificationKeys?: StoreNotificationKeys;
 }
 
 export async function createApp(

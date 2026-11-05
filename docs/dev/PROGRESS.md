@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P5-02 (notifications serveur des stores : JWS App Store v2 + Pub/Sub Google, lecture seule à expiration).
-- Dernier commit : ab3c6fb feat(api): store-verified subscriptions, 14-day trial and entitlements (F-ABO-01/02/03)
+- Prochaine tâche : P5-03 (rôle admin + TOTP, cookie `Path=/admin`, 404 sans session admin, audit).
+- Dernier commit : feat(api): store server notifications with verified Apple JWS and Pub/Sub push (F-ABO-01)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (10 racine, 155 shared, 726 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build` vert ; `test/subscriptions/{trial,restore}` stables sur 3 relances
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (10 racine, 155 shared, 746 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build` vert
 
 ## Pièges connus (à lire avant de coder)
 
@@ -134,6 +134,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Actions humaines (non bloquantes)
 
+- Notifications des stores (P5-02, ADR-041) : `AppleSignedDataVerifier` (`src/subscriptions/apple-signed-data.ts`, racine G3 embarquée) vérifie **tout** JWS Apple, y compris ceux de l'App Store Server API ; en test, signer avec `jws(payload, 'trusted'|'rogue')` de `store-fixtures.ts` (PKI `test/fixtures/apple-pki/`, `generate.sh`). `startTestApp({ env, storeNotificationKeys })` : `env` complète `TEST_ENV`. Une notification ne fait que relancer `SubscriptionsService.refresh` (relecture au store). Le test de liste blanche énumère les routes **par OpenAPI** : ne jamais `@ApiExcludeController` une route publique.
+- `git checkout --` sans chemin ne restaure rien (affiche le statut) : pour une contre-épreuve, sauvegarder le fichier (`cp f f.bak`) puis `mv f.bak f`.
+
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
 - Relever `SELECT VERSION()` sur o2switch et ajuster l'image `mariadb:10.6.28` si besoin.
 
@@ -142,6 +145,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-05 session 29 — P5-02 fait : routes publiques `POST /store-notifications/{app-store,google-play}` (JWS Apple vérifié jusqu'à Apple Root CA G3 + OID, jeton OIDC Pub/Sub `aud`/`email`), relecture de l'achat au store puis mise à jour de la ligne, lecture seule à expiration (Excel 403, données/CSV conservés), x5c appliqué aussi à l'App Store Server API ; env `GOOGLE_PLAY_PUSH_{AUDIENCE,SERVICE_ACCOUNT}` ; ADR-041. Relecture : 0 bloquant, 3 importants traités (date de validité illisible, `fetch failed` → 503, tests validTo/iss/email_verified/expiré). Test instable `notify-handler` (« 500 » dans un UUID) corrigé à part. 4 mutations, 3 tuées (contrôle `ca` redondant avec `checkIssued`, documenté).
 
 - 2026-11-05 session 28 — P5-01 fait : abonnements vérifiés (App Store Server API, Google Play subscriptionsv2, faux en test), `POST /subscriptions/verify` (400 reçu invalide, 409 achat d'un autre compte via `accountRef` ou premier présentateur, 503 store absent), essai 14 j (minuit local du jour 15, une fois par compte), `GET /subscriptions`, `Entitlements` (export Excel) ; migrations 0015/0016 ; ADR-040. Relecture : 0 bloquant, 3 importants traités (spec > 400 lignes découpée, rattachement par `appAccountToken`/`obfuscatedExternalAccountId`, réponse illisible → 503) + mineurs (jeton `..`, actif prioritaire, clé en cache, test d'isolement, description OpenAPI). 5 mutations tuées. Passation après 1 tâche (~22 fichiers lus).
 

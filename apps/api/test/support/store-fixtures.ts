@@ -1,8 +1,10 @@
 // Outils des suites d'adaptateurs de stores (P5-01) : clés de test, horloge, serveurs locaux
-// fermés après chaque test, JWS au format Apple.
-import { generateKeyPairSync } from 'node:crypto';
+// fermés après chaque test, JWS au format Apple signés par la PKI de test (`test/fixtures/apple-pki`).
+import { createPrivateKey, generateKeyPairSync, X509Certificate } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { SignJWT } from 'jose';
 import { afterEach } from 'vitest';
+import { AppleSignedDataVerifier } from '../../src/subscriptions/apple-signed-data.js';
 import { FakeClock } from './clock.js';
 import { type LocalServer, localServer, type ReceivedRequest } from './local-server.js';
 
@@ -36,6 +38,18 @@ export async function serve(reply: (r: ReceivedRequest) => { status: number; bod
   return server;
 }
 
-/** JWS au format Apple (le contenu seul est lu ; chaîne x5c vérifiée en P5-02). */
-export const jws = (payload: object) =>
-  new SignJWT({ ...payload }).setProtectedHeader({ alg: 'ES256' }).sign(ec.privateKey);
+const pki = (name: string) =>
+  readFileSync(new URL(`../fixtures/apple-pki/${name}`, import.meta.url), 'utf8');
+export type ApplePki = 'trusted' | 'rogue';
+/** Racine de confiance des tests (la chaîne `rogue` a la même forme, signée par une autre racine). */
+export const APPLE_TEST_ROOT = pki('trusted-root.pem');
+const der = (pem: string) => new X509Certificate(pem).raw.toString('base64');
+export const appleChain = (chain: ApplePki) =>
+  ['leaf', 'intermediate', 'root'].map((c) => der(pki(`${chain}-${c}.pem`)));
+export const appleSignedData = new AppleSignedDataVerifier([APPLE_TEST_ROOT], clock);
+
+/** JWS au format Apple : ES256, en-tête `x5c` [feuille, intermédiaire, racine] de la PKI choisie. */
+export const jws = (payload: object, chain: ApplePki = 'trusted', x5c = appleChain(chain)) =>
+  new SignJWT({ ...payload })
+    .setProtectedHeader({ alg: 'ES256', x5c })
+    .sign(createPrivateKey(pki(`${chain}-leaf.key`)));

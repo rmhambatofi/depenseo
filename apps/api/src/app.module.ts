@@ -22,6 +22,7 @@ import { ExportsModule } from './exports/exports.module.js';
 import { AccountExportModule } from './account-export/account-export.module.js';
 import { pinoHttpOptions } from './logging/pino-options.js';
 import type { StoreReceiptVerifier } from './subscriptions/store-receipt-verifier.js';
+import type { StoreNotificationKeys } from './subscriptions/store-notifications.service.js';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module.js';
 
 @Module({})
@@ -33,11 +34,13 @@ export class AppModule {
       clock = systemClock,
       idTokenKeys,
       storeVerifier,
+      storeNotificationKeys,
     }: {
       logDestination?: DestinationStream;
       clock?: Clock;
       idTokenKeys?: IdTokenKeys;
       storeVerifier?: StoreReceiptVerifier;
+      storeNotificationKeys?: StoreNotificationKeys;
     } = {},
   ): DynamicModule {
     const options = pinoHttpOptions(config);
@@ -62,7 +65,7 @@ export class AppModule {
         RecurringModule,
         SyncModule,
         ExportsModule,
-        SubscriptionsModule.register(storeVerifier),
+        SubscriptionsModule.register(storeVerifier, storeNotificationKeys),
       ],
       controllers: [HealthController],
     };

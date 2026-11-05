@@ -3,11 +3,17 @@
 import type { Clock } from '../clock.js';
 import type { AppConfig } from '../config/env.js';
 import { GOOGLE_TOKEN_URL } from '../google/service-account-token.js';
+import { APPLE_ROOT_CA_G3, AppleSignedDataVerifier } from './apple-signed-data.js';
 import { APP_STORE_ORIGINS, AppStoreVerifier } from './app-store-verifier.js';
 import { GOOGLE_PLAY_API_ORIGIN, GooglePlayVerifier } from './google-play-verifier.js';
 import { RoutingStoreVerifier } from './store-receipt-verifier.js';
 
-export function createStoreVerifier(config: AppConfig, clock: Clock): RoutingStoreVerifier {
+/** `appleRoots` : racines de confiance des JWS Apple (tests) ; Apple Root CA - G3 par défaut. */
+export function createStoreVerifier(
+  config: AppConfig,
+  clock: Clock,
+  appleRoots: readonly string[] = [APPLE_ROOT_CA_G3],
+): RoutingStoreVerifier {
   const apple =
     config.APP_STORE_ISSUER_ID &&
     config.APP_STORE_KEY_ID &&
@@ -22,6 +28,7 @@ export function createStoreVerifier(config: AppConfig, clock: Clock): RoutingSto
             origin: APP_STORE_ORIGINS[config.APP_STORE_ENVIRONMENT],
           },
           clock,
+          new AppleSignedDataVerifier(appleRoots, clock),
         )
       : undefined;
   const google =

@@ -1,11 +1,11 @@
 // Vérification App Store (ADR-040) par l'App Store Server API, « Get All Subscription Statuses » :
 // GET /inApps/v1/subscriptions/{transactionId}, authentifié par un jeton ES256 de la clé d'API
 // In-App Purchase (aud `appstoreconnect-v1`, `bid` = bundle). La réponse arrive par TLS directement
-// d'Apple ; les JWS qu'elle contient (transaction, renouvellement) sont décodés pour lire les dates.
-// TODO(P5-02) : vérifier aussi leur chaîne x5c jusqu'à l'Apple Root CA G3 (vérificateur commun avec
-// les notifications serveur).
-import { decodeJwt, importPKCS8, SignJWT } from 'jose';
+// d'Apple ; les JWS qu'elle contient (transaction, renouvellement) sont en outre vérifiés jusqu'à la
+// racine Apple (`AppleSignedDataVerifier`, ADR-041), comme ceux des notifications serveur.
+import { importPKCS8, SignJWT } from 'jose';
 import type { Clock } from '../clock.js';
+import type { AppleSignedDataVerifier } from './apple-signed-data.js';
 import {
   InvalidReceiptError,
   latestPremium,
@@ -54,15 +54,6 @@ const STATUS: Readonly<Record<number, PurchaseStatus>> = {
   5: 'revoked',
 };
 
-function payload(jws: unknown): Record<string, unknown> {
-  if (typeof jws !== 'string') return {};
-  try {
-    return decodeJwt(jws);
-  } catch {
-    throw new StoreUnavailableError('Réponse App Store illisible');
-  }
-}
-
 const millis = (value: unknown): number | undefined =>
   typeof value === 'number' && Number.isSafeInteger(value) ? value : undefined;
 
@@ -72,7 +63,18 @@ export class AppStoreVerifier implements StoreReceiptVerifier {
   constructor(
     private readonly config: AppStoreConfig,
     private readonly clock: Clock,
+    private readonly signedData: AppleSignedDataVerifier,
   ) {}
+
+  /** JWS absent → objet vide ; JWS refusé → réponse inexploitable (503, jamais « reçu invalide »). */
+  private async payload(jws: unknown): Promise<Record<string, unknown>> {
+    if (jws === undefined) return {};
+    try {
+      return await this.signedData.verify(jws);
+    } catch {
+      throw new StoreUnavailableError('Réponse App Store illisible');
+    }
+  }
 
   async verify(proof: PurchaseProof, signal?: AbortSignal): Promise<VerifiedPurchase> {
     if (proof.store !== 'app_store') throw new InvalidReceiptError('Preuve d’un autre store');
@@ -91,37 +93,41 @@ export class AppStoreVerifier implements StoreReceiptVerifier {
     if (body.bundleId !== this.config.bundleId) {
       throw new InvalidReceiptError('Achat d’une autre application');
     }
-    const candidates = (body.data ?? []).flatMap((group) =>
-      (group.lastTransactions ?? []).flatMap((last) => {
-        const transaction = payload(last.signedTransactionInfo);
-        const renewal = payload(last.signedRenewalInfo);
-        const expires = millis(transaction.expiresDate);
-        const status = typeof last.status === 'number' ? STATUS[last.status] : undefined;
-        if (
-          expires === undefined ||
-          typeof transaction.productId !== 'string' ||
-          typeof last.originalTransactionId !== 'string' ||
-          transaction.bundleId !== this.config.bundleId
-        ) {
-          return [];
-        }
-        // Période de grâce : droits prolongés jusqu'à sa fin (portée par l'info de renouvellement).
-        const grace = millis(renewal.gracePeriodExpiresDate) ?? 0;
-        const revoked = transaction.revocationDate !== undefined;
-        return [
-          {
-            store: 'app_store' as const,
-            purchaseKey: last.originalTransactionId,
-            productCode: transaction.productId,
-            status: revoked ? ('revoked' as const) : (status ?? 'suspended'),
-            expiresAt: new Date(last.status === 4 ? Math.max(expires, grace) : expires),
-            ...(typeof transaction.appAccountToken === 'string' && {
-              accountRef: transaction.appAccountToken.toLowerCase(),
-            }),
-          },
-        ];
-      }),
+    const lastTransactions = (body.data ?? []).flatMap((group) => group.lastTransactions ?? []);
+    const decoded = await Promise.all(
+      lastTransactions.map(async (last) => ({
+        last,
+        transaction: await this.payload(last.signedTransactionInfo),
+        renewal: await this.payload(last.signedRenewalInfo),
+      })),
     );
+    const candidates = decoded.flatMap(({ last, transaction, renewal }) => {
+      const expires = millis(transaction.expiresDate);
+      const status = typeof last.status === 'number' ? STATUS[last.status] : undefined;
+      if (
+        expires === undefined ||
+        typeof transaction.productId !== 'string' ||
+        typeof last.originalTransactionId !== 'string' ||
+        transaction.bundleId !== this.config.bundleId
+      ) {
+        return [];
+      }
+      // Période de grâce : droits prolongés jusqu'à sa fin (portée par l'info de renouvellement).
+      const grace = millis(renewal.gracePeriodExpiresDate) ?? 0;
+      const revoked = transaction.revocationDate !== undefined;
+      return [
+        {
+          store: 'app_store' as const,
+          purchaseKey: last.originalTransactionId,
+          productCode: transaction.productId,
+          status: revoked ? ('revoked' as const) : (status ?? 'suspended'),
+          expiresAt: new Date(last.status === 4 ? Math.max(expires, grace) : expires),
+          ...(typeof transaction.appAccountToken === 'string' && {
+            accountRef: transaction.appAccountToken.toLowerCase(),
+          }),
+        },
+      ];
+    });
     return latestPremium(candidates);
   }
 

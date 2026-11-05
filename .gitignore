@@ -40,3 +40,6 @@ mobile/.flutter-plugins
 mobile/.flutter-plugins-dependencies
 mobile/ios/Pods/
 mobile/android/.gradle/
+# PKI de test au format Apple (clés de test uniquement, ADR-041)
+!apps/api/test/fixtures/apple-pki/*.pem
+!apps/api/test/fixtures/apple-pki/*.key

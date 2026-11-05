@@ -2514,6 +2514,103 @@
           "subscriptions"
         ]
       }
+    },
+    "/api/v1/store-notifications/app-store": {
+      "post": {
+        "operationId": "StoreNotificationsController_appStore",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "signedPayload"
+                ],
+                "properties": {
+                  "signedPayload": {
+                    "type": "string",
+                    "description": "JWS signé par Apple (x5c)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification reçue (ignorée si elle ne concerne aucun abonnement connu)"
+          },
+          "400": {
+            "description": "Corps invalide"
+          },
+          "401": {
+            "description": "Signature absente de la chaîne Apple"
+          },
+          "503": {
+            "description": "Store non configuré ou injoignable : le store relivrera la notification"
+          }
+        },
+        "tags": [
+          "store-notifications"
+        ]
+      }
+    },
+    "/api/v1/store-notifications/google-play": {
+      "post": {
+        "operationId": "StoreNotificationsController_googlePlay",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Message push Pub/Sub ; `message.data` = DeveloperNotification en base64",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "message",
+                  "subscription"
+                ],
+                "properties": {
+                  "message": {
+                    "type": "object",
+                    "required": [
+                      "data"
+                    ],
+                    "properties": {
+                      "data": {
+                        "type": "string",
+                        "format": "byte"
+                      }
+                    }
+                  },
+                  "subscription": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification reçue (ignorée si elle ne concerne aucun abonnement connu)"
+          },
+          "400": {
+            "description": "Corps ou message invalide"
+          },
+          "401": {
+            "description": "Jeton OIDC du push absent ou refusé"
+          },
+          "503": {
+            "description": "Store non configuré ou injoignable : le store relivrera la notification"
+          }
+        },
+        "tags": [
+          "store-notifications"
+        ]
+      }
     }
   },
   "info": {

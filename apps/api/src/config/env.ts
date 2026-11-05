@@ -77,6 +77,13 @@ const schema = z.object({
     .optional(),
   GOOGLE_PLAY_CLIENT_EMAIL: z.email().optional(),
   GOOGLE_PLAY_PRIVATE_KEY: pkcs8Pem.optional(),
+  /**
+   * Notifications Google Play (RTDN, ADR-041) : abonnement Pub/Sub en push authentifié, jeton OIDC
+   * dont `aud` vaut GOOGLE_PLAY_PUSH_AUDIENCE et `email` le compte de service du push. Les deux ou
+   * aucune ; absentes = notifications Google Play refusées (503).
+   */
+  GOOGLE_PLAY_PUSH_AUDIENCE: z.string().min(1).max(512).optional(),
+  GOOGLE_PLAY_PUSH_SERVICE_ACCOUNT: z.email().optional(),
 });
 
 /** Variables qui ne vont que par groupe complet (toutes ou aucune). */
@@ -84,6 +91,7 @@ const COMPLETE_GROUPS = [
   ['FILE_STORAGE_DIR', 'FILE_ENCRYPTION_KEY'],
   ['APP_STORE_ISSUER_ID', 'APP_STORE_KEY_ID', 'APP_STORE_PRIVATE_KEY', 'APP_STORE_BUNDLE_ID'],
   ['GOOGLE_PLAY_PACKAGE_NAME', 'GOOGLE_PLAY_CLIENT_EMAIL', 'GOOGLE_PLAY_PRIVATE_KEY'],
+  ['GOOGLE_PLAY_PUSH_AUDIENCE', 'GOOGLE_PLAY_PUSH_SERVICE_ACCOUNT'],
 ] as const;
 
 function assertComplete<T extends object>(config: T): T {

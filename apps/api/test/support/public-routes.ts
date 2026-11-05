@@ -10,4 +10,6 @@ export const PUBLIC_ROUTES = [
   'POST /api/v1/auth/social',
   'POST /api/v1/auth/password-reset/request',
   'POST /api/v1/auth/password-reset/confirm',
+  'POST /api/v1/store-notifications/app-store',
+  'POST /api/v1/store-notifications/google-play',
 ].sort();

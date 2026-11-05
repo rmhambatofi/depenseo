@@ -8,6 +8,7 @@ import {
   StoreUnavailableError,
 } from '../../src/subscriptions/store-receipt-verifier.js';
 import {
+  appleSignedData,
   BUNDLE,
   clock,
   closeServersAfterEach,
@@ -58,6 +59,7 @@ describe('AppStoreVerifier (App Store Server API)', () => {
         origin,
       },
       clock,
+      appleSignedData,
     );
   const statusBody = (transactions: object[], bundleId = BUNDLE) => ({
     environment: 'Production',
@@ -237,6 +239,18 @@ describe('AppStoreVerifier (App Store Server API)', () => {
     ).rejects.toBeInstanceOf(StoreUnavailableError);
   });
 
+  it('transaction signée hors de la racine Apple → store indisponible (jamais Premium)', async () => {
+    const forged = await lastTransaction({ status: 1 });
+    forged.signedTransactionInfo = await jws(
+      { bundleId: BUNDLE, productId: 'premium_monthly', expiresDate: NOW + 10 * DAY },
+      'rogue',
+    );
+    const server = await serve(() => ({ status: 200, body: statusBody([forged]) }));
+    await expect(
+      verifier(server.origin).verify({ store: 'app_store', transactionId: '1' }),
+    ).rejects.toBeInstanceOf(StoreUnavailableError);
+  });
+
   it('clé d’API inutilisable → store indisponible, sans appel', async () => {
     const server = await serve(() => ({ status: 200 }));
     const broken = new AppStoreVerifier(
@@ -248,6 +262,7 @@ describe('AppStoreVerifier (App Store Server API)', () => {
         origin: server.origin,
       },
       clock,
+      appleSignedData,
     );
     await expect(broken.verify({ store: 'app_store', transactionId: '1' })).rejects.toBeInstanceOf(
       StoreUnavailableError,
