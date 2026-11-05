@@ -76,7 +76,7 @@ Couverture des exigences « M » : `docs/dev/TRACEABILITY.md` (à tenir à jour 
 - [x] P6-10 Accueil et graphiques fl_chart : jauge, prochaines échéances, dernières dépenses, répartition, cumul vs période précédente, 12 périodes, données de `/dashboard`. Tests widget. (F-TB-01, 02)
 - [x] P6-11 Notifications push (FCM/APNs), enregistrement de l'appareil, réglages par type, plage de silence, rappel quotidien. Tests widget des réglages. (F-NOT-01, 02, 04, 05)
 - [x] P6-12 Compte : export CSV/Excel des dépenses sur période, export des données personnelles, suppression du compte avec confirmation, mentions légales / CGU / CGV / confidentialité / accessibilité. Tests widget. (F-EXP-01, F-AUTH-07, 08, §6)
-- [ ] P6-13 Premium : achats intégrés (in_app_purchase), essai 14 jours, restauration, lien de résiliation en un clic vers la gestion d'abonnement du store, fonctions Premium en lecture seule à expiration. Tests avec faux store. (F-ABO-01, 02, 03, §5)
+- [~] P6-13 Premium : achats intégrés (in_app_purchase), essai 14 jours, restauration, lien de résiliation en un clic vers la gestion d'abonnement du store, fonctions Premium en lecture seule à expiration. Tests avec faux store. (F-ABO-01, 02, 03, §5)
 - [ ] P6-14 Tests de dates sur l'app : 4 fuseaux + DST sur les calculs d'affichage (chaînes de dates, horodatages UTC affichés en local). (NF-FMT-02, 03, 05)
 
 ## Phase 7 — Recette

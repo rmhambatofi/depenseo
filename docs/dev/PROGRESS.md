@@ -5,7 +5,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## État courant
 
-- Tâche en cours : aucune
+- Tâche en cours : P6-13
 - Prochaine tâche : P6-13 (Premium mobile : in_app_purchase, essai 14 jours, restauration, lien de résiliation vers le store, fonctions Premium en lecture seule à expiration ; tests avec faux store ; F-ABO-01…03, §5). Lire via `explorer` ADR-009/040 (droits Premium, `Entitlements`) et les routes d'abonnement de P5 (validation des reçus). Penser à afficher le plan sur l'écran Compte (aujourd'hui l'Excel n'est refusé que par le 403 de l'API).
 - Dernier commit : 37780a0 chore(dev): finish P6-12 (fonctionnel : 9ba4903 feat(mobile): account screen… F-EXP-01, F-AUTH-07, F-AUTH-08)
 - Branche : main
