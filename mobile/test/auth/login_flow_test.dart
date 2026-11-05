@@ -99,6 +99,7 @@ void main() {
       final app = TestApp();
       app.api.on('POST /auth/logout', (_) => const FakeResponse(204));
       await app.signIn();
+      await app.store.write('account.epoch', 'epoch-a');
       await app.pump(tester);
 
       await tap(tester, find.byTooltip('Se déconnecter'));
@@ -106,6 +107,7 @@ void main() {
       expect(app.api.calls('POST /auth/logout').single.body, {
         'refreshToken': 'refresh',
       });
+      expect(await app.store.read('account.epoch'), isNull);
       expect(await app.tokens.read(), isNull);
       expect(app.location, '/login');
     },

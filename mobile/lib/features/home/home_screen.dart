@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../auth/auth_controller.dart';
+import '../expenses/expense_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -11,6 +12,8 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    // Prépare le contexte du compte avant le premier « + » (saisie en < 10 s).
+    ref.watch(accountContextProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.homeTitle),
@@ -29,6 +32,24 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
       body: Center(child: Text(l10n.homeEmpty)),
+      // « + » toujours visible sur l'accueil (F-DEP-01).
+      floatingActionButton: FloatingActionButton(
+        key: const Key('add-expense'),
+        tooltip: l10n.addExpense,
+        onPressed: () async {
+          // Préchargement échoué (hors ligne au lancement) : nouvel essai.
+          if (ref.read(accountContextProvider).hasError) {
+            ref.invalidate(accountContextProvider);
+          }
+          final saved = await context.push<bool>('/expenses/new');
+          if (saved == true && context.mounted) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(SnackBar(content: Text(l10n.expenseSaved)));
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

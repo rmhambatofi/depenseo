@@ -235,4 +235,81 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pinDelete => 'Effacer';
+
+  @override
+  String get addExpense => 'Ajouter une dépense';
+
+  @override
+  String get quickEntryTitle => 'Nouvelle dépense';
+
+  @override
+  String get save => 'Enregistrer';
+
+  @override
+  String get amountLabel => 'Montant';
+
+  @override
+  String get amountEmpty => 'Saisissez un montant.';
+
+  @override
+  String get amountInvalid => 'Montant invalide.';
+
+  @override
+  String get amountTooManyDecimals => 'Trop de décimales pour cette devise.';
+
+  @override
+  String get amountTooLarge => 'Montant trop élevé.';
+
+  @override
+  String get amountNotPositive => 'Le montant doit être supérieur à zéro.';
+
+  @override
+  String get categoryLabel => 'Catégorie';
+
+  @override
+  String get categoryRequired => 'Choisissez une catégorie.';
+
+  @override
+  String get categoriesUnavailable =>
+      'Les catégories ne sont pas encore disponibles. Connectez-vous à Internet pour les synchroniser.';
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get today => 'Aujourd\'hui';
+
+  @override
+  String get noteLabel => 'Note';
+
+  @override
+  String get merchantLabel => 'Marchand ou lieu';
+
+  @override
+  String get tagsLabel => 'Étiquettes';
+
+  @override
+  String get tagsHint => 'Séparées par des virgules';
+
+  @override
+  String get tagsTooMany => '10 étiquettes au maximum.';
+
+  @override
+  String get tagTooLong => 'Une étiquette compte 50 caractères au maximum.';
+
+  @override
+  String get expenseSaved => 'Dépense enregistrée.';
+
+  @override
+  String get accountUnavailable =>
+      'Connectez-vous à Internet une première fois pour préparer la saisie.';
+
+  @override
+  String get noteTooLong => '500 caractères au maximum.';
+
+  @override
+  String get merchantTooLong => '100 caractères au maximum.';
+
+  @override
+  String get saveFailed => 'Enregistrement impossible. Réessayez.';
 }

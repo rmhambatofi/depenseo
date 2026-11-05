@@ -14,6 +14,7 @@ void main() {
         (_) => FakeResponse(200, tokenBody('a', 'r')),
       );
       await app.pump(tester);
+      await app.store.write('account.epoch', 'epoch-a');
 
       await tap(tester, find.text('Continuer avec Apple'));
 
@@ -25,6 +26,8 @@ void main() {
         'language': 'fr',
       });
       expect(app.location, '/');
+      // Nouvelle session de compte : la copie du contexte précédent est périmée.
+      expect(await app.store.read('account.epoch'), isNot('epoch-a'));
     },
   );
 

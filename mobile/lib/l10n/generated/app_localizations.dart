@@ -511,6 +511,156 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Effacer'**
   String get pinDelete;
+
+  /// No description provided for @addExpense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une dépense'**
+  String get addExpense;
+
+  /// No description provided for @quickEntryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle dépense'**
+  String get quickEntryTitle;
+
+  /// No description provided for @save.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get save;
+
+  /// No description provided for @amountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant'**
+  String get amountLabel;
+
+  /// No description provided for @amountEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez un montant.'**
+  String get amountEmpty;
+
+  /// No description provided for @amountInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant invalide.'**
+  String get amountInvalid;
+
+  /// No description provided for @amountTooManyDecimals.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de décimales pour cette devise.'**
+  String get amountTooManyDecimals;
+
+  /// No description provided for @amountTooLarge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant trop élevé.'**
+  String get amountTooLarge;
+
+  /// No description provided for @amountNotPositive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le montant doit être supérieur à zéro.'**
+  String get amountNotPositive;
+
+  /// No description provided for @categoryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégorie'**
+  String get categoryLabel;
+
+  /// No description provided for @categoryRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez une catégorie.'**
+  String get categoryRequired;
+
+  /// No description provided for @categoriesUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les catégories ne sont pas encore disponibles. Connectez-vous à Internet pour les synchroniser.'**
+  String get categoriesUnavailable;
+
+  /// No description provided for @dateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date'**
+  String get dateLabel;
+
+  /// No description provided for @today.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get today;
+
+  /// No description provided for @noteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Note'**
+  String get noteLabel;
+
+  /// No description provided for @merchantLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marchand ou lieu'**
+  String get merchantLabel;
+
+  /// No description provided for @tagsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étiquettes'**
+  String get tagsLabel;
+
+  /// No description provided for @tagsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séparées par des virgules'**
+  String get tagsHint;
+
+  /// No description provided for @tagsTooMany.
+  ///
+  /// In fr, this message translates to:
+  /// **'10 étiquettes au maximum.'**
+  String get tagsTooMany;
+
+  /// No description provided for @tagTooLong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une étiquette compte 50 caractères au maximum.'**
+  String get tagTooLong;
+
+  /// No description provided for @expenseSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépense enregistrée.'**
+  String get expenseSaved;
+
+  /// No description provided for @accountUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connectez-vous à Internet une première fois pour préparer la saisie.'**
+  String get accountUnavailable;
+
+  /// No description provided for @noteTooLong.
+  ///
+  /// In fr, this message translates to:
+  /// **'500 caractères au maximum.'**
+  String get noteTooLong;
+
+  /// No description provided for @merchantTooLong.
+  ///
+  /// In fr, this message translates to:
+  /// **'100 caractères au maximum.'**
+  String get merchantTooLong;
+
+  /// No description provided for @saveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrement impossible. Réessayez.'**
+  String get saveFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'config.dart';
+import 'core/account/account_epoch.dart';
 import 'core/api/api_client.dart';
 import 'core/auth/auth_api.dart';
 import 'core/auth/social_sign_in.dart';
@@ -20,6 +21,10 @@ import 'features/auth/auth_controller.dart';
 
 final secureStoreProvider = Provider<SecureStore>(
   (ref) => PlatformSecureStore(),
+);
+
+final accountEpochProvider = Provider<AccountEpoch>(
+  (ref) => AccountEpoch(ref.watch(secureStoreProvider)),
 );
 
 final tokenStoreProvider = Provider<TokenStore>(

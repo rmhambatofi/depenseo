@@ -234,4 +234,80 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pinDelete => 'Delete';
+
+  @override
+  String get addExpense => 'Add an expense';
+
+  @override
+  String get quickEntryTitle => 'New expense';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get amountLabel => 'Amount';
+
+  @override
+  String get amountEmpty => 'Enter an amount.';
+
+  @override
+  String get amountInvalid => 'Invalid amount.';
+
+  @override
+  String get amountTooManyDecimals => 'Too many decimals for this currency.';
+
+  @override
+  String get amountTooLarge => 'Amount too large.';
+
+  @override
+  String get amountNotPositive => 'The amount must be greater than zero.';
+
+  @override
+  String get categoryLabel => 'Category';
+
+  @override
+  String get categoryRequired => 'Choose a category.';
+
+  @override
+  String get categoriesUnavailable =>
+      'Categories are not available yet. Go online to sync them.';
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get noteLabel => 'Note';
+
+  @override
+  String get merchantLabel => 'Merchant or place';
+
+  @override
+  String get tagsLabel => 'Tags';
+
+  @override
+  String get tagsHint => 'Separated by commas';
+
+  @override
+  String get tagsTooMany => '10 tags at most.';
+
+  @override
+  String get tagTooLong => 'A tag is 50 characters at most.';
+
+  @override
+  String get expenseSaved => 'Expense saved.';
+
+  @override
+  String get accountUnavailable => 'Go online once to set up expense entry.';
+
+  @override
+  String get noteTooLong => '500 characters at most.';
+
+  @override
+  String get merchantTooLong => '100 characters at most.';
+
+  @override
+  String get saveFailed => 'Could not save. Try again.';
 }

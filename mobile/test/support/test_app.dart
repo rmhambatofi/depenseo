@@ -9,6 +9,7 @@ import 'package:depenseo/core/lock/biometric_auth.dart';
 import 'package:depenseo/core/lock/screen_security.dart';
 import 'package:depenseo/providers.dart';
 import 'package:depenseo/router.dart';
+import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -104,6 +105,8 @@ class TestApp {
     Locale locale = const Locale('fr'),
     bool freshInstall = false,
   }) async {
+    // Une base neuve par test, fermée de façon asynchrone par le conteneur.
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     dir = Directory.systemTemp.createTempSync('depenseo_app');
     if (!freshInstall) {
       File('${dir.path}/$installMarkerName').writeAsStringSync('1');

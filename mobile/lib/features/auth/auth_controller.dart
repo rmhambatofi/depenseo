@@ -34,6 +34,8 @@ class AuthController extends AsyncNotifier<AuthStatus> {
 
   Future<void> login(String email, String password) async {
     final tokens = await ref.read(authApiProvider).login(email, password);
+    // Nouvelle session de compte : la copie locale du contexte est périmée.
+    await ref.read(accountEpochProvider).rotate();
     await ref.read(tokenStoreProvider).save(tokens);
     state = const AsyncData(AuthStatus.signedIn);
   }
@@ -56,6 +58,7 @@ class AuthController extends AsyncNotifier<AuthStatus> {
           language: language,
           acceptTerms: acceptTerms,
         );
+    await ref.read(accountEpochProvider).rotate();
     await ref.read(tokenStoreProvider).save(tokens);
     state = const AsyncData(AuthStatus.signedIn);
   }
@@ -65,6 +68,11 @@ class AuthController extends AsyncNotifier<AuthStatus> {
     final store = ref.read(tokenStoreProvider);
     final session = await store.read();
     await store.clear();
+    try {
+      await ref.read(accountEpochProvider).clear();
+    } on Object {
+      // Au mieux : la connexion suivante renouvelle de toute façon le marqueur.
+    }
     state = const AsyncData(AuthStatus.signedOut);
     if (session != null) {
       try {
@@ -76,5 +84,9 @@ class AuthController extends AsyncNotifier<AuthStatus> {
   }
 
   /// Refresh refusé par l'API : jetons déjà effacés par le client HTTP.
-  void sessionExpired() => state = const AsyncData(AuthStatus.signedOut);
+  void sessionExpired() {
+    state = const AsyncData(AuthStatus.signedOut);
+    // Au mieux : la connexion suivante renouvelle de toute façon le marqueur.
+    ref.read(accountEpochProvider).clear().ignore();
+  }
 }
