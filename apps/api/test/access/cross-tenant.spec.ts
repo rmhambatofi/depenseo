@@ -2,7 +2,8 @@
 // protégée existante. Classement obligatoire de toute nouvelle route (voir `test/support/access.ts`) :
 // - route de carnet (`{notebookId}` dans le chemin) : B reçoit 404 avec le carnet de A, comme pour
 //   un carnet inexistant ; A n'est pas refusé (le test mord) ; rien n'est modifié chez A ;
-// - route de compte (liste blanche ci-dessous) : la réponse faite à B ne contient rien de A.
+// - route de compte (liste blanche ci-dessous) : la réponse faite à B ne contient rien de A ;
+//   routes de compte sans données en réponse : liste à part, éprouvées par leur propre suite.
 import type { INestApplication } from '@nestjs/common';
 import { and, asc, eq, isNotNull } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -35,6 +36,14 @@ import { PUBLIC_ROUTES } from '../support/public-routes.js';
 
 /** Routes du compte connecté, sans identifiant de ressource dans le chemin. */
 const ACCOUNT_ROUTES = ['GET /api/v1/me', 'PATCH /api/v1/me', 'GET /api/v1/notebooks'];
+/** Routes de compte sans identifiant dans la réponse (204, réglages) : isolation éprouvée par
+ * `test/notifications/devices.spec.ts` (appareil d'un autre compte : 409 / inchangé). */
+const ACCOUNT_ROUTES_TESTED_ELSEWHERE = [
+  'PUT /api/v1/me/devices/{deviceId}',
+  'DELETE /api/v1/me/devices/{deviceId}',
+  'GET /api/v1/me/notification-settings',
+  'PATCH /api/v1/me/notification-settings',
+];
 
 /** Corps valides par route d'écriture (sinon `{}`), pour que l'appelant ne soit pas refusé. */
 const BODIES: Record<string, (owner: Tenant) => object> = {
@@ -260,12 +269,14 @@ describe('isolement entre comptes (NF-SEC-03)', () => {
     const unclassified = protectedRoutes
       .filter((r) => !r.path.includes('{notebookId}'))
       .map(routeKey)
-      .filter((key) => !ACCOUNT_ROUTES.includes(key));
+      .filter((key) => ![...ACCOUNT_ROUTES, ...ACCOUNT_ROUTES_TESTED_ELSEWHERE].includes(key));
     expect(unclassified).toEqual([]);
-    // La liste de compte ne doit pas retenir une route disparue.
-    expect(ACCOUNT_ROUTES.filter((key) => !protectedRoutes.map(routeKey).includes(key))).toEqual(
-      [],
-    );
+    // Les listes de compte ne doivent pas retenir une route disparue.
+    expect(
+      [...ACCOUNT_ROUTES, ...ACCOUNT_ROUTES_TESTED_ELSEWHERE].filter(
+        (key) => !protectedRoutes.map(routeKey).includes(key),
+      ),
+    ).toEqual([]);
     expect(notebookRoutes().length).toBeGreaterThan(0);
   });
 

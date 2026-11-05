@@ -352,6 +352,154 @@
         ]
       }
     },
+    "/api/v1/me/devices/{deviceId}": {
+      "put": {
+        "operationId": "NotificationsController_register",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "required": true,
+            "in": "path",
+            "description": "UUID v7 tiré par l’application",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Appareil enregistré ou mis à jour"
+          },
+          "400": {
+            "description": "Identifiant, plateforme ou jeton invalide"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "409": {
+            "description": "Identifiant déjà utilisé par un autre compte"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      },
+      "delete": {
+        "operationId": "NotificationsController_unregister",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Appareil désinscrit, ou inconnu"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/me/notification-settings": {
+      "get": {
+        "operationId": "NotificationsController_getSettings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSettingsDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      },
+      "patch": {
+        "operationId": "NotificationsController_updateSettings",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNotificationSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Réglages après modification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSettingsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Corps vide, champ inconnu ou heure invalide"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
     "/api/v1/notebooks": {
       "get": {
         "operationId": "NotebooksController_list",
@@ -2296,6 +2444,113 @@
             "example": "09:00",
             "nullable": true,
             "description": "Heure locale du rappel quotidien de saisie ; null = désactivé"
+          }
+        }
+      },
+      "DeviceDto": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "ios",
+              "android"
+            ]
+          },
+          "token": {
+            "type": "string",
+            "maxLength": 512,
+            "description": "Jeton APNs (iOS) ou FCM (Android)"
+          }
+        },
+        "required": [
+          "platform",
+          "token"
+        ]
+      },
+      "QuietHoursDto": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+            "example": "22:00",
+            "description": "Début, heure locale (inclus)"
+          },
+          "end": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+            "example": "07:00",
+            "description": "Fin, heure locale (exclue)"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ]
+      },
+      "NotificationSettingsDto": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "boolean",
+            "description": "Alertes de limite (80 %, 100 %…)"
+          },
+          "occurrence": {
+            "type": "boolean",
+            "description": "Échéances récurrentes : à confirmer, rappels J-3 et jour J"
+          },
+          "unusualExpense": {
+            "type": "boolean",
+            "description": "Dépense inhabituellement élevée"
+          },
+          "dailyReminder": {
+            "type": "boolean",
+            "description": "Rappel quotidien de saisie (heure : `dailyReminderTime` de /me)"
+          },
+          "quietHours": {
+            "nullable": true,
+            "description": "Plage de silence (fuseau du compte) ; notifications reportées à sa fin",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QuietHoursDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "limit",
+          "occurrence",
+          "unusualExpense",
+          "dailyReminder",
+          "quietHours"
+        ]
+      },
+      "UpdateNotificationSettingsDto": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "boolean"
+          },
+          "occurrence": {
+            "type": "boolean"
+          },
+          "unusualExpense": {
+            "type": "boolean"
+          },
+          "dailyReminder": {
+            "type": "boolean"
+          },
+          "quietHours": {
+            "nullable": true,
+            "description": "null = aucune plage",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QuietHoursDto"
+              }
+            ]
           }
         }
       },

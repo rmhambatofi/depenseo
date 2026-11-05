@@ -81,7 +81,7 @@ export function loadWorkerConfig(env: Readonly<Record<string, string | undefined
   return parseEnv(workerSchema, env);
 }
 
-function parseEnv<T extends z.ZodType>(
+export function parseEnv<T extends z.ZodType>(
   envSchema: T,
   env: Readonly<Record<string, string | undefined>>,
 ): Readonly<z.infer<T>> {

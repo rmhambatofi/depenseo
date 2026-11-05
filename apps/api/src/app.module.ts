@@ -10,6 +10,7 @@ import type { AppConfig } from './config/env.js';
 import { DatabaseModule } from './db/database.module.js';
 import { HealthController } from './health/health.controller.js';
 import { MeModule } from './me/me.module.js';
+import { NotificationsModule } from './notifications/notifications.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { ExpensesModule } from './expenses/expenses.module.js';
 import { LimitsModule } from './limits/limits.module.js';
@@ -41,6 +42,7 @@ export class AppModule {
         ClockModule.register(clock),
         AuthModule.register(idTokenKeys),
         MeModule,
+        NotificationsModule,
         NotebooksModule,
         CategoriesModule,
         ExpensesModule,

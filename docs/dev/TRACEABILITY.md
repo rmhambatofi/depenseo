@@ -34,10 +34,10 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | F-EXP-01 Export Excel et CSV sur période | P4-05, P6-12 | `api/test/exports/expense-export.spec.ts`, `mobile/test/account/expense_export_test.dart` |
 | F-TB-01 Accueil : jauge, échéances, dernières dépenses | P3-05, P4-01, P6-10 | `api/test/dashboard/dashboard.spec.ts`, `api/test/recurring/occurrences.spec.ts` (`upcoming`), `mobile/test/home/home_screen_test.dart` |
 | F-TB-02 Graphiques : répartition, cumul vs précédente, 12 périodes | P3-05, P6-10 | `api/test/dashboard/dashboard.tz.spec.ts`, `mobile/test/home/charts_test.dart` |
-| F-NOT-01 Push : 80/100 %, échéance, dépense inhabituelle | P3-03, P3-04, P4-02, P4-04, P6-11 | `api/test/limits/limit-alerts.spec.ts`, `api/test/notifications/unusual-expense.spec.ts`, `api/test/notifications/push-dispatch.spec.ts` |
+| F-NOT-01 Push : 80/100 %, échéance, dépense inhabituelle | P3-03, P3-04, P4-02, P4-04, P6-11 | `api/test/limits/limit-alerts.spec.ts`, `api/test/notifications/unusual-expense.spec.ts`, `api/test/notifications/notify-handler.spec.ts`, `api/test/notifications/push-senders.spec.ts`, `api/test/notifications/devices.spec.ts` |
 | F-NOT-02 Rappel quotidien facultatif à l'heure choisie | P4-03, P6-11 | `api/test/notifications/daily-reminder.tz.spec.ts` (4 fuseaux + DST), `api/test/me/me.spec.ts` (réglage), ADR-034 |
-| F-NOT-04 Réglage par type, plage de silence | P4-04, P6-11 | `api/test/notifications/notification-settings.spec.ts` (22:00–07:00 en local), `mobile/test/notifications/settings_test.dart` |
-| F-NOT-05 Aucun montant sur l'écran verrouillé | P4-04, P6-11 | `api/test/notifications/push-dispatch.spec.ts` (aucun montant dans les charges utiles, ADR-003) |
+| F-NOT-04 Réglage par type, plage de silence | P4-04, P6-11 | `api/test/notifications/quiet-hours.tz.spec.ts` (22:00–07:00 en local), `api/test/notifications/notify-handler.spec.ts` (type désactivé, report), `mobile/test/notifications/settings_test.dart` |
+| F-NOT-05 Aucun montant sur l'écran verrouillé | P4-04, P6-11 | `api/test/notifications/notify-handler.spec.ts`, `api/test/notifications/notification-text.spec.ts` (aucun montant dans les charges utiles, ADR-003) |
 | F-ABO-01 Achats intégrés vérifiés serveur + notifications stores | P5-01, P5-02, P6-13 | `api/test/subscriptions/verify-receipt.spec.ts`, `api/test/subscriptions/store-notifications.spec.ts`, `mobile/test/premium/purchase_test.dart` |
 | F-ABO-02 Essai Premium 14 jours | P5-01, P6-13 | `api/test/subscriptions/trial.spec.ts` (expiré au jour 15) |
 | F-ABO-03 Restauration, multi-appareils | P5-01, P6-13 | `api/test/subscriptions/restore.spec.ts`, `mobile/test/premium/restore_test.dart` |

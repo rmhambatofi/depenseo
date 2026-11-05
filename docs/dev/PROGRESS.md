@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P4-04 (notifications push : appareils, réglages par type, plage de silence, gestionnaire `notify`).
-- Dernier commit : fcea2f4 feat(api): occurrence and daily reminders (F-REC-04, F-NOT-02)
+- Prochaine tâche : P4-05 (export CSV/xlsx chiffré, lien expirable).
+- Dernier commit : feat(api): push notifications (F-NOT-01, F-NOT-04, F-NOT-05)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 508 api), `pnpm test:tz` vert (api : 69 par fuseau), `pnpm --filter api build` vert ; `test/recurring`, `test/sync`, `test/access`, `test/categories`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (153 shared, 591 api), `pnpm test:tz` vert (api : 84 par fuseau), `pnpm --filter api build` vert ; `test/recurring`, `test/sync`, `test/access`, `test/categories`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -113,6 +113,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Reliquats mineurs P4-02 : `processOne` ne revérifie pas `notebook.deleted_at` sous verrou (filtré à la sélection seulement) ; pas de test de concurrence `POST …/pay` vs cron ; passage non borné en durée (rattrapage > 50 s possible) ; après repli « catégorie inutilisable », `pay` → 422 (seul « sauter » reste).
 - Reliquats mineurs P4-01 : course « même `expenseId` payé depuis un autre carnet » non testée (ODKU + relecture en place) ; rejeu de `pay` après purge de la dépense → 409 ; pas d'annulation de « sauter ».
 - Rappels (P4-03, ADR-034) : `src/notifications/reminder-time.ts` (`localTime`/`LOCAL_TIME_PATTERN`, `localInstant` désambiguïsation `compatible`, `reminderDue` = atteint depuis < 1 h), tâches `schedule-occurrence-reminders` (`src/recurring/occurrence-reminders.ts`, clé `occurrence-reminder:<id>:J-3|J`) et `schedule-daily-reminders` (`src/notifications/daily-reminders.ts`, clé `daily-reminder:<compte>:<jour local>`). `NOTIFY` porte désormais 5 `kind` (dont `occurrence_reminder`, `daily_reminder` avec `userId`) : **le gestionnaire P4-04 doit tous les traiter**. Réglages : `user.reminder_time` (09:00), `user.daily_reminder_time` (NULL = off) via `PATCH /me` ; `remindThreeDaysBefore`/`remindOnDueDate` sur la récurrence. Migration 0011. Suites : février 2025 (+ 10 mars 2024 Montréal, 30–31 mars 2025 Paris, 27 octobre 2024 Lisbonne).
+- Push (P4-04, ADR-035) : `PushSender` (`src/notifications/push-sender.ts`), faux `FakePushSender` + `insertDevice` dans `test/support/push.ts` ; `notify` vérifie pertinence → type → plage de silence (report `deferred:<tâche>`) à l'envoi ; APNs/FCM facultatifs par env (`push-config.ts`). Tables `device`, `notification_setting` (migration 0012, cascade sur `user` : à couvrir par P4-06). Suites `notify-handler.spec`/`notify-stale.spec` en juin 2025. Reliquat mineur : `registerDevice` (`devices.ts`) — course entre deux enregistrements concurrents du même jeton (ODKU déclenché par `push_token_hash`, `FOR UPDATE` sans effet sur ligne absente) ; piste : INSERT simple + reprise sur 1062.
 - zsh : une variable contenant plusieurs chemins (`T="a b"; vitest run $T`) n'est **pas** découpée → aucun test lancé, sortie vide. Utiliser un tableau `T=(a b)`.
 
 ## Actions humaines (non bloquantes)
@@ -125,6 +126,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-05 session 23 — P4-04 fait (code produit par la session 22 interrompue, repris) : appareils `PUT/DELETE /me/devices/:id`, réglages par type + plage de silence `GET/PATCH /me/notification-settings`, gestionnaire `notify` (abandon si sans objet, type désactivé, report en fin de plage, fusion du rappel « jour J » avec l'échéance à confirmer), APNs + FCM, textes fr/en sans montant ; migration 0012 ; ADR-035 (manquant, rédigé). Corrigé : 1 erreur de lint, spec > 400 lignes (aide `insertDevice` extraite). Une relecture (0 bloquant ; 2 importants corrigés : session APNs réutilisée par passage, 404 FCM ≠ jeton invalide ; 2 mineurs corrigés : suppression filtrée sur le jeton, rappel quotidien reporté au lendemain abandonné). Contre-épreuves : 2 mutations tuées.
 
 - 2026-11-05 session 22 — P4-03 fait : rappels d'échéance J-3/jour J à l'heure de rappel du compte (réglables par récurrence) et rappel quotidien facultatif, planifiés par le cron au moment voulu (rattrapage 1 h, clé d'unicité par jour), DST `compatible` ; migration 0011 ; ADR-034. Une relecture (0 bloquant, 0 important ; 5 mineurs corrigés : index `(status, due_date)`, 2 tests de bornes, description OpenAPI, motif unique). Contre-épreuves : 11 mutations, toutes tuées. Passation après 1 tâche (~16 fichiers lus).
 
