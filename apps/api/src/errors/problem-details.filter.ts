@@ -42,6 +42,9 @@ function statusOf(exception: unknown): number {
 export class ProblemDetailsFilter implements ExceptionFilter {
   private readonly logger = new Logger('ProblemDetails');
 
+  /** `report` : signalement au suivi des erreurs (Sentry, ADR-064) des 5xx inattendues. */
+  constructor(private readonly report: (error: unknown) => void = () => undefined) {}
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const req = ctx.getRequest<Request>();
@@ -49,6 +52,8 @@ export class ProblemDetailsFilter implements ExceptionFilter {
     const status = statusOf(exception);
 
     if (status >= 500) this.logger.error({ err: exception }, 'unhandled error');
+    // Une ProblemException 5xx est voulue (ex. 503 service non configuré) : pas un défaut.
+    if (status >= 500 && !(exception instanceof ProblemException)) this.report(exception);
     if (res.headersSent) return;
 
     const problem: ProblemDetails = {

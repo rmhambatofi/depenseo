@@ -12,6 +12,7 @@ import type { StoreNotificationKeys } from './subscriptions/store-notifications.
 import type { StoreReceiptVerifier } from './subscriptions/store-receipt-verifier.js';
 import { ProblemDetailsFilter } from './errors/problem-details.filter.js';
 import { securityHeaders } from './http/security-headers.js';
+import { reportError } from './observability/sentry.js';
 
 export const API_PREFIX = 'api/v1';
 
@@ -46,7 +47,7 @@ export async function createApp(
   app.setGlobalPrefix(API_PREFIX, {
     exclude: [{ path: 'admin{/*rest}', method: RequestMethod.ALL }],
   });
-  app.useGlobalFilters(new ProblemDetailsFilter());
+  app.useGlobalFilters(new ProblemDetailsFilter(reportError));
   app.enableShutdownHooks();
   return app;
 }

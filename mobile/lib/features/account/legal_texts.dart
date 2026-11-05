@@ -96,7 +96,9 @@ LegalText _fr(LegalDoc doc) {
       ),
       const LegalSection(
         'Sous-traitants',
-        'Hébergement et sauvegardes dans l’Union européenne. Certains '
+        'Hébergement et sauvegardes dans l’Union européenne. Rapports de '
+            'plantage techniques (Sentry, hébergé dans l’Union, sans montant '
+            'ni donnée de compte). Certains '
             'prestataires techniques peuvent traiter des données hors de '
             'l’Union : notifications (Google Firebase Cloud Messaging, Apple '
             'Push Notification service, sans montant ni libellé de dépense), '
@@ -229,7 +231,9 @@ LegalText _en(LegalDoc doc) {
       ),
       const LegalSection(
         'Processors',
-        'Hosting and backups in the European Union. Some technical providers '
+        'Hosting and backups in the European Union. Technical crash reports '
+            '(Sentry, hosted in the Union, with no amount or account data). '
+            'Some technical providers '
             'may process data outside the Union: notifications (Google '
             'Firebase Cloud Messaging, Apple Push Notification service, with '
             'no amount or expense label), sign-in with Apple or Google if you '

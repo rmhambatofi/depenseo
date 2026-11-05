@@ -2,9 +2,11 @@
 import 'reflect-metadata';
 import { createApp } from './app.js';
 import { ConfigError, loadConfig } from './config/env.js';
+import { initSentry } from './observability/sentry.js';
 
 async function main(): Promise<void> {
   const config = loadConfig(process.env);
+  initSentry(config);
   const app = await createApp(config);
   await app.listen(config.PORT);
 }

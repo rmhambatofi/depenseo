@@ -28,6 +28,13 @@ export const pkcs8Pem = z
   .transform((value) => value.replace(/\\n/g, '\n'))
   .refine((value) => value.includes('-----BEGIN PRIVATE KEY-----'));
 
+/** Nom d'hôte d'ingestion de la région UE de Sentry (`o<org>.ingest.de.sentry.io`). */
+function isEuSentryDsn(dsn: string): boolean {
+  if (!URL.canParse(dsn)) return false;
+  const url = new URL(dsn);
+  return url.protocol === 'https:' && url.hostname.endsWith('.de.sentry.io') && url.username !== '';
+}
+
 /** Clé AES-256 en base64 (32 octets). */
 export const aes256Key = z.string().regex(/^[A-Za-z0-9+/]{43}=$/);
 
@@ -47,6 +54,21 @@ const schema = z.object({
    * **Obligatoire en production** : mal réglé, tous les clients partageraient un seul compteur.
    */
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).optional(),
+  /**
+   * Suivi des erreurs (NF-QUA-02, ADR-064) : DSN d'un projet Sentry de la **région UE**
+   * (`https://clé@o<org>.ingest.de.sentry.io/<projet>`). Absent ou vide = aucun envoi.
+   */
+  SENTRY_DSN: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z
+      .string()
+      .refine((value) => isEuSentryDsn(value))
+      .optional(),
+  ),
+  /** Environnement Sentry (dev, recette, prod) ; `NODE_ENV` par défaut. */
+  SENTRY_ENVIRONMENT: z.string().min(1).max(64).optional(),
+  /** Version déployée (ex. SHA du commit) pour regrouper les erreurs par version. */
+  SENTRY_RELEASE: z.string().min(1).max(200).optional(),
   /** Tentatives sur les routes `/auth` par adresse IP et par 15 min (NF-SEC-04, ADR-062). */
   AUTH_RATE_LIMIT_PER_IP: z.coerce.number().int().min(1).default(30),
   /** Tentatives de connexion par compte (adresse e-mail) et par 15 min (ADR-062). */
