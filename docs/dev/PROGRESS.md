@@ -7,9 +7,9 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P4-02 (échéances dues traitées par le cron : auto → dépense, confirmation → notification).
-- Dernier commit : feat(api): recurring expenses and occurrences (F-REC-01, F-REC-03)
+- Dernier commit : 49805b1 feat(api): recurring expenses and occurrences (F-REC-01, F-REC-03)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 469 api), `pnpm test:tz` vert (api : 37 par fuseau), `pnpm --filter api build` vert ; `test/sync`, `test/access`, `test/limits`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 469 api), `pnpm test:tz` vert (api : 37 par fuseau), `pnpm --filter api build` vert ; `test/recurring`, `test/sync`, `test/access`, `test/categories`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -121,7 +121,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
-- 2026-11-05 session 20 — P4-01 fait : récurrences (hebdo/mensuel/trimestriel/annuel/ponctuel, jour = date de départ, repli fin de mois), échéances matérialisées à 40 j + tâche `generate-occurrences`, ajuster/payer/sauter, `upcoming` du tableau de bord, sync, purges ; migration 0009 ; ADR-032. Deux relectures (0 bloquant ; 5 importants corrigés : tombstones des échéances, catégorie protégée, ordre de verrous, tests de purge, alerte au paiement). Contre-épreuves faites (8 mutations).
+- 2026-11-05 session 20 — P4-01 fait : récurrences (hebdo/mensuel/trimestriel/annuel/ponctuel, jour = date de départ, repli fin de mois), échéances matérialisées à 40 j + tâche `generate-occurrences`, ajuster/payer/sauter, `upcoming` du tableau de bord, sync, purges ; migration 0009 ; ADR-032. Deux relectures (0 bloquant ; 5 importants corrigés : tombstones des échéances, catégorie protégée, ordre de verrous, tests de purge, alerte au paiement). Contre-épreuves faites (8 mutations). Passation après 1 tâche (~20 fichiers lus).
 
 - 2026-11-05 session 19 (suite) — P3-05 fait : tableau de bord (jauge ou total sans limite, 5 dernières dépenses, répartition par catégorie racine, cumul jour par jour vs période précédente, 12 périodes), suite 4 fuseaux + DST ; ADR-031 ; `upcoming` reporté à P4-01. Une relecture (0 bloquant, 1 important corrigé : test 404 inter-carnets explicite). Contre-épreuves faites (racine, supprimées, fuseau, devise du compte).
 
