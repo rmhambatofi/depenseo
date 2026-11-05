@@ -464,3 +464,14 @@ Décision :
 - **E2E Playwright** (`apps/admin/e2e`, `pnpm --filter @depenseo/admin test:e2e`) : serveur `apps/api/test/e2e/admin-e2e-server.ts` compilé par `tsc` (`build:e2e` → `dist-e2e/`, décorateurs Nest), base `depenseo_test` migrée, un admin et un compte ordinaire créés au démarrage, identifiants dans un fichier temporaire. Chromium seul, un worker (code TOTP à usage unique). Jamais en parallèle de Vitest (même base).
 - **Écart §8.3 — compte de base `depenseo_admin`** : non branché. L'API admin tourne dans le même processus Passenger que l'API publique ; un second pool sous un autre compte n'apporterait d'isolation qu'au prix d'une seconde configuration de pool et de droits SQL à maintenir, sans séparation de processus. Les routes admin sont en lecture seule (sauf relance de tâche) et passent toutes par `AdminGuard`. À reprendre avec la documentation de déploiement (P7-07, « utilisateurs de base séparés ») si l'hébergeur permet une seconde application Passenger dédiée au back-office.
 Limites : bundle admin ~1 Mo non découpé ; un accès à chaque fichier statique produit une ligne d'audit (volume faible) ; la CSP du reste de l'API reste à P7-03.
+
+## ADR-045 — `packages/api-client` : openapi-typescript + openapi-fetch, contrat sans flottant (2026-11-05)
+
+Contexte : §8.1 (client d'API TypeScript généré depuis le contrat OpenAPI, pour la version web V2), P5-06 (vérifié en CI, diff vide).
+Décision :
+- `scripts/generate.mjs` (openapi-typescript 7.13.0, `alphabetize`, `exportType`) produit `src/schema.ts` depuis `apps/api/openapi.json` ; `pnpm --filter api openapi` régénère le contrat **puis** le client. Fichier généré committé, exclu d'ESLint et de Prettier.
+- Fraîcheur vérifiée deux fois : `src/schema.test.ts` (comparaison octet à octet, dans `pnpm test`) et une étape CI qui régénère et exige `git diff --exit-code` sur les deux fichiers.
+- Client : `createApiClient({ baseUrl, fetch?, accessToken? })` → client `openapi-fetch` 0.17.0 typé par `paths` ; jeton relu à chaque requête (middleware Bearer), aucune journalisation. Pas de rafraîchissement automatique ni de retry : à ajouter avec l'app web V2.
+- Contrat : `apps/api/test/openapi.spec.ts` interdit tout `type: number` (entiers seulement : montants, durées, jours). Côté TS, un entier reste `number` (limite d'openapi-typescript) ; le client web ne recalcule rien (invariant 8).
+- openapi-typescript déclare `typescript ^5` ; le monorepo est en 6.0.3 : dérogation `pnpm.peerDependencyRules.allowedVersions` (`openapi-typescript>typescript: 6`). Seule la génération en dépend et sa sortie est couverte par le test de fraîcheur.
+Limites : comme `@depenseo/shared`, `exports.default` pointe vers `dist/` non construit en CI ; un consommateur exécutant le code (apps/web V2) devra lancer `pnpm --filter @depenseo/api-client build`.

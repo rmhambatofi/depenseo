@@ -107,6 +107,7 @@ export class SessionTokensDto implements SessionTokens {
   readonly accessToken!: string;
 
   @ApiProperty({
+    type: 'integer',
     description: 'Durée de validité du jeton d’accès (s)',
     example: ACCESS_TOKEN_TTL_S,
   })
@@ -116,6 +117,7 @@ export class SessionTokensDto implements SessionTokens {
   readonly refreshToken!: string;
 
   @ApiProperty({
+    type: 'integer',
     description: 'Durée de validité du jeton de rafraîchissement (s)',
     example: REFRESH_TOKEN_TTL_S,
   })

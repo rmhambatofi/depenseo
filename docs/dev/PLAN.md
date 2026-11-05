@@ -60,7 +60,7 @@ Couverture des exigences « M » : `docs/dev/TRACEABILITY.md` (à tenir à jour 
 - [x] P5-03 Rôle admin + TOTP : attribution uniquement par `scripts/grant-admin.ts`, connexion admin avec TOTP, session par cookie `HttpOnly; Secure; SameSite=Strict; Path=/admin`, 404 sur `/admin/*` et `/api/v1/admin/*` sans rôle ou sans session admin (test automatisé), journal d'audit de chaque accès admin. (F-ADM-01, 03, NF-SEC-06)
 - [x] P5-04 Routes admin : utilisateurs (sans montants), abonnements, tâches en échec (relance), statistiques agrégées, journaux d'audit. Tests : chaque route → 404 pour un non-admin ; un accès crée une ligne d'audit. (F-ADM-01, NF-SEC-06)
 - [x] P5-05 `apps/admin` React-admin : écrans des routes P5-04 ; build servi par l'API uniquement à une session admin, seule la page de connexion est publique. Tests Playwright : non-admin → 404 sur `/admin/*` ; script CI qui vérifie qu'aucun code admin n'est présent dans `mobile/` ni dans les bundles publics. (F-ADM-01, 02, 03)
-- [ ] P5-06 `packages/api-client` généré depuis `openapi.json` (openapi-typescript + client fetch), script `pnpm --filter api openapi`, vérifié en CI (diff vide). (§8.1, §8.4)
+- [x] P5-06 `packages/api-client` généré depuis `openapi.json` (openapi-typescript + client fetch), script `pnpm --filter api openapi`, vérifié en CI (diff vide). (§8.1, §8.4)
 
 ## Phase 6 — Application mobile Flutter
 

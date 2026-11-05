@@ -48,6 +48,12 @@ jobs:
 
       - run: pnpm test
 
+      # Contrat OpenAPI et client généré (P5-06) : la régénération ne doit produire aucun diff.
+      - name: Contrat OpenAPI et packages/api-client à jour
+        run: |
+          pnpm --filter api openapi
+          git diff --exit-code -- apps/api/openapi.json packages/api-client/src/schema.ts
+
       # Back-office (F-ADM-01/02/03, ADR-044) : build, aucun code admin hors de son bundle, e2e.
       # Après `pnpm test` (même base `depenseo_test`, jamais en parallèle de Vitest).
       - name: Construire le back-office

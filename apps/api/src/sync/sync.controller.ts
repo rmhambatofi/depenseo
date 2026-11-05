@@ -84,7 +84,7 @@ export class SyncLimitDto implements SyncLimit {
   readonly id!: string;
 
   @ApiProperty({
-    type: Number,
+    type: 'integer',
     nullable: true,
     description: 'Unités mineures ; NULL = aucune limite',
   })
@@ -96,7 +96,7 @@ export class SyncLimitDto implements SyncLimit {
   @ApiProperty({ enum: LIMIT_PERIOD_KINDS })
   readonly periodKind!: LimitPeriodKind;
 
-  @ApiProperty({ minimum: 1, maximum: 31 })
+  @ApiProperty({ type: 'integer', minimum: 1, maximum: 31 })
   readonly startDay!: number;
 
   @ApiProperty()

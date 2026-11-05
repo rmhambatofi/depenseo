@@ -24,6 +24,8 @@ export default tseslint.config(
       // Build factice de apps/admin servi par l'API dans les tests (ADR-044).
       'apps/api/test/fixtures/admin-dist/**',
       '**/coverage/**',
+      // Généré par openapi-typescript (`pnpm --filter api openapi`), comparé par src/schema.test.ts
+      'packages/api-client/src/schema.ts',
       'mobile/**',
       'scripts/lint-fixtures/**',
     ],
@@ -34,7 +36,12 @@ export default tseslint.config(
     languageOptions: {
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['*.mjs', 'scripts/*.mjs', 'scripts/lint-fixtures/*.ts'],
+          allowDefaultProject: [
+            '*.mjs',
+            'scripts/*.mjs',
+            'packages/*/scripts/*.mjs',
+            'scripts/lint-fixtures/*.ts',
+          ],
         },
         tsconfigRootDir: import.meta.dirname,
       },

@@ -2721,7 +2721,7 @@
             "description": "JWT à présenter en `Authorization: Bearer …`"
           },
           "expiresIn": {
-            "type": "number",
+            "type": "integer",
             "description": "Durée de validité du jeton d’accès (s)",
             "example": 900
           },
@@ -2730,7 +2730,7 @@
             "description": "Jeton opaque à usage unique, à échanger sur /auth/refresh"
           },
           "refreshExpiresIn": {
-            "type": "number",
+            "type": "integer",
             "description": "Durée de validité du jeton de rafraîchissement (s)",
             "example": 2592000
           }
@@ -4552,7 +4552,7 @@
             "format": "uuid"
           },
           "amount": {
-            "type": "number",
+            "type": "integer",
             "nullable": true,
             "description": "Unités mineures ; NULL = aucune limite"
           },
@@ -4568,7 +4568,7 @@
             ]
           },
           "startDay": {
-            "type": "number",
+            "type": "integer",
             "minimum": 1,
             "maximum": 31
           },

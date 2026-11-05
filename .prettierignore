@@ -7,5 +7,7 @@ docs
 *.md
 # Généré par `pnpm --filter api openapi` (comparé octet à octet par test/openapi.spec.ts)
 apps/api/openapi.json
+# Généré depuis openapi.json (comparé octet à octet par packages/api-client/src/schema.test.ts)
+packages/api-client/src/schema.ts
 # Généré par drizzle-kit (`pnpm --filter api db:generate`), jamais reformaté
 apps/api/drizzle/meta
