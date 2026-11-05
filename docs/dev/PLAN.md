@@ -71,7 +71,7 @@ Couverture des exigences « M » : `docs/dev/TRACEABILITY.md` (à tenir à jour 
 - [x] P6-05 Hors ligne : file d'envoi locale, UUID v7 généré sur l'appareil, synchro différentielle au retour réseau, « dernière écriture gagne » par `updated_at`, consultation hors connexion. Tests : envoi interrompu puis rejoué → pas de doublon. (NF-OFF-01)
 - [x] P6-06 Liste, recherche et filtres combinables, modification, suppression avec annulation pendant 5 s. Tests widget : annulation à 4 s restaure, à 6 s non. Synchro (ADR-050) : toute modification locale efface `sync_error`, garde `base_updated_at`, repasse `pending_sync` ; ligne en `conflict` (supprimée ailleurs) : proposer restauration (`POST …/restore` puis PATCH) ou abandon. (F-DEP-09, 10)
 - [x] P6-07 Catégories : plan par défaut, personnalisation (nom, icône, couleur), masquage. Tests widget. (F-CAT-01, 02)
-- [ ] P6-08 Limites : mensuelle / hebdo / aucune, jour de début, inclusion des récurrences ; affichage dépensé / restant / rythme lus depuis l'API. Tests widget. (F-LIM-01, 02, 03, 05, 09)
+- [~] P6-08 Limites : mensuelle / hebdo / aucune, jour de début, inclusion des récurrences ; affichage dépensé / restant / rythme lus depuis l'API. Tests widget. (F-LIM-01, 02, 03, 05, 09)
 - [ ] P6-09 Récurrences : création, échéances, payer / ajuster / sauter, confirmation, réglage des rappels. Tests widget. (F-REC-01, 02, 03, 04)
 - [ ] P6-10 Accueil et graphiques fl_chart : jauge, prochaines échéances, dernières dépenses, répartition, cumul vs période précédente, 12 périodes, données de `/dashboard`. Tests widget. (F-TB-01, 02)
 - [ ] P6-11 Notifications push (FCM/APNs), enregistrement de l'appareil, réglages par type, plage de silence, rappel quotidien. Tests widget des réglages. (F-NOT-01, 02, 04, 05)
