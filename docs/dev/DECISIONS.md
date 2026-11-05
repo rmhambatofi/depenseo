@@ -731,3 +731,9 @@ Décision :
 - La base de développement Docker est renommée `depenseo` → `depenseo_dev` (script d'init) pour respecter ce nommage ; commande de création manuelle pour un volume existant dans `DEPLOY.md` §1.
 - Publication (`DEPLOY.md` §3) : une version par dossier `releases/<sha>` et lien `current`, ordre sauvegarde → migration → bascule ; les migrations doivent rester compatibles avec la version précédente (suppression en deux versions).
 Conséquences : renommer une base de production avec l'un de ces suffixes désactiverait le garde-fou. Le nommage des bases fait donc partie de la procédure de déploiement.
+
+## ADR-067 — Limitation de débit de la connexion admin, en 404 (2026-11-05)
+
+Contexte : relecture finale (P7-08). `POST /admin/api/session` ne comptait que les échecs TOTP ; un mauvais mot de passe ne comptait jamais, ce qui permettait de deviner le mot de passe sans limite et de saturer le CPU (hachage à chaque appel) sur l'hébergement mutualisé. NF-SEC-04 impose une limitation de débit sur l'authentification ; NF-SEC-06 impose que les routes admin répondent 404 à qui n'y a pas accès.
+Décision : la connexion admin réutilise le garde `@RateLimited` des routes `/auth` (mêmes seaux en base, par IP et par compte, mêmes seuils `AUTH_RATE_LIMIT_*`, fenêtre de 15 min), avec l'option `deny: 404` : au-delà du seuil, 404 sans `Retry-After`, indiscernable d'une route inexistante. Le garde admin (désactivé → 404) passe avant. Toutes les tentatives comptent, réussies ou non, comme sur `/auth/login`.
+Conséquences : un administrateur bloqué ne voit qu'un 404 et doit attendre la fin de la fenêtre (15 min) ; c'est documenté ici plutôt que dans l'interface, pour ne rien révéler. Les seaux par compte sont communs à `/auth/login` et à la connexion admin pour une même adresse e-mail, ce qui ne fait que durcir la limite.

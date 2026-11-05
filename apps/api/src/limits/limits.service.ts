@@ -120,8 +120,19 @@ export class LimitsService {
       });
     } catch (error) {
       // Filet : l'index unique (carnet, clé, date d'effet) tranche une course non sérialisée.
-      if (hasErrno(error, ER_DUP_ENTRY)) throw new ProblemException(409, SAME_DAY);
-      throw error;
+      // La clé primaire aussi, quand un autre carnet (verrou distinct) insère le même identifiant :
+      // on relit le propriétaire pour ne pas renvoyer un « même jour » trompeur.
+      if (!hasErrno(error, ER_DUP_ENTRY)) throw error;
+      const [owner] = await this.db
+        .select({ notebookId: spendingLimit.notebookId, deletedAt: spendingLimit.deletedAt })
+        .from(spendingLimit)
+        .where(eq(spendingLimit.id, input.id));
+      if (!owner) throw new ProblemException(409, SAME_DAY);
+      if (owner.notebookId !== notebookId || owner.deletedAt !== null) {
+        throw new ProblemException(409, ID_TAKEN);
+      }
+      // Même carnet : rejeu concurrent du même identifiant, la première écriture gagne.
+      return withTransaction(this.db, (tx) => this.view(tx, notebookId, input.id));
     }
   }
 

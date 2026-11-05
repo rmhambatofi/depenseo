@@ -13,6 +13,7 @@ import {
   RATE_LIMIT_WINDOW_MS,
   rateLimitKey,
 } from '../../src/rate-limit/rate-limiter.js';
+import { codeAt, createAdmin } from '../support/admin.js';
 import { http, startTestApp, TEST_ENV } from '../support/app.js';
 import { FakeClock } from '../support/clock.js';
 import { testDb } from '../support/jobs.js';
@@ -165,6 +166,54 @@ describe('limitation de débit sur /auth (NF-SEC-04)', () => {
       }
     },
   );
+
+  describe('connexion admin POST /admin/api/session (NF-SEC-04, NF-SEC-06, ADR-067)', () => {
+    const adminPost = (ip: string, body: Record<string, unknown>) =>
+      request(http(app)).post('/admin/api/session').set('X-Forwarded-For', ip).send(body);
+
+    it(`limite par compte (mauvais mot de passe compris) et répond 404, jamais 429`, async () => {
+      const admin = await createAdmin(db, clock.now());
+      for (let i = 0; i < PER_ACCOUNT; i++) {
+        const res = await adminPost(freshIp(), {
+          email: admin.email,
+          password: 'mauvais',
+          code: '000000',
+        });
+        expect(res.status).toBe(404);
+      }
+      const blocked = await adminPost(freshIp(), {
+        email: admin.email,
+        password: admin.password,
+        code: codeAt(admin, clock.now()),
+      });
+      expect(blocked.status).toBe(404);
+      expect(blocked.headers['retry-after']).toBeUndefined();
+      expect(blocked.headers['set-cookie']).toBeUndefined();
+    });
+
+    it('limite par adresse IP, en 404 indiscernable d’une route inexistante', async () => {
+      const ip = freshIp();
+      for (let i = 0; i < PER_IP; i++) {
+        await adminPost(ip, { email: unknownEmail(), password: 'x', code: '000000' });
+      }
+      const admin = await createAdmin(db, clock.now());
+      const blocked = await adminPost(ip, {
+        email: admin.email,
+        password: admin.password,
+        code: codeAt(admin, clock.now()),
+      });
+      expect(blocked.status).toBe(404);
+      expect(blocked.headers['retry-after']).toBeUndefined();
+      expect(blocked.headers['set-cookie']).toBeUndefined();
+      // Une autre adresse peut toujours se connecter.
+      const ok = await adminPost(freshIp(), {
+        email: admin.email,
+        password: admin.password,
+        code: codeAt(admin, clock.now()),
+      });
+      expect(ok.status).toBe(204);
+    });
+  });
 
   it('ne conserve ni adresse IP ni e-mail en clair', async () => {
     const ip = freshIp();

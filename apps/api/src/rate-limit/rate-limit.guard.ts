@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  NotFoundException,
   SetMetadata,
   UseGuards,
 } from '@nestjs/common';
@@ -25,6 +26,11 @@ const RATE_LIMIT = Symbol('RATE_LIMIT');
 interface RateLimitOptions {
   /** Compte aussi par adresse e-mail du corps (`email`) : freine l'attaque répartie sur un compte. */
   perAccount?: boolean;
+  /**
+   * Route cachée (connexion admin, NF-SEC-06) : au-delà du seuil, 404 sans `Retry-After`, comme
+   * une route inexistante ; un 429 trahirait l'existence de la route (ADR-067).
+   */
+  deny?: 404;
 }
 
 /**
@@ -32,11 +38,15 @@ interface RateLimitOptions {
  * `Retry-After`. À poser sur la méthode, à côté de `@Public()`.
  */
 export const RateLimited = (options: RateLimitOptions = {}) =>
-  applyDecorators(
-    SetMetadata(RATE_LIMIT, options),
-    UseGuards(RateLimitGuard),
-    ApiTooManyRequestsResponse({ description: 'Trop de tentatives ; réessayer après Retry-After' }),
-  );
+  options.deny === 404
+    ? applyDecorators(SetMetadata(RATE_LIMIT, options), UseGuards(RateLimitGuard))
+    : applyDecorators(
+        SetMetadata(RATE_LIMIT, options),
+        UseGuards(RateLimitGuard),
+        ApiTooManyRequestsResponse({
+          description: 'Trop de tentatives ; réessayer après Retry-After',
+        }),
+      );
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
@@ -76,6 +86,7 @@ export class RateLimitGuard implements CanActivate {
     }
     const decision = await consume(this.db, this.key, buckets, this.clock.now());
     if (decision.allowed) return true;
+    if (options.deny === 404) throw new NotFoundException();
     http.getResponse<Response>().setHeader('Retry-After', String(decision.retryAfterS));
     throw new ProblemException(
       HttpStatus.TOO_MANY_REQUESTS,

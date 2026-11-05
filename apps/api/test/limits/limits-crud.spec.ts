@@ -292,4 +292,33 @@ describe('limite globale (F-LIM-01/02/05/09)', () => {
     expect(await list(b)).toEqual([]);
     expect((await list(a))[0]!.amount).toBe(7000);
   });
+
+  it('même identifiant créé en même temps dans deux carnets → un 201, un 409 « identifiant »', async () => {
+    // Verrous de carnet distincts : sans relecture, la clé primaire en doublon passait pour un
+    // « même jour » (message trompeur).
+    for (let round = 0; round < 5; round++) {
+      const [a, b] = await Promise.all([tenant(), tenant()]);
+      const id = newId();
+      const results = await Promise.all([
+        create(a, { id, amount: 7000 }),
+        create(b, { id, amount: 8000 }),
+      ]);
+      const statuses = results.map((r) => r.status).sort();
+      expect(statuses).toEqual([201, 409]);
+      const refused = results.find((r) => r.status === 409)!;
+      expect(body(refused).detail).toBe('Identifiant de limite déjà utilisé');
+    }
+  });
+
+  it('même identifiant rejoué en même temps dans le même carnet → la même version, sans doublon', async () => {
+    const t = await tenant();
+    const id = newId();
+    const [first, second] = await Promise.all([
+      create(t, { id, amount: 7000 }),
+      create(t, { id, amount: 7000 }),
+    ]);
+    expect([first.status, second.status]).toEqual([201, 201]);
+    expect(body(second)).toEqual(body(first));
+    expect(await list(t)).toHaveLength(1);
+  });
 });

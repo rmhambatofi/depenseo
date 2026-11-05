@@ -1,6 +1,7 @@
 // Session du back-office (F-ADM-01, ADR-042) : connexion TOTP, session courante, déconnexion.
 import { Body, Delete, Get, HttpCode, HttpStatus, Post, Res } from '@nestjs/common';
 import type { Response } from 'express';
+import { RateLimited } from '../rate-limit/rate-limit.guard.js';
 import { AdminController, AdminLogin, CurrentAdmin } from './admin.guard.js';
 import { AdminLoginService } from './admin-login.service.js';
 import {
@@ -24,6 +25,8 @@ export class AdminSessionController {
 
   @Post()
   @AdminLogin()
+  // Avant tout calcul de hachage : freine la devinette du mot de passe et la saturation CPU.
+  @RateLimited({ perAccount: true, deny: 404 })
   @HttpCode(HttpStatus.NO_CONTENT)
   async create(@Body() body: unknown, @Res({ passthrough: true }) res: Response): Promise<void> {
     const { token } = await this.login.login(body);
