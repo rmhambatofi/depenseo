@@ -35,6 +35,8 @@ export const recurringColumns = {
   startDate: recurringExpense.startDate,
   categoryId: recurringExpense.categoryId,
   mode: recurringExpense.mode,
+  remindThreeDaysBefore: recurringExpense.remindThreeDaysBefore,
+  remindOnDueDate: recurringExpense.remindOnDueDate,
   createdAt: recurringExpense.createdAt,
   updatedAt: recurringExpense.updatedAt,
 };
@@ -120,6 +122,8 @@ export class RecurringService {
           startDate: input.startDate,
           categoryId: input.categoryId,
           mode: input.mode,
+          remindThreeDaysBefore: input.remindThreeDaysBefore,
+          remindOnDueDate: input.remindOnDueDate,
           generatedThrough: today,
           createdAt: now,
           updatedAt: now,
@@ -143,7 +147,7 @@ export class RecurringService {
   }
 
   /**
-   * Nom, montant, nature du montant, catégorie, mode. Les échéances en attente non ajustées
+   * Nom, montant, nature du montant, catégorie, mode, rappels. Les échéances en attente non ajustées
    * suivent le nouveau montant ; les échéances payées gardent celui de leur dépense.
    */
   async update(notebookId: string, id: string, patch: UpdateRecurring): Promise<RecurringView> {

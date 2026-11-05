@@ -45,6 +45,15 @@ export class RecurringDto implements RecurringView {
   @ApiProperty({ enum: RECURRENCE_MODES, description: 'auto : enregistrée à l’échéance' })
   readonly mode!: RecurrenceMode;
 
+  @ApiProperty({ description: 'Rappel 3 jours avant l’échéance (F-REC-04)' })
+  readonly remindThreeDaysBefore!: boolean;
+
+  @ApiProperty({
+    description:
+      'Rappel le jour de l’échéance (F-REC-04) ; sans effet en mode auto (payée à minuit)',
+  })
+  readonly remindOnDueDate!: boolean;
+
   @ApiProperty({ type: String, format: 'date-time' })
   readonly createdAt!: Date;
 
@@ -79,6 +88,12 @@ export class CreateRecurringDto {
 
   @ApiPropertyOptional({ enum: RECURRENCE_MODES, default: 'confirm' })
   readonly mode?: RecurrenceMode;
+
+  @ApiPropertyOptional({ default: true, description: 'Rappel 3 jours avant l’échéance' })
+  readonly remindThreeDaysBefore?: boolean;
+
+  @ApiPropertyOptional({ default: true, description: 'Rappel le jour de l’échéance' })
+  readonly remindOnDueDate?: boolean;
 }
 
 export class UpdateRecurringDto {
@@ -96,6 +111,12 @@ export class UpdateRecurringDto {
 
   @ApiPropertyOptional({ enum: RECURRENCE_MODES })
   readonly mode?: RecurrenceMode;
+
+  @ApiPropertyOptional({ description: 'Rappel 3 jours avant l’échéance' })
+  readonly remindThreeDaysBefore?: boolean;
+
+  @ApiPropertyOptional({ description: 'Rappel le jour de l’échéance' })
+  readonly remindOnDueDate?: boolean;
 }
 
 export class OccurrenceDto implements OccurrenceView {

@@ -45,9 +45,26 @@ describe('profil GET/PATCH /me (§8.3, NF-FMT-04)', () => {
       language: 'fr',
       timeZone: 'Europe/Paris',
       currency: 'EUR',
+      reminderTime: '09:00',
+      dailyReminderTime: null,
       termsAcceptedAt: '2026-05-02T07:30:00.123Z',
       privacyAcceptedAt: '2026-05-02T07:30:00.123Z',
     });
+  });
+
+  it('PATCH règle l’heure des rappels d’échéance et le rappel quotidien (F-REC-04, F-NOT-02)', async () => {
+    const alice = await tenant();
+    const res = await patch(alice, { reminderTime: '07:45', dailyReminderTime: '21:30' });
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ reminderTime: '07:45', dailyReminderTime: '21:30' });
+    expect(await row(alice.id)).toMatchObject({
+      reminderTime: '07:45',
+      dailyReminderTime: '21:30',
+    });
+    const off = await patch(alice, { dailyReminderTime: null });
+    expect(off.status).toBe(200);
+    expect(off.body).toMatchObject({ reminderTime: '07:45', dailyReminderTime: null });
+    expect((await row(alice.id)).dailyReminderTime).toBeNull();
   });
 
   it('PATCH modifie langue, fuseau et devise, horodate `updated_at` et renvoie le profil', async () => {
@@ -139,6 +156,12 @@ describe('profil GET/PATCH /me (§8.3, NF-FMT-04)', () => {
     ['devise nulle', { currency: null }, 'currency'],
     ['devise en minuscules', { currency: 'chf' }, 'currency'],
     ['devise inconnue', { currency: 'BTC' }, 'currency'],
+    ['heure de rappel nulle', { reminderTime: null }, 'reminderTime'],
+    ['heure de rappel sans zéro', { reminderTime: '9:00' }, 'reminderTime'],
+    ['heure de rappel 24:00', { reminderTime: '24:00' }, 'reminderTime'],
+    ['heure de rappel avec secondes', { reminderTime: '09:00:00' }, 'reminderTime'],
+    ['rappel quotidien 12:60', { dailyReminderTime: '12:60' }, 'dailyReminderTime'],
+    ['rappel quotidien non chaîne', { dailyReminderTime: 900 }, 'dailyReminderTime'],
     ['corps vide', {}, '(corps)'],
     ['adresse non modifiable ici', { language: 'en', email: 'autre@example.test' }, '(corps)'],
     ['rôle non modifiable', { language: 'en', role: 'admin' }, '(corps)'],

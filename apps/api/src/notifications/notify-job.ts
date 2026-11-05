@@ -10,8 +10,12 @@ export const ALERT_STEP = 10;
 /** Dernier seuil notifié (ADR-029) : au-delà, plus d'alerte dans la période (au plus 12). */
 export const MAX_ALERT_PERCENT = 200;
 
+/** Rappel d'échéance (F-REC-04) : clé `occurrence-reminder:<id>:J-3|J`. */
+export const OCCURRENCE_REMINDERS = ['three_days_before', 'due_date'] as const;
+
 /** Union discriminée par `kind` : limite (P3-03), dépense inhabituelle (P3-04), échéance à confirmer
- * (P4-02, clé `occurrence-due:<id>`). */
+ * (P4-02, clé `occurrence-due:<id>`), rappels d'échéance et rappel quotidien de saisie (P4-03,
+ * ADR-034). */
 export const NOTIFY = defineJob(
   'notify',
   z.discriminatedUnion('kind', [
@@ -30,6 +34,18 @@ export const NOTIFY = defineJob(
       kind: z.literal('occurrence_due'),
       notebookId: z.uuid(),
       occurrenceId: z.uuid(),
+    }),
+    z.strictObject({
+      kind: z.literal('occurrence_reminder'),
+      notebookId: z.uuid(),
+      occurrenceId: z.uuid(),
+      reminder: z.enum(OCCURRENCE_REMINDERS),
+    }),
+    z.strictObject({
+      kind: z.literal('daily_reminder'),
+      userId: z.uuid(),
+      /** Jour local du rappel (AAAA-MM-JJ). */
+      date: z.iso.date(),
     }),
   ]),
 );

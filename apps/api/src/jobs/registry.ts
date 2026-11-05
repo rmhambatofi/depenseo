@@ -7,7 +7,9 @@ import {
   verificationEmailHandler,
 } from '../auth/verification-email.job.js';
 import type { JobHandler } from './job-runner.js';
+import { scheduleDailyReminders } from '../notifications/daily-reminders.js';
 import { processDueOccurrences } from '../recurring/due-occurrences.js';
+import { scheduleOccurrenceReminders } from '../recurring/occurrence-reminders.js';
 import { generateDueOccurrences } from '../recurring/occurrence-generation.js';
 import { purgeDeletedSyncRows } from '../sync/deleted-rows-purge.js';
 import { purgeFinishedJobs, type ScheduledTask } from './scheduler.js';
@@ -24,5 +26,7 @@ export function scheduledTasks(): ScheduledTask[] {
     purgeDeletedSyncRows(),
     generateDueOccurrences(),
     processDueOccurrences(),
+    scheduleOccurrenceReminders(),
+    scheduleDailyReminders(),
   ];
 }

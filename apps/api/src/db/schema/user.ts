@@ -17,6 +17,10 @@ export const user = mysqlTable(
     /** Fuseau IANA (ex. Europe/Paris), validé par l'API. */
     timeZone: varchar('time_zone', { length: 64 }).notNull().default('Europe/Paris'),
     currency: char('currency', { length: 3 }).notNull().default('EUR'),
+    /** Heure locale `HH:MM` des rappels d'échéance J-3 et jour J (F-REC-04, ADR-034). */
+    reminderTime: char('reminder_time', { length: 5 }).notNull().default('09:00'),
+    /** Heure locale `HH:MM` du rappel quotidien de saisie ; NULL = désactivé (F-NOT-02). */
+    dailyReminderTime: char('daily_reminder_time', { length: 5 }),
     plan: varchar('plan', { length: 16 }).notNull().default('free'),
     /** Attribué par script uniquement (F-ADM-03). */
     role: varchar('role', { length: 16 }).$type<UserRole>().notNull().default('user'),

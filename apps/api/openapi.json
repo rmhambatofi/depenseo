@@ -2203,6 +2203,19 @@
             ],
             "description": "Code ISO 4217"
           },
+          "reminderTime": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+            "example": "09:00",
+            "description": "Heure locale des rappels d’échéance J-3 et J"
+          },
+          "dailyReminderTime": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+            "example": "09:00",
+            "nullable": true,
+            "description": "Heure locale du rappel quotidien de saisie ; null = désactivé"
+          },
           "termsAcceptedAt": {
             "type": "string",
             "format": "date-time",
@@ -2222,6 +2235,8 @@
           "language",
           "timeZone",
           "currency",
+          "reminderTime",
+          "dailyReminderTime",
           "termsAcceptedAt",
           "privacyAcceptedAt"
         ]
@@ -2268,6 +2283,19 @@
               "JPY"
             ],
             "description": "Code ISO 4217"
+          },
+          "reminderTime": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+            "example": "09:00",
+            "description": "Heure locale des rappels d’échéance"
+          },
+          "dailyReminderTime": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+            "example": "09:00",
+            "nullable": true,
+            "description": "Heure locale du rappel quotidien de saisie ; null = désactivé"
           }
         }
       },
@@ -3212,6 +3240,14 @@
             ],
             "description": "auto : enregistrée à l’échéance"
           },
+          "remindThreeDaysBefore": {
+            "type": "boolean",
+            "description": "Rappel 3 jours avant l’échéance (F-REC-04)"
+          },
+          "remindOnDueDate": {
+            "type": "boolean",
+            "description": "Rappel le jour de l’échéance (F-REC-04) ; sans effet en mode auto (payée à minuit)"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -3231,6 +3267,8 @@
           "startDate",
           "categoryId",
           "mode",
+          "remindThreeDaysBefore",
+          "remindOnDueDate",
           "createdAt",
           "updatedAt"
         ]
@@ -3290,6 +3328,16 @@
               "confirm"
             ],
             "default": "confirm"
+          },
+          "remindThreeDaysBefore": {
+            "type": "boolean",
+            "default": true,
+            "description": "Rappel 3 jours avant l’échéance"
+          },
+          "remindOnDueDate": {
+            "type": "boolean",
+            "default": true,
+            "description": "Rappel le jour de l’échéance"
           }
         },
         "required": [
@@ -3330,6 +3378,14 @@
               "auto",
               "confirm"
             ]
+          },
+          "remindThreeDaysBefore": {
+            "type": "boolean",
+            "description": "Rappel 3 jours avant l’échéance"
+          },
+          "remindOnDueDate": {
+            "type": "boolean",
+            "description": "Rappel le jour de l’échéance"
           }
         }
       },
@@ -3779,6 +3835,14 @@
             ],
             "description": "auto : enregistrée à l’échéance"
           },
+          "remindThreeDaysBefore": {
+            "type": "boolean",
+            "description": "Rappel 3 jours avant l’échéance (F-REC-04)"
+          },
+          "remindOnDueDate": {
+            "type": "boolean",
+            "description": "Rappel le jour de l’échéance (F-REC-04) ; sans effet en mode auto (payée à minuit)"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -3804,6 +3868,8 @@
           "startDate",
           "categoryId",
           "mode",
+          "remindThreeDaysBefore",
+          "remindOnDueDate",
           "createdAt",
           "updatedAt",
           "deletedAt"

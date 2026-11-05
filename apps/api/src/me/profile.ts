@@ -3,6 +3,7 @@
 import { isCurrencyCode, normalizeTimeZone } from '@depenseo/shared';
 import { z } from 'zod';
 import { LANGUAGES } from '../auth/auth.service.js';
+import { localTime } from '../notifications/reminder-time.js';
 
 export const profilePatchSchema = z
   .strictObject({
@@ -22,6 +23,10 @@ export const profilePatchSchema = z
       .string()
       .refine((value) => isCurrencyCode(value), 'Devise non prise en charge')
       .optional(),
+    /** Heure locale des rappels d'échéance (F-REC-04). */
+    reminderTime: localTime.optional(),
+    /** Heure locale du rappel quotidien de saisie ; `null` = désactivé (F-NOT-02). */
+    dailyReminderTime: localTime.nullable().optional(),
   })
   .refine((patch) => Object.values(patch).some((value) => value !== undefined), {
     message: 'Aucun champ à modifier',

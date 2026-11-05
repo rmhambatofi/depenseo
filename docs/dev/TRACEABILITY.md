@@ -24,7 +24,7 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | F-REC-01 Récurrence : nom, montant, fréquence, jour, catégorie | P4-01, P6-09 | `api/test/recurring/schedule.spec.ts` (31 → 30/28/29, trimestriel du 31/01), `api/test/recurring/recurring-crud.spec.ts`, `api/test/recurring/recurring.tz.spec.ts`, `mobile/test/recurring/recurring_form_test.dart` |
 | F-REC-02 Enregistrement auto ou confirmation | P4-02, P6-09 | `api/test/recurring/due-occurrences.tz.spec.ts` (cron rejoué → 1 dépense, notification unique, 4 fuseaux + changement d'heure) |
 | F-REC-03 Ajuster, payer, sauter une échéance | P4-01, P6-09 | `api/test/recurring/occurrences.spec.ts`, `mobile/test/recurring/occurrence_actions_test.dart` |
-| F-REC-04 Rappels J-3 / jour J à l'heure locale | P4-03, P6-09 | `api/test/recurring/reminders.tz.spec.ts` (4 fuseaux + DST) |
+| F-REC-04 Rappels J-3 / jour J à l'heure locale | P4-03, P6-09 | `api/test/recurring/reminders.tz.spec.ts` (4 fuseaux + DST), `api/test/recurring/recurring-crud.spec.ts` (réglages), ADR-034 |
 | F-LIM-01 Limite globale facultative mois/semaine | P3-01, P6-08 | `api/test/limits/limits-crud.spec.ts`, `mobile/test/limits/limit_settings_test.dart` |
 | F-LIM-02 Début de période réglable | P0-05, P3-01, P6-08 | `shared/src/period.tz.test.ts`, `api/test/limits/limits-crud.spec.ts` |
 | F-LIM-03 Dépensé, restant, rythme | P3-02, P6-08 | `api/test/limits/period-summary.spec.ts`, `api/test/limits/period-summary-http.spec.ts`, `api/test/limits/period-summary.tz.spec.ts`, `mobile/test/limits/limit_gauge_test.dart` |
@@ -35,7 +35,7 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | F-TB-01 Accueil : jauge, échéances, dernières dépenses | P3-05, P4-01, P6-10 | `api/test/dashboard/dashboard.spec.ts`, `api/test/recurring/occurrences.spec.ts` (`upcoming`), `mobile/test/home/home_screen_test.dart` |
 | F-TB-02 Graphiques : répartition, cumul vs précédente, 12 périodes | P3-05, P6-10 | `api/test/dashboard/dashboard.tz.spec.ts`, `mobile/test/home/charts_test.dart` |
 | F-NOT-01 Push : 80/100 %, échéance, dépense inhabituelle | P3-03, P3-04, P4-02, P4-04, P6-11 | `api/test/limits/limit-alerts.spec.ts`, `api/test/notifications/unusual-expense.spec.ts`, `api/test/notifications/push-dispatch.spec.ts` |
-| F-NOT-02 Rappel quotidien facultatif à l'heure choisie | P4-03, P6-11 | `api/test/notifications/daily-reminder.tz.spec.ts` |
+| F-NOT-02 Rappel quotidien facultatif à l'heure choisie | P4-03, P6-11 | `api/test/notifications/daily-reminder.tz.spec.ts` (4 fuseaux + DST), `api/test/me/me.spec.ts` (réglage), ADR-034 |
 | F-NOT-04 Réglage par type, plage de silence | P4-04, P6-11 | `api/test/notifications/notification-settings.spec.ts` (22:00–07:00 en local), `mobile/test/notifications/settings_test.dart` |
 | F-NOT-05 Aucun montant sur l'écran verrouillé | P4-04, P6-11 | `api/test/notifications/push-dispatch.spec.ts` (aucun montant dans les charges utiles, ADR-003) |
 | F-ABO-01 Achats intégrés vérifiés serveur + notifications stores | P5-01, P5-02, P6-13 | `api/test/subscriptions/verify-receipt.spec.ts`, `api/test/subscriptions/store-notifications.spec.ts`, `mobile/test/premium/purchase_test.dart` |

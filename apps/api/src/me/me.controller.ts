@@ -1,5 +1,5 @@
 // Profil du compte connecté (§8.3, NF-FMT-04, ADR-022) : lecture, et modification des préférences
-// (langue, fuseau IANA, devise). Les dates de consentement sont en lecture seule.
+// (langue, fuseau IANA, devise, heures de rappel). Les dates de consentement sont en lecture seule.
 import { SUPPORTED_CURRENCIES, TIME_ZONE_MAX_LENGTH } from '@depenseo/shared';
 import { Body, Controller, Get, Header, Inject, Patch } from '@nestjs/common';
 import {
@@ -20,9 +20,12 @@ import { DB } from '../db/database.module.js';
 import { user } from '../db/schema/index.js';
 import { ProblemException } from '../errors/problem.exception.js';
 import { parseBody } from '../http/parse-body.js';
+import { LOCAL_TIME_PATTERN } from '../notifications/reminder-time.js';
 import { profilePatchSchema } from './profile.js';
 
 type Language = (typeof LANGUAGES)[number];
+
+const REMINDER_TIME = { pattern: LOCAL_TIME_PATTERN, example: '09:00' } as const;
 
 export class MeDto {
   @ApiProperty({ format: 'uuid' })
@@ -39,6 +42,17 @@ export class MeDto {
 
   @ApiProperty({ enum: SUPPORTED_CURRENCIES, description: 'Code ISO 4217' })
   readonly currency!: string;
+
+  @ApiProperty({ ...REMINDER_TIME, description: 'Heure locale des rappels d’échéance J-3 et J' })
+  readonly reminderTime!: string;
+
+  @ApiProperty({
+    ...REMINDER_TIME,
+    type: String,
+    nullable: true,
+    description: 'Heure locale du rappel quotidien de saisie ; null = désactivé',
+  })
+  readonly dailyReminderTime!: string | null;
 
   @ApiProperty({
     type: String,
@@ -70,6 +84,17 @@ export class UpdateMeDto {
 
   @ApiPropertyOptional({ enum: SUPPORTED_CURRENCIES, description: 'Code ISO 4217' })
   readonly currency?: string;
+
+  @ApiPropertyOptional({ ...REMINDER_TIME, description: 'Heure locale des rappels d’échéance' })
+  readonly reminderTime?: string;
+
+  @ApiPropertyOptional({
+    ...REMINDER_TIME,
+    type: String,
+    nullable: true,
+    description: 'Heure locale du rappel quotidien de saisie ; null = désactivé',
+  })
+  readonly dailyReminderTime?: string | null;
 }
 
 const profileColumns = {
@@ -78,6 +103,8 @@ const profileColumns = {
   language: user.language,
   timeZone: user.timeZone,
   currency: user.currency,
+  reminderTime: user.reminderTime,
+  dailyReminderTime: user.dailyReminderTime,
   termsAcceptedAt: user.termsAcceptedAt,
   privacyAcceptedAt: user.privacyAcceptedAt,
 };

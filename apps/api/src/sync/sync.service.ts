@@ -77,6 +77,8 @@ export interface SyncRecurring extends Synced {
   startDate: string;
   categoryId: string;
   mode: RecurrenceMode;
+  remindThreeDaysBefore: boolean;
+  remindOnDueDate: boolean;
   createdAt: Date;
 }
 export interface SyncOccurrence extends Synced {

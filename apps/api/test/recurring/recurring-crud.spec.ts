@@ -44,6 +44,8 @@ describe('dépenses récurrentes', () => {
       startDate: '2026-12-05',
       categoryId,
       mode: 'confirm',
+      remindThreeDaysBefore: true,
+      remindOnDueDate: true,
     });
     const occurrences = await rec.occurrences(t, body.id);
     expect(occurrences.map((o) => [o.dueDate, o.status, o.amount, o.adjusted])).toEqual([
@@ -124,6 +126,15 @@ describe('dépenses récurrentes', () => {
       ['Loyer T3', 90_000],
       ['Loyer T3', 90_000],
     ]);
+    const reminders = await rec.patch(t, body.id, { remindThreeDaysBefore: false });
+    expect(reminders.status).toBe(200);
+    expect(json(reminders)).toMatchObject({ remindThreeDaysBefore: false, remindOnDueDate: true });
+    expect(
+      (await db.select().from(recurringExpense).where(eq(recurringExpense.id, body.id)))[0],
+    ).toMatchObject({ remindThreeDaysBefore: false, remindOnDueDate: true });
+    const created = await rec.create(t, rec.body(categoryId, { remindOnDueDate: false }));
+    expect(json(created)).toMatchObject({ remindThreeDaysBefore: true, remindOnDueDate: false });
+    expect((await rec.patch(t, body.id, { remindOnDueDate: 'non' })).status).toBe(400);
     expect((await rec.patch(t, body.id, { name: 'X', frequency: 'weekly' })).status).toBe(400);
     expect((await rec.patch(t, body.id, { name: 'X', startDate: '2027-01-01' })).status).toBe(400);
     expect((await rec.patch(t, body.id, {})).status).toBe(400);

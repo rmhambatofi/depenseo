@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P4-03 (rappels J-3 / jour J à l'heure locale, rappel quotidien de saisie).
-- Dernier commit : 6e051be feat(api): process due occurrences in cron (F-REC-02)
+- Prochaine tâche : P4-04 (notifications push : appareils, réglages par type, plage de silence, gestionnaire `notify`).
+- Dernier commit : feat(api): occurrence and daily reminders (F-REC-04, F-NOT-02)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 479 api), `pnpm test:tz` vert (api : 47 par fuseau), `pnpm --filter api build` vert ; `test/recurring`, `test/sync`, `test/access`, `test/categories`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 508 api), `pnpm test:tz` vert (api : 69 par fuseau), `pnpm --filter api build` vert ; `test/recurring`, `test/sync`, `test/access`, `test/categories`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -112,6 +112,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Une suite qui lance une tâche périodique **globale** (génération, purge) doit choisir une plage où elle seule a des données éligibles (cf. ci-dessus) et n'asserter que sur ses propres identifiants.
 - Reliquats mineurs P4-02 : `processOne` ne revérifie pas `notebook.deleted_at` sous verrou (filtré à la sélection seulement) ; pas de test de concurrence `POST …/pay` vs cron ; passage non borné en durée (rattrapage > 50 s possible) ; après repli « catégorie inutilisable », `pay` → 422 (seul « sauter » reste).
 - Reliquats mineurs P4-01 : course « même `expenseId` payé depuis un autre carnet » non testée (ODKU + relecture en place) ; rejeu de `pay` après purge de la dépense → 409 ; pas d'annulation de « sauter ».
+- Rappels (P4-03, ADR-034) : `src/notifications/reminder-time.ts` (`localTime`/`LOCAL_TIME_PATTERN`, `localInstant` désambiguïsation `compatible`, `reminderDue` = atteint depuis < 1 h), tâches `schedule-occurrence-reminders` (`src/recurring/occurrence-reminders.ts`, clé `occurrence-reminder:<id>:J-3|J`) et `schedule-daily-reminders` (`src/notifications/daily-reminders.ts`, clé `daily-reminder:<compte>:<jour local>`). `NOTIFY` porte désormais 5 `kind` (dont `occurrence_reminder`, `daily_reminder` avec `userId`) : **le gestionnaire P4-04 doit tous les traiter**. Réglages : `user.reminder_time` (09:00), `user.daily_reminder_time` (NULL = off) via `PATCH /me` ; `remindThreeDaysBefore`/`remindOnDueDate` sur la récurrence. Migration 0011. Suites : février 2025 (+ 10 mars 2024 Montréal, 30–31 mars 2025 Paris, 27 octobre 2024 Lisbonne).
+- zsh : une variable contenant plusieurs chemins (`T="a b"; vitest run $T`) n'est **pas** découpée → aucun test lancé, sortie vide. Utiliser un tableau `T=(a b)`.
 
 ## Actions humaines (non bloquantes)
 
@@ -123,6 +125,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-05 session 22 — P4-03 fait : rappels d'échéance J-3/jour J à l'heure de rappel du compte (réglables par récurrence) et rappel quotidien facultatif, planifiés par le cron au moment voulu (rattrapage 1 h, clé d'unicité par jour), DST `compatible` ; migration 0011 ; ADR-034. Une relecture (0 bloquant, 0 important ; 5 mineurs corrigés : index `(status, due_date)`, 2 tests de bornes, description OpenAPI, motif unique). Contre-épreuves : 11 mutations, toutes tuées. Passation après 1 tâche (~16 fichiers lus).
 
 - 2026-11-05 session 21 — P4-02 fait : tâche `process-due-occurrences` (auto → dépense `recurrence` idempotente, confirmation → `confirmation_requested_at` + `notify` `occurrence_due`), due à minuit dans le fuseau du propriétaire ; migration 0010 ; ADR-033 ; `runScheduledTasks` isole les échecs par tâche. Trois relectures (1 bloquant corrigé : erreur agrégée qui bloquait toute la file ; 2 importants corrigés). Contre-épreuves : 4 mutations. Passation après 1 tâche (~18 fichiers lus).
 - 2026-11-05 session 20 — P4-01 fait : récurrences (hebdo/mensuel/trimestriel/annuel/ponctuel, jour = date de départ, repli fin de mois), échéances matérialisées à 40 j + tâche `generate-occurrences`, ajuster/payer/sauter, `upcoming` du tableau de bord, sync, purges ; migration 0009 ; ADR-032. Deux relectures (0 bloquant ; 5 importants corrigés : tombstones des échéances, catégorie protégée, ordre de verrous, tests de purge, alerte au paiement). Contre-épreuves faites (8 mutations). Passation après 1 tâche (~20 fichiers lus).

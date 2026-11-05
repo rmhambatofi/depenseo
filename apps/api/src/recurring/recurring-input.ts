@@ -34,6 +34,9 @@ export const createRecurringSchema = z.strictObject({
   startDate: date,
   categoryId: uuid,
   mode: mode.default('confirm'),
+  /** Rappels J-3 et jour J à l'heure de rappel du compte (F-REC-04, ADR-034). */
+  remindThreeDaysBefore: z.boolean().default(true),
+  remindOnDueDate: z.boolean().default(true),
 });
 export type CreateRecurring = z.infer<typeof createRecurringSchema>;
 
@@ -44,6 +47,8 @@ export const updateRecurringSchema = z
     amountKind: amountKind.optional(),
     categoryId: uuid.optional(),
     mode: mode.optional(),
+    remindThreeDaysBefore: z.boolean().optional(),
+    remindOnDueDate: z.boolean().optional(),
   })
   .refine((patch) => Object.values(patch).some((value) => value !== undefined), {
     message: 'Aucun champ à modifier',

@@ -4,6 +4,7 @@
 // son statut et, une fois payée, la dépense créée.
 import {
   bigint,
+  boolean,
   char,
   date,
   index,
@@ -47,6 +48,9 @@ export const recurringExpense = mysqlTable(
       .notNull()
       .references(() => category.id),
     mode: varchar('mode', { length: 7 }).$type<RecurrenceMode>().notNull(),
+    /** Rappels à l'heure de rappel du propriétaire (F-REC-04, ADR-034). */
+    remindThreeDaysBefore: boolean('remind_three_days_before').notNull().default(true),
+    remindOnDueDate: boolean('remind_on_due_date').notNull().default(true),
     /** Échéances matérialisées jusqu'à cette date incluse (interne, non exposé). */
     generatedThrough: date('generated_through', { mode: 'string' }).notNull(),
     ...timestamps(),
@@ -89,5 +93,7 @@ export const occurrence = mysqlTable(
     index('occurrence_upcoming_idx').on(t.notebookId, t.status, t.dueDate),
     index('occurrence_expense_idx').on(t.expenseId),
     index('occurrence_due_idx').on(t.status, t.confirmationRequestedAt, t.dueDate),
+    /** Rappels J-3 / jour J (ADR-034) : échéances en attente dans une plage de dates. */
+    index('occurrence_reminder_idx').on(t.status, t.dueDate),
   ],
 );

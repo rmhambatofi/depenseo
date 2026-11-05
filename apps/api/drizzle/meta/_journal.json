@@ -78,6 +78,13 @@
       "when": 1793838731926,
       "tag": "0010_occurrence_confirmation",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1793840487015,
+      "tag": "0011_reminders",
+      "breakpoints": true
     }
   ]
 }
