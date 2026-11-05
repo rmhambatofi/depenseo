@@ -38,6 +38,7 @@ const columns = {
   amountKind: recurringExpense.amountKind,
   categoryId: recurringExpense.categoryId,
   expenseId: occurrence.expenseId,
+  confirmationRequestedAt: occurrence.confirmationRequestedAt,
   createdAt: occurrence.createdAt,
   updatedAt: occurrence.updatedAt,
 };
@@ -57,19 +58,28 @@ export interface OccurrenceView {
   amountKind: AmountKind;
   categoryId: string;
   expenseId: string | null;
+  /** Mode confirmation : échéance due et non encore traitée (F-REC-02, ADR-033). */
+  awaitingConfirmation: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-type Row = Omit<OccurrenceView, 'amount' | 'adjusted'> & {
+type Row = Omit<OccurrenceView, 'amount' | 'adjusted' | 'awaitingConfirmation'> & {
   adjustedAmount: number | null;
   templateAmount: number;
+  confirmationRequestedAt: Date | null;
 };
 
-const toView = ({ adjustedAmount, templateAmount, ...row }: Row): OccurrenceView => ({
+const toView = ({
+  adjustedAmount,
+  templateAmount,
+  confirmationRequestedAt,
+  ...row
+}: Row): OccurrenceView => ({
   ...row,
   amount: adjustedAmount ?? templateAmount,
   adjusted: adjustedAmount !== null,
+  awaitingConfirmation: row.status === 'pending' && confirmationRequestedAt !== null,
 });
 
 const select = (tx: Tx | Database) =>
@@ -142,7 +152,7 @@ export class OccurrencesService {
         .update(occurrence)
         .set({ amount: input.amount, updatedAt: now })
         .where(eq(occurrence.id, id));
-      return (await this.find(tx, notebookId, id))!;
+      return (await findOccurrence(tx, notebookId, id))!;
     });
   }
 
@@ -157,7 +167,7 @@ export class OccurrencesService {
         .update(occurrence)
         .set({ status: 'skipped', updatedAt: now })
         .where(eq(occurrence.id, id));
-      return (await this.find(tx, notebookId, id))!;
+      return (await findOccurrence(tx, notebookId, id))!;
     });
   }
 
@@ -174,7 +184,6 @@ export class OccurrencesService {
     id: string,
     input: PayOccurrence,
   ): Promise<OccurrenceView> {
-    const now = this.clock.now();
     return withTransaction(this.db, async (tx) => {
       const found = await this.lockOccurrence(tx, notebookId, id);
       if (found.status === 'paid' && found.expenseId === input.expenseId) return found;
@@ -182,59 +191,74 @@ export class OccurrencesService {
       const taken = await tx.$count(expense, eq(expense.id, input.expenseId));
       if (taken > 0) throw new ProblemException(409, EXPENSE_ID_TAKEN);
       await assertValidCategory(tx, notebookId, found.categoryId);
-      const amount = input.amount ?? found.amount;
-      await tx
-        .insert(expense)
-        .values({
-          id: input.expenseId,
-          notebookId,
-          amount,
-          currency: found.currency,
-          categoryId: found.categoryId,
-          spentOn: input.date ?? found.dueDate,
-          note: found.name,
-          source: 'recurrence',
-          createdAt: now,
-          updatedAt: now,
-        })
-        // Même identifiant inséré au même instant par un autre carnet (verrou distinct) : la clé
-        // primaire tranche sans erreur, la relecture filtrée par carnet détecte le conflit.
-        .onDuplicateKeyUpdate({ set: { id: sql`${expense.id}` } });
-      const [owner] = await tx
-        .select({ notebookId: expense.notebookId })
-        .from(expense)
-        .where(eq(expense.id, input.expenseId));
-      if (owner?.notebookId !== notebookId) throw new ProblemException(409, EXPENSE_ID_TAKEN);
-      await tx
-        .update(occurrence)
-        .set({ status: 'paid', amount, expenseId: input.expenseId, updatedAt: now })
-        .where(eq(occurrence.id, id));
-      await checkLimitAlert(tx, this.clock, notebookId, userId);
-      return (await this.find(tx, notebookId, id))!;
+      await payOccurrence(tx, this.clock, notebookId, userId, found, input);
+      return (await findOccurrence(tx, notebookId, id))!;
     });
   }
 
   /** Verrouille le carnet puis relit l'échéance (non supprimée) ; 404 sinon. */
   private async lockOccurrence(tx: Tx, notebookId: string, id: string): Promise<OccurrenceView> {
     await lockNotebook(tx, notebookId);
-    const found = await this.find(tx, notebookId, id);
+    const found = await findOccurrence(tx, notebookId, id);
     if (!found) throw new ProblemException(404, OCCURRENCE_NOT_FOUND);
     return found;
   }
+}
 
-  private async find(
-    tx: Tx | Database,
-    notebookId: string,
-    id: string,
-  ): Promise<OccurrenceView | undefined> {
-    if (!isUuid(id)) return undefined;
-    const [row] = await select(tx).where(
-      and(
-        eq(occurrence.id, id),
-        eq(occurrence.notebookId, notebookId),
-        isNull(occurrence.deletedAt),
-      ),
-    );
-    return row && toView(row);
-  }
+/** Échéance non supprimée du carnet, ou `undefined`. */
+export async function findOccurrence(
+  tx: Tx | Database,
+  notebookId: string,
+  id: string,
+): Promise<OccurrenceView | undefined> {
+  if (!isUuid(id)) return undefined;
+  const [row] = await select(tx).where(
+    and(eq(occurrence.id, id), eq(occurrence.notebookId, notebookId), isNull(occurrence.deletedAt)),
+  );
+  return row && toView(row);
+}
+
+/**
+ * Crée la dépense `recurrence` d'une échéance en attente et la marque payée, puis vérifie les
+ * alertes de limite (pas de détection de dépense inhabituelle, ADR-030). L'appelant tient le verrou
+ * du carnet, a vérifié le statut, la catégorie et l'unicité de `expenseId` (paiement manuel F-REC-03
+ * et mode auto F-REC-02).
+ */
+export async function payOccurrence(
+  tx: Tx,
+  clock: Clock,
+  notebookId: string,
+  userId: string,
+  found: OccurrenceView,
+  input: PayOccurrence,
+): Promise<void> {
+  const now = clock.now();
+  const amount = input.amount ?? found.amount;
+  await tx
+    .insert(expense)
+    .values({
+      id: input.expenseId,
+      notebookId,
+      amount,
+      currency: found.currency,
+      categoryId: found.categoryId,
+      spentOn: input.date ?? found.dueDate,
+      note: found.name,
+      source: 'recurrence',
+      createdAt: now,
+      updatedAt: now,
+    })
+    // Même identifiant inséré au même instant par un autre carnet (verrou distinct) : la clé
+    // primaire tranche sans erreur, la relecture filtrée par carnet détecte le conflit.
+    .onDuplicateKeyUpdate({ set: { id: sql`${expense.id}` } });
+  const [owner] = await tx
+    .select({ notebookId: expense.notebookId })
+    .from(expense)
+    .where(eq(expense.id, input.expenseId));
+  if (owner?.notebookId !== notebookId) throw new ProblemException(409, EXPENSE_ID_TAKEN);
+  await tx
+    .update(occurrence)
+    .set({ status: 'paid', amount, expenseId: input.expenseId, updatedAt: now })
+    .where(eq(occurrence.id, found.id));
+  await checkLimitAlert(tx, clock, notebookId, userId);
 }

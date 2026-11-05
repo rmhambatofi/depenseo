@@ -78,6 +78,8 @@ export const occurrence = mysqlTable(
     amount: bigint('amount', { mode: 'number' }),
     /** Dépense créée au paiement ; mise à NULL si la purge (ADR-026) l'efface. */
     expenseId: uuidBinary('expense_id').references(() => expense.id, { onDelete: 'set null' }),
+    /** Mode confirmation : échéance due signalée « à confirmer » (tâche périodique, F-REC-02). */
+    confirmationRequestedAt: utcDateTime('confirmation_requested_at'),
     ...timestamps(),
     deletedAt: utcDateTime('deleted_at'),
   },
@@ -86,5 +88,6 @@ export const occurrence = mysqlTable(
     uniqueIndex('occurrence_due_uq').on(t.recurringExpenseId, t.dueDate),
     index('occurrence_upcoming_idx').on(t.notebookId, t.status, t.dueDate),
     index('occurrence_expense_idx').on(t.expenseId),
+    index('occurrence_due_idx').on(t.status, t.confirmationRequestedAt, t.dueDate),
   ],
 );

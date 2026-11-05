@@ -7,7 +7,7 @@ import { loadMailConfig, loadWorkerConfig } from '../src/config/env.js';
 import { createDatabase, createDbPool } from '../src/db/connection.js';
 import { RUN_DEADLINE_MS, runJobs } from '../src/jobs/job-runner.js';
 import { jobHandlers, scheduledTasks } from '../src/jobs/registry.js';
-import { runScheduledTasks } from '../src/jobs/scheduler.js';
+import { runScheduledTasks, ScheduledTaskError } from '../src/jobs/scheduler.js';
 import { describeError } from '../src/logging/redact.js';
 import { SmtpMailer } from '../src/mail/mailer.js';
 
@@ -23,8 +23,15 @@ const db = createDatabase(pool);
 
 let exitCode = 0;
 try {
-  const schedule = await runScheduledTasks(pool, systemClock, scheduledTasks());
-  logger.info(schedule, 'scheduled tasks');
+  const { ran, counts, failures } = await runScheduledTasks(pool, systemClock, scheduledTasks());
+  logger.info({ ran, counts }, 'scheduled tasks');
+  // Une tâche périodique en échec n'empêche pas les autres ni le traitement de la file.
+  for (const [task, error] of Object.entries(failures)) {
+    exitCode = 1;
+    const details = error instanceof ScheduledTaskError ? error.details : {};
+    const err = describeError(error instanceof Error ? error : new Error('non-Error thrown'));
+    logger.error({ task, details, err }, 'scheduled task failed');
+  }
   const summary = await runJobs({
     db,
     clock: systemClock,

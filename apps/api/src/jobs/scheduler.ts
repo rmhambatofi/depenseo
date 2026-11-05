@@ -22,6 +22,22 @@ export function scheduleLockName(database: string): string {
   return `depenseo.jobs.${createHash('sha256').update(database).digest('hex').slice(0, 32)}`;
 }
 
+/**
+ * Échec d'une tâche périodique portant des détails structurés journalisables (comptes,
+ * identifiants ; jamais de montant ni de donnée personnelle) : `describeError` ne garde pas le
+ * message.
+ */
+export class ScheduledTaskError extends Error {
+  constructor(
+    message: string,
+    readonly details: Record<string, string | number>,
+    options?: ErrorOptions,
+  ) {
+    super(message, options);
+    this.name = 'ScheduledTaskError';
+  }
+}
+
 export interface ScheduledTask {
   name: string;
   /** `db` : client lié à la connexion qui tient le verrou. Renvoie le nombre de lignes traitées. */
@@ -52,6 +68,8 @@ export interface ScheduleResult {
   ran: boolean;
   /** Lignes traitées par tâche périodique. */
   counts: Record<string, number>;
+  /** Erreur par tâche en échec : les tâches suivantes (et la file) s'exécutent quand même. */
+  failures: Record<string, unknown>;
 }
 
 export async function runScheduledTasks(
@@ -71,12 +89,19 @@ export async function runScheduledTasks(
       'SELECT GET_LOCK(?, 0) AS ok',
       [name],
     );
-    if (lock?.ok !== 1) return { ran: false, counts: {} };
+    if (lock?.ok !== 1) return { ran: false, counts: {}, failures: {} };
     try {
       const db = drizzle(connection.connection);
       const counts: Record<string, number> = {};
-      for (const task of tasks) counts[task.name] = await task.run(db, clock.now());
-      return { ran: true, counts };
+      const failures: Record<string, unknown> = {};
+      for (const task of tasks) {
+        try {
+          counts[task.name] = await task.run(db, clock.now());
+        } catch (error) {
+          failures[task.name] = error;
+        }
+      }
+      return { ran: true, counts, failures };
     } finally {
       try {
         await connection.query('SELECT RELEASE_LOCK(?)', [name]);

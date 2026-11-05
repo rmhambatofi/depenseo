@@ -71,6 +71,13 @@
       "when": 1793837630213,
       "tag": "0009_recurring_expense",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1793838731926,
+      "tag": "0010_occurrence_confirmation",
+      "breakpoints": true
     }
   ]
 }

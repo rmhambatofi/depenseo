@@ -22,7 +22,7 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | F-CAT-01 Plan de catégories français | P2-01, P6-07 | `api/test/categories/categories.spec.ts` (14 racines, langue d’inscription), `mobile/test/categories/categories_test.dart` |
 | F-CAT-02 Catégories personnalisées, masquables | P2-01, P6-07 | `api/test/categories/categories.spec.ts` (emoji, masquage, suppression logique), `mobile/test/categories/categories_test.dart` |
 | F-REC-01 Récurrence : nom, montant, fréquence, jour, catégorie | P4-01, P6-09 | `api/test/recurring/schedule.spec.ts` (31 → 30/28/29, trimestriel du 31/01), `api/test/recurring/recurring-crud.spec.ts`, `api/test/recurring/recurring.tz.spec.ts`, `mobile/test/recurring/recurring_form_test.dart` |
-| F-REC-02 Enregistrement auto ou confirmation | P4-02, P6-09 | `api/test/recurring/due-occurrences.spec.ts` (cron rejoué → 1 dépense) |
+| F-REC-02 Enregistrement auto ou confirmation | P4-02, P6-09 | `api/test/recurring/due-occurrences.tz.spec.ts` (cron rejoué → 1 dépense, notification unique, 4 fuseaux + changement d'heure) |
 | F-REC-03 Ajuster, payer, sauter une échéance | P4-01, P6-09 | `api/test/recurring/occurrences.spec.ts`, `mobile/test/recurring/occurrence_actions_test.dart` |
 | F-REC-04 Rappels J-3 / jour J à l'heure locale | P4-03, P6-09 | `api/test/recurring/reminders.tz.spec.ts` (4 fuseaux + DST) |
 | F-LIM-01 Limite globale facultative mois/semaine | P3-01, P6-08 | `api/test/limits/limits-crud.spec.ts`, `mobile/test/limits/limit_settings_test.dart` |

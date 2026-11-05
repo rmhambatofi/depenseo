@@ -86,6 +86,8 @@ export interface SyncOccurrence extends Synced {
   /** Montant propre à l'échéance ; NULL = montant de la récurrence. */
   amount: number | null;
   expenseId: string | null;
+  /** Mode confirmation : échéance due signalée « à confirmer » (F-REC-02). */
+  confirmationRequestedAt: Date | null;
   createdAt: Date;
 }
 export interface SyncPage {
@@ -154,6 +156,7 @@ const occurrenceColumns = {
   status: occurrence.status,
   amount: occurrence.amount,
   expenseId: occurrence.expenseId,
+  confirmationRequestedAt: occurrence.confirmationRequestedAt,
   createdAt: occurrence.createdAt,
   updatedAt: occurrence.updatedAt,
   deletedAt: occurrence.deletedAt,

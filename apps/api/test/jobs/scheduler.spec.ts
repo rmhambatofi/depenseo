@@ -48,6 +48,7 @@ describe('runScheduledTasks', () => {
     expect(await runScheduledTasks(pool, new FakeClock(), [task])).toEqual({
       ran: true,
       counts: { compteur: 0 },
+      failures: {},
     });
     expect((await runScheduledTasks(pool, new FakeClock(), [task])).ran).toBe(true);
     expect(task.calls).toBe(2);
@@ -66,6 +67,7 @@ describe('runScheduledTasks', () => {
       expect(await runScheduledTasks(pool, new FakeClock(), [task])).toEqual({
         ran: false,
         counts: {},
+        failures: {},
       });
       expect(task.calls).toBe(0);
       await holder.query('SELECT RELEASE_LOCK(?)', [LOCK]);
@@ -77,9 +79,16 @@ describe('runScheduledTasks', () => {
     expect((await runScheduledTasks(pool, new FakeClock(), [countingTask()])).ran).toBe(true);
   });
 
-  it('rend le verrou même si une tâche périodique échoue', async () => {
-    const failing: ScheduledTask = { name: 'ko', run: () => Promise.reject(new Error('ko')) };
-    await expect(runScheduledTasks(pool, new FakeClock(), [failing])).rejects.toThrow('ko');
+  it('une tâche en échec est signalée sans empêcher les suivantes, et le verrou est rendu', async () => {
+    const error = new Error('ko');
+    const failing: ScheduledTask = { name: 'ko', run: () => Promise.reject(error) };
+    const after = countingTask();
+    expect(await runScheduledTasks(pool, new FakeClock(), [failing, after])).toEqual({
+      ran: true,
+      counts: { compteur: 0 },
+      failures: { ko: error },
+    });
+    expect(after.calls).toBe(1);
     expect((await runScheduledTasks(pool, new FakeClock(), [countingTask()])).ran).toBe(true);
   });
 });

@@ -2986,6 +2986,10 @@
             "format": "uuid",
             "nullable": true
           },
+          "awaitingConfirmation": {
+            "type": "boolean",
+            "description": "Mode confirmation : échéance due, à confirmer (F-REC-02)"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -3011,6 +3015,7 @@
           "amountKind",
           "categoryId",
           "expenseId",
+          "awaitingConfirmation",
           "createdAt",
           "updatedAt",
           "overdue"
@@ -3384,6 +3389,10 @@
             "format": "uuid",
             "nullable": true
           },
+          "awaitingConfirmation": {
+            "type": "boolean",
+            "description": "Mode confirmation : échéance due, à confirmer (F-REC-02)"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -3405,6 +3414,7 @@
           "amountKind",
           "categoryId",
           "expenseId",
+          "awaitingConfirmation",
           "createdAt",
           "updatedAt"
         ]
@@ -3832,6 +3842,12 @@
             "format": "uuid",
             "nullable": true
           },
+          "confirmationRequestedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Mode confirmation : échéance due signalée « à confirmer » (F-REC-02)"
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -3854,6 +3870,7 @@
           "status",
           "amount",
           "expenseId",
+          "confirmationRequestedAt",
           "createdAt",
           "updatedAt",
           "deletedAt"

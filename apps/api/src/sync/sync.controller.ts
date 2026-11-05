@@ -143,6 +143,14 @@ export class SyncOccurrenceDto implements SyncOccurrence {
   @ApiProperty({ type: String, format: 'uuid', nullable: true })
   readonly expenseId!: string | null;
 
+  @ApiProperty({
+    type: String,
+    format: 'date-time',
+    nullable: true,
+    description: 'Mode confirmation : échéance due signalée « à confirmer » (F-REC-02)',
+  })
+  readonly confirmationRequestedAt!: Date | null;
+
   @ApiProperty({ format: 'date-time' })
   readonly createdAt!: Date;
 

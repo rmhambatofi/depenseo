@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P4-02 (échéances dues traitées par le cron : auto → dépense, confirmation → notification).
-- Dernier commit : 49805b1 feat(api): recurring expenses and occurrences (F-REC-01, F-REC-03)
+- Prochaine tâche : P4-03 (rappels J-3 / jour J à l'heure locale, rappel quotidien de saisie).
+- Dernier commit : feat(api): process due occurrences in cron (F-REC-02)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 469 api), `pnpm test:tz` vert (api : 37 par fuseau), `pnpm --filter api build` vert ; `test/recurring`, `test/sync`, `test/access`, `test/categories`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (9 scripts, 153 shared, 479 api), `pnpm test:tz` vert (api : 47 par fuseau), `pnpm --filter api build` vert ; `test/recurring`, `test/sync`, `test/access`, `test/categories`, `tokens.spec` stables sur 3 relances ; `drizzle-kit check` OK
 
 ## Pièges connus (à lire avant de coder)
 
@@ -107,7 +107,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - `FakeClock.set(epochMs)` ajouté. Suite des alertes : juillet–octobre 2026 ; jeton d'accès 15 min → pour changer de période, bascule de minuit en < 15 min plutôt que `advance(DAY)`.
 
 - Récurrences (P4-01, ADR-032) : `src/recurring/` — calendrier pur `dueDates/nextDueDate` (`schedule.ts`, départ + n × pas, jamais chaîné), `generateOccurrences(tx, rec, from, through, now)` + tâche `generate-occurrences` (horizon 40 j, `generated_through`, `9999-12-31` = épuisée), `RecurringService` (CRUD, calendrier immuable), `OccurrencesService` (`adjust`/`pay`/`skip`, `pay` = dépense `recurrence` + `checkLimitAlert`, sans détection inhabituelle) **à réutiliser en P4-02** pour le mode auto (extraire un `payOccurrence(tx, …)` sans `userId` HTTP). `pendingOccurrences` alimente `dashboard.upcoming`. Sync : `recurringExpenses`, `occurrences`. Colonne `pricing` (pas `amount_kind` : règle `*amount*` = BIGINT). Supprimer une catégorie utilisée par une récurrence active → 409. Tests : `test/support/recurring.ts` (`recurringClient`) ; suites en décembre 2026, tz au 31 octobre 2026 23:30 UTC, tâche de génération et purge en **mars–avril 2025 sans connexion** (`createUser`, pas de jeton : cf. `tokens.spec`).
+- Échéances dues (P4-02, ADR-033) : tâche `process-due-occurrences` (`src/recurring/due-occurrences.ts`), due = `due_date ≤ aujourd'hui` dans le fuseau du **propriétaire** du carnet ; auto → `payOccurrence(tx, clock, notebookId, userId, found, input)` (exporté de `occurrences.service.ts`, avec `findOccurrence`) ; confirmation → colonne `confirmation_requested_at` (migration 0010, sync `confirmationRequestedAt`, vue `awaitingConfirmation`) + `notify` `{kind:'occurrence_due'}` clé `occurrence-due:<id>` (**P4-03 : préfixer aussi ses clés par type**, ex. `occurrence-reminder:<id>:<J-3|J>`). Suite : `test/recurring/due-occurrences.tz.spec.ts`, plage **janvier 2025** (+ 31 mars 2024 pour le changement d'heure), comptes sans connexion, récurrences supprimées en `afterAll`.
+- `runScheduledTasks` isole désormais chaque tâche périodique (`failures` dans le résultat, `jobs-run` journalise et lance quand même `runJobs`, sortie 1). Détails journalisables d'un échec : lever `ScheduledTaskError(message, details)` (`describeError` ne garde **pas** le message).
 - Une suite qui lance une tâche périodique **globale** (génération, purge) doit choisir une plage où elle seule a des données éligibles (cf. ci-dessus) et n'asserter que sur ses propres identifiants.
+- Reliquats mineurs P4-02 : `processOne` ne revérifie pas `notebook.deleted_at` sous verrou (filtré à la sélection seulement) ; pas de test de concurrence `POST …/pay` vs cron ; passage non borné en durée (rattrapage > 50 s possible) ; après repli « catégorie inutilisable », `pay` → 422 (seul « sauter » reste).
 - Reliquats mineurs P4-01 : course « même `expenseId` payé depuis un autre carnet » non testée (ODKU + relecture en place) ; rejeu de `pay` après purge de la dépense → 409 ; pas d'annulation de « sauter ».
 
 ## Actions humaines (non bloquantes)
@@ -121,6 +124,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
+- 2026-11-05 session 21 — P4-02 fait : tâche `process-due-occurrences` (auto → dépense `recurrence` idempotente, confirmation → `confirmation_requested_at` + `notify` `occurrence_due`), due à minuit dans le fuseau du propriétaire ; migration 0010 ; ADR-033 ; `runScheduledTasks` isole les échecs par tâche. Trois relectures (1 bloquant corrigé : erreur agrégée qui bloquait toute la file ; 2 importants corrigés). Contre-épreuves : 4 mutations.
 - 2026-11-05 session 20 — P4-01 fait : récurrences (hebdo/mensuel/trimestriel/annuel/ponctuel, jour = date de départ, repli fin de mois), échéances matérialisées à 40 j + tâche `generate-occurrences`, ajuster/payer/sauter, `upcoming` du tableau de bord, sync, purges ; migration 0009 ; ADR-032. Deux relectures (0 bloquant ; 5 importants corrigés : tombstones des échéances, catégorie protégée, ordre de verrous, tests de purge, alerte au paiement). Contre-épreuves faites (8 mutations). Passation après 1 tâche (~20 fichiers lus).
 
 - 2026-11-05 session 19 (suite) — P3-05 fait : tableau de bord (jauge ou total sans limite, 5 dernières dépenses, répartition par catégorie racine, cumul jour par jour vs période précédente, 12 périodes), suite 4 fuseaux + DST ; ADR-031 ; `upcoming` reporté à P4-01. Une relecture (0 bloquant, 1 important corrigé : test 404 inter-carnets explicite). Contre-épreuves faites (racine, supprimées, fuseau, devise du compte).

@@ -132,6 +132,9 @@ export class OccurrenceDto implements OccurrenceView {
   @ApiProperty({ type: String, format: 'uuid', nullable: true })
   readonly expenseId!: string | null;
 
+  @ApiProperty({ description: 'Mode confirmation : échéance due, à confirmer (F-REC-02)' })
+  readonly awaitingConfirmation!: boolean;
+
   @ApiProperty({ type: String, format: 'date-time' })
   readonly createdAt!: Date;
 
