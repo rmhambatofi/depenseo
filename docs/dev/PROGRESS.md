@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P6-07 (catégories : plan par défaut, personnalisation nom/icône/couleur, masquage ; tests widget). Écriture locale de catégorie : penser à la file d'envoi (aujourd'hui `SyncEngine._push` ne pousse que les dépenses) et incrémenter `syncFormat` si une table locale est ajoutée.
-- Dernier commit : feat(mobile): expense list, search, edit and undoable delete (P6-06)
+- Dernier commit : fd40ac2 feat(mobile): expense list, search, edit and undoable delete (P6-06)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (14 racine, 155 shared, 5 api-client, 19 admin, 807 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build`, `pnpm --filter @depenseo/admin test:e2e` (3 Playwright), `pnpm check:admin-code` verts ; mobile : `flutter analyze` propre, `flutter test` 214 verts (P6-06) ; `flutter build apk --debug` et `flutter build ios --debug --simulator` OK (P6-03, non relancés en P6-04)
 
