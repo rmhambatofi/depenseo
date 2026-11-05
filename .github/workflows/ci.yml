@@ -99,6 +99,17 @@ jobs:
         working-directory: mobile
         run: flutter pub get
 
+      # Code généré committé (Drift, l10n) : la régénération ne doit produire aucun diff.
+      - name: Code généré à jour et format Dart
+        if: steps.detect.outputs.present == 'true'
+        working-directory: mobile
+        run: |
+          flutter gen-l10n
+          dart run build_runner build --delete-conflicting-outputs
+          git status --porcelain -- lib
+          test -z "$(git status --porcelain -- lib)"
+          dart format --output=none --set-exit-if-changed lib test
+
       - name: flutter analyze
         if: steps.detect.outputs.present == 'true'
         working-directory: mobile

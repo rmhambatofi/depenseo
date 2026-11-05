@@ -1,0 +1,39 @@
+name: depenseo
+description: "Depenseo — suivi des dépenses, hors ligne d’abord."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.5
+
+dependencies:
+  dio: ^5.11.1
+  drift: ^2.35.3
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  flutter_secure_storage: ^11.2.0
+  go_router: ^18.1.3
+  intl: ^0.20.3
+  path: ^1.9.1
+  path_provider: ^2.1.6
+  sqlite3: ^3.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  drift_dev: ^2.35.2
+  build_runner: ^2.17.1
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+# SQLCipher (NF-SEC-02, §8.1) : package:sqlite3 3.x embarque la build SQLCipher via ses hooks (ADR-046).
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlcipher

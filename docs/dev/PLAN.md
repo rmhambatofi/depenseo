@@ -64,7 +64,7 @@ Couverture des exigences « M » : `docs/dev/TRACEABILITY.md` (à tenir à jour 
 
 ## Phase 6 — Application mobile Flutter
 
-- [ ] P6-01 Squelette `mobile/` : Flutter 3, Riverpod, go_router, i18n fr/en (ARB), thème, Drift + SQLCipher (clé dans Keychain/Keystore), client API (dio) + jetons dans le stockage sécurisé, aucun écran admin. `flutter analyze` et `flutter test` verts. (NF-SEC-02, F-ADM-02, §8.1)
+- [x] P6-01 Squelette `mobile/` : Flutter 3, Riverpod, go_router, i18n fr/en (ARB), thème, Drift + SQLCipher (clé dans Keychain/Keystore), client API (dio) + jetons dans le stockage sécurisé, aucun écran admin. `flutter analyze` et `flutter test` verts. (NF-SEC-02, F-ADM-02, §8.1)
 - [ ] P6-02 Auth : inscription, vérification e-mail, connexion, Apple/Google, reset mot de passe, refresh automatique. Tests widget + faux client API. (F-AUTH-01, 02, 03, NF-SEC-02)
 - [ ] P6-03 Verrouillage biométrie/code avec délai (immédiat, 1 min, 5 min), contenu masqué dans le sélecteur d'apps, blocage optionnel des captures d'écran. Tests : verrou réapparaît après le délai (horloge injectée). (F-AUTH-04, NF-SEC-05)
 - [ ] P6-04 Saisie rapide : bouton « + » permanent sur l'accueil, clavier numérique localisé (virgule en fr, point accepté et converti), champs montant/catégorie/date/note/marchand/étiquettes, enregistrement local immédiat. Test widget : dépense enregistrée en ≤ 3 interactions après « + » ; « 12.5 » en fr → 1250 centimes. (F-DEP-01, 02, 03, NF-FMT-06)
