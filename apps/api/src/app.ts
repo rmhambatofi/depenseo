@@ -1,5 +1,5 @@
 // Fabrique de l'application : partagée par main.ts, les tests et la génération OpenAPI.
-import type { INestApplication } from '@nestjs/common';
+import { type INestApplication, RequestMethod } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger } from 'nestjs-pino';
@@ -38,7 +38,10 @@ export async function createApp(
   );
   app.useLogger(app.get(Logger));
   app.disable('x-powered-by');
-  app.setGlobalPrefix(API_PREFIX);
+  // Le back-office et son API vivent sous /admin (cookie `Path=/admin`, §8.5, ADR-042).
+  app.setGlobalPrefix(API_PREFIX, {
+    exclude: [{ path: 'admin{/*rest}', method: RequestMethod.ALL }],
+  });
   app.useGlobalFilters(new ProblemDetailsFilter());
   app.enableShutdownHooks();
   return app;

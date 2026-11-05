@@ -17,6 +17,9 @@ export const TEST_ENV = {
   /** Dossier propre au processus de test (fichiers d'export chiffrés, ADR-036). */
   FILE_STORAGE_DIR: join(tmpdir(), `depenseo-test-files-${process.pid}`),
   FILE_ENCRYPTION_KEY: 'ZGVwZW5zZW8tdGVzdC1rZXktMzItYnl0ZXMtLS0tLS0=',
+  /** Back-office (ADR-042). */
+  ADMIN_SESSION_SECRET: 'test-admin-session-secret-0123456789abcdef',
+  ADMIN_TOTP_KEY: 'YWRtaW4tdG90cC10ZXN0LWtleS0zMi1ieXRlcy0tLS0=',
 } as const;
 
 export class LogCapture extends Writable {
@@ -35,7 +38,7 @@ export async function startTestApp({
   ...options
 }: Pick<CreateAppOptions, 'clock' | 'idTokenKeys' | 'storeVerifier' | 'storeNotificationKeys'> & {
   /** Variables ajoutées à `TEST_ENV` (ex. configuration des stores). */
-  env?: Record<string, string>;
+  env?: Record<string, string | undefined>;
 } = {}): Promise<{ app: INestApplication; logs: LogCapture }> {
   const logs = new LogCapture();
   const config = loadConfig({ ...TEST_ENV, ...env });

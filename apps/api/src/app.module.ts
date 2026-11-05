@@ -1,6 +1,7 @@
 import { type DynamicModule, Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import type { DestinationStream } from 'pino';
+import { AdminModule } from './admin/admin.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import type { IdTokenKeys } from './auth/id-token-verifier.js';
 import { type Clock, systemClock } from './clock.js';
@@ -66,6 +67,7 @@ export class AppModule {
         SyncModule,
         ExportsModule,
         SubscriptionsModule.register(storeVerifier, storeNotificationKeys),
+        AdminModule,
       ],
       controllers: [HealthController],
     };

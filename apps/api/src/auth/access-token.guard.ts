@@ -22,6 +22,12 @@ export const IS_PUBLIC = Symbol('IS_PUBLIC');
  */
 export const Public = () => SetMetadata(IS_PUBLIC, true);
 
+/**
+ * Contrôleur du back-office (`AdminController`, ADR-042) : authentifié par le cookie de session
+ * admin et sa propre garde, jamais par un jeton Bearer. Posé sur la classe.
+ */
+export const ADMIN_AREA = Symbol('ADMIN_AREA');
+
 export interface Principal {
   userId: string;
 }
@@ -46,12 +52,20 @@ export class AccessTokenGuard implements CanActivate {
     const isPublic = this.reflector.get<boolean | undefined>(IS_PUBLIC, context.getHandler());
     if (isPublic) return true;
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    // Le back-office a sa garde (`AdminGuard`, 404 sans session admin) : pas de 401 Bearer ici.
+    // Sous /admin seulement : toute route y est éprouvée par `test/admin/admin-access.spec.ts`.
+    if (
+      this.reflector.get<boolean | undefined>(ADMIN_AREA, context.getClass()) &&
+      request.path.startsWith('/admin/')
+    ) {
+      return true;
+    }
     const match = BEARER.exec(request.headers.authorization ?? '');
     const userId = match
       ? await this.sessions.accessTokens.verify(match[1]!, this.clock.now())
       : undefined;
     if (!userId) {
-      // RFC 6750 §3. Sous /admin, cette garde devra répondre 404 et non 401 (CLAUDE.md, ADR-018).
+      // RFC 6750 §3. Le back-office (404) est traité plus haut (ADR-042).
       context.switchToHttp().getResponse<Response>().setHeader('WWW-Authenticate', 'Bearer');
       throw new ProblemException(401, 'Authentification requise');
     }

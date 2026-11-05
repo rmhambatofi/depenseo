@@ -41,9 +41,9 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | F-ABO-01 Achats intégrés vérifiés serveur + notifications stores | P5-01, P5-02, P6-13 | `api/test/subscriptions/verify-receipt.spec.ts`, `api/test/subscriptions/{app-store,google-play}-verifier.spec.ts`, `api/test/subscriptions/store-notifications.spec.ts` (401, renouvellement, expiration → Excel 403 données conservées), `api/test/subscriptions/apple-signed-data.spec.ts` (chaîne x5c), `mobile/test/premium/purchase_test.dart` |
 | F-ABO-02 Essai Premium 14 jours | P5-01, P6-13 | `api/test/subscriptions/trial.spec.ts` (expiré au jour 15), `api/test/subscriptions/trial.tz.spec.ts`, `api/test/subscriptions/entitlements.spec.ts` |
 | F-ABO-03 Restauration, multi-appareils | P5-01, P6-13 | `api/test/subscriptions/restore.spec.ts`, `mobile/test/premium/restore_test.dart` |
-| F-ADM-01 Back-office `/admin`, rôle admin, 2FA | P5-03, P5-04, P5-05 | `api/test/admin/admin-auth.spec.ts` (TOTP), `api/test/admin/admin-routes.spec.ts`, `apps/admin/e2e/admin.spec.ts` (Playwright) |
+| F-ADM-01 Back-office `/admin`, rôle admin, 2FA | P5-03, P5-04, P5-05 | `api/test/admin/totp.spec.ts`, `api/test/admin/admin-session.spec.ts` (TOTP, cookie), `api/test/admin/admin-routes.spec.ts`, `apps/admin/e2e/admin.spec.ts` (Playwright) |
 | F-ADM-02 Aucun code admin dans le mobile ni le web public | P5-05, P6-01 | `scripts/check-no-admin-code.sh` (exécuté en CI) |
-| F-ADM-03 404 sans rôle admin, rôle attribué par script | P5-03, P5-05 | `api/test/admin/admin-404.spec.ts`, `api/test/admin/grant-admin.spec.ts`, `apps/admin/e2e/admin.spec.ts` |
+| F-ADM-03 404 sans rôle admin, rôle attribué par script | P5-03, P5-05 | `api/test/admin/admin-access.spec.ts`, `api/test/admin/grant-admin.spec.ts`, `apps/admin/e2e/admin.spec.ts` |
 
 ## Exigences non fonctionnelles
 
@@ -62,7 +62,7 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | NF-SEC-03 Contrôle d'accès serveur sur chaque ressource | P1-09 (+ chaque tâche API) | `api/test/access/cross-tenant.spec.ts` (toutes les routes d'`openapi.json`) |
 | NF-SEC-04 OWASP MASVS L2 | P7-03 | `docs/dev/MASVS.md`, `api/test/security/rate-limit.spec.ts`, `api/test/security/headers.spec.ts` |
 | NF-SEC-05 Captures bloquées (option), sélecteur d'apps masqué | P6-03 | `mobile/test/security/app_switcher_mask_test.dart` |
-| NF-SEC-06 Aucun montant/PII dans les logs, audit admin | P1-01, P5-03, P5-04, P7-05 | `api/test/logging/redaction.spec.ts`, `api/test/admin/audit-log.spec.ts`, `api/test/observability/sentry-scrub.spec.ts` |
+| NF-SEC-06 Aucun montant/PII dans les logs, audit admin | P1-01, P5-03, P5-04, P7-05 | `api/test/logging/redaction.spec.ts`, `api/test/admin/admin-session.spec.ts` (audit), `api/test/observability/sentry-scrub.spec.ts` |
 | NF-PERF-01 Accueil < 2 s | P7-06 | `mobile/integration_test/startup_perf_test.dart` (mesure consignée dans `docs/dev/PERF.md`) |
 | NF-PERF-02 p95 API < 300 ms | P7-06 | `apps/api/bench/p95.bench.ts` (autocannon, seuil en CI) |
 | NF-DISP-01 Sauvegarde, RPO 1 h, RTO 4 h | P4-08, P7-07 | `api/test/backup/export-restore.spec.ts`, `backup-files.spec.ts`, `docs/dev/BACKUP.md` |

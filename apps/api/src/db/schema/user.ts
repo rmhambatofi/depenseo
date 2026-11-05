@@ -1,5 +1,5 @@
 // Comptes (§8.3, F-AUTH-01/07, F-ADM-03, NF-FMT-04).
-import { char, mysqlTable, uniqueIndex, varchar } from 'drizzle-orm/mysql-core';
+import { bigint, char, mysqlTable, uniqueIndex, varchar } from 'drizzle-orm/mysql-core';
 import { primaryId, timestamps, utcDateTime } from './columns.js';
 
 export const USER_ROLES = ['user', 'admin'] as const;
@@ -30,6 +30,11 @@ export const user = mysqlTable(
     role: varchar('role', { length: 16 }).$type<UserRole>().notNull().default('user'),
     /** Secret TOTP administrateur, chiffré par l'application. */
     adminTotpSecret: varchar('admin_totp_secret', { length: 255 }),
+    /**
+     * Dernier pas TOTP (fenêtre de 30 s depuis l'époque Unix) accepté à la connexion admin : un code
+     * déjà utilisé, ou plus ancien, est refusé (rejeu, ADR-042).
+     */
+    adminTotpLastStep: bigint('admin_totp_last_step', { mode: 'number' }),
     termsAcceptedAt: utcDateTime('terms_accepted_at'),
     privacyAcceptedAt: utcDateTime('privacy_accepted_at'),
     ...timestamps(),

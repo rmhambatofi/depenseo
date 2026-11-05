@@ -13,6 +13,8 @@ export const auditLog = mysqlTable(
     action: varchar('action', { length: 64 }).notNull(),
     targetType: varchar('target_type', { length: 32 }),
     targetId: uuidBinary('target_id'),
+    /** Route appelée (`GET /admin/api/session`) : motif Express, sans paramètre ni requête. */
+    route: varchar('route', { length: 160 }),
     createdAt: utcDateTime('created_at').notNull(),
   },
   (t) => [

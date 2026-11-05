@@ -84,6 +84,13 @@ const schema = z.object({
    */
   GOOGLE_PLAY_PUSH_AUDIENCE: z.string().min(1).max(512).optional(),
   GOOGLE_PLAY_PUSH_SERVICE_ACCOUNT: z.email().optional(),
+  /**
+   * Back-office (F-ADM-01, ADR-042) : clé HMAC du cookie de session admin (≥ 32 caractères,
+   * distincte de JWT_ACCESS_SECRET) et clé AES-256 en base64 des secrets TOTP. Les deux ou aucune ;
+   * absentes = back-office désactivé (404 partout).
+   */
+  ADMIN_SESSION_SECRET: z.string().min(32).optional(),
+  ADMIN_TOTP_KEY: aes256Key.optional(),
 });
 
 /** Variables qui ne vont que par groupe complet (toutes ou aucune). */
@@ -92,6 +99,7 @@ const COMPLETE_GROUPS = [
   ['APP_STORE_ISSUER_ID', 'APP_STORE_KEY_ID', 'APP_STORE_PRIVATE_KEY', 'APP_STORE_BUNDLE_ID'],
   ['GOOGLE_PLAY_PACKAGE_NAME', 'GOOGLE_PLAY_CLIENT_EMAIL', 'GOOGLE_PLAY_PRIVATE_KEY'],
   ['GOOGLE_PLAY_PUSH_AUDIENCE', 'GOOGLE_PLAY_PUSH_SERVICE_ACCOUNT'],
+  ['ADMIN_SESSION_SECRET', 'ADMIN_TOTP_KEY'],
 ] as const;
 
 function assertComplete<T extends object>(config: T): T {
@@ -151,7 +159,13 @@ export function loadMailConfig(env: Readonly<Record<string, string | undefined>>
 }
 
 export function loadConfig(env: Readonly<Record<string, string | undefined>>): AppConfig {
-  return assertComplete(parseEnv(schema, env));
+  const config = assertComplete(parseEnv(schema, env));
+  if (config.ADMIN_SESSION_SECRET === config.JWT_ACCESS_SECRET) {
+    throw new ConfigError(
+      'Configuration invalide, démarrage refusé — ADMIN_SESSION_SECRET : identique à JWT_ACCESS_SECRET',
+    );
+  }
+  return config;
 }
 
 export function loadWorkerConfig(env: Readonly<Record<string, string | undefined>>): WorkerConfig {

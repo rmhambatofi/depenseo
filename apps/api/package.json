@@ -18,6 +18,7 @@
     "jobs:run": "node dist/scripts/jobs-run.js",
     "db:export": "node dist/scripts/db-export.js",
     "db:restore": "node dist/scripts/db-restore.js",
+    "admin:grant": "node dist/scripts/grant-admin.js",
     "db:generate": "drizzle-kit generate"
   },
   "devDependencies": {

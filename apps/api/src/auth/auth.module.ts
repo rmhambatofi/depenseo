@@ -22,6 +22,8 @@ export class AuthModule {
   static register(idTokenKeys: IdTokenKeys = {}): DynamicModule {
     return {
       module: AuthModule,
+      // Global : le back-office (AdminModule) réutilise `AuthService.authenticate`.
+      global: true,
       controllers: [AuthController],
       providers: [
         AuthService,
