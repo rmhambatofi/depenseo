@@ -5,7 +5,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## État courant
 
-- Tâche en cours : aucune
+- Tâche en cours : P6-11
 - Prochaine tâche : P6-11 (notifications push FCM/APNs, enregistrement de l'appareil, réglages par type, plage de silence, rappel quotidien ; tests widget des réglages ; F-NOT-01/02/04/05). Lire d'abord les routes API d'appareils/notifications (`apps/api/src/notifications/` ou équivalent, via `explorer`) et ADR-034.
 - Dernier commit : 33419bf feat(mobile): home dashboard and charts (P6-10)
 - Branche : main
