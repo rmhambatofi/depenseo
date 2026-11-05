@@ -101,6 +101,14 @@ class AppDatabase extends _$AppDatabase {
     },
   );
 
+  /// Efface toutes les données locales (compte supprimé, F-AUTH-07) ; la base
+  /// et sa clé restent, vides, pour le compte suivant.
+  Future<void> wipeAll() => transaction(() async {
+    for (final table in allTables) {
+      await delete(table).go();
+    }
+  });
+
   Future<void> writeMeta(String key, String value) =>
       into(appMeta)
           .insertOnConflictUpdate(AppMetaEntry(key: key, value: value));

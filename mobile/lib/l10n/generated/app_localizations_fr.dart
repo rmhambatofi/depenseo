@@ -862,4 +862,94 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get notificationsNoAmount =>
       'Aucun montant n’apparaît dans les notifications.';
+
+  @override
+  String get accountTitle => 'Compte';
+
+  @override
+  String get accountSettingsHint =>
+      'Exports, suppression du compte, informations légales';
+
+  @override
+  String get accountOffline =>
+      'Connexion impossible. Réessayez une fois en ligne.';
+
+  @override
+  String get exportExpensesTitle => 'Exporter mes dépenses';
+
+  @override
+  String get exportFrom => 'Du';
+
+  @override
+  String get exportTo => 'Au';
+
+  @override
+  String get exportCsv => 'CSV';
+
+  @override
+  String get exportExcel => 'Excel (Premium)';
+
+  @override
+  String get exportExpensesAction => 'Exporter';
+
+  @override
+  String get exportPreparing => 'Préparation du fichier…';
+
+  @override
+  String get exportPremiumOnly =>
+      'L’export Excel est réservé à l’abonnement Premium. L’export CSV reste gratuit.';
+
+  @override
+  String get exportFailed =>
+      'L’export n’a pas pu être préparé. Réessayez plus tard.';
+
+  @override
+  String get exportPeriodInvalid =>
+      'La date de début doit précéder la date de fin.';
+
+  @override
+  String get accountDataTitle => 'Mes données';
+
+  @override
+  String get exportPersonalAction => 'Exporter mes données personnelles';
+
+  @override
+  String get exportPersonalHint => 'Archive zip au format JSON et CSV';
+
+  @override
+  String get legalTitle => 'Informations légales';
+
+  @override
+  String get legalLicenses => 'Licences des logiciels';
+
+  @override
+  String get deleteAccountAction => 'Supprimer mon compte';
+
+  @override
+  String get deleteAccountHint =>
+      'Efface définitivement le compte et toutes ses données';
+
+  @override
+  String get deleteAccountConfirmTitle => 'Supprimer votre compte ?';
+
+  @override
+  String get deleteAccountConfirmBody =>
+      'Votre compte et toutes vos données (dépenses, catégories, limites, dépenses récurrentes, réglages) seront supprimés immédiatement et définitivement. Cette action est irréversible. Pensez à exporter vos données avant.';
+
+  @override
+  String get deleteAccountWord => 'SUPPRIMER';
+
+  @override
+  String deleteAccountTypeWord(String word) {
+    return 'Saisissez $word pour confirmer';
+  }
+
+  @override
+  String get deleteAccountConfirm => 'Supprimer définitivement';
+
+  @override
+  String get deleteFailed => 'La suppression a échoué. Réessayez.';
+
+  @override
+  String get accountDeleted => 'Votre compte a été supprimé.';
 }

@@ -25,10 +25,15 @@ class FakeRequest {
 }
 
 class FakeResponse {
-  const FakeResponse(this.status, [this.body]);
+  const FakeResponse(this.status, [this.body, this.contentType]);
+
+  /// Fichier binaire ([body] `Uint8List`) servi tel quel avec [contentType].
+  const FakeResponse.bytes(Uint8List bytes, String contentType)
+    : this(200, bytes, contentType);
 
   final int status;
   final Object? body;
+  final String? contentType;
 
   static FakeResponse problem(int status, String title) => FakeResponse(
     status,
@@ -76,6 +81,15 @@ class FakeApi implements HttpClientAdapter {
   ResponseBody _json(FakeResponse response) {
     if (response.body == null) {
       return ResponseBody.fromString('', response.status);
+    }
+    if (response.body case final Uint8List bytes) {
+      return ResponseBody.fromBytes(
+        bytes,
+        response.status,
+        headers: {
+          Headers.contentTypeHeader: [response.contentType!],
+        },
+      );
     }
     return ResponseBody.fromString(
       jsonEncode(response.body),

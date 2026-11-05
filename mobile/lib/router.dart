@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'features/account/account_screen.dart';
+import 'features/account/legal_screens.dart';
 import 'features/auth/auth_controller.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/password_reset_screens.dart';
@@ -80,6 +82,26 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'pin',
             builder: (context, state) => const PinSetupScreen(),
+          ),
+          GoRoute(
+            path: 'account',
+            builder: (context, state) => const AccountScreen(),
+          ),
+          GoRoute(
+            path: 'legal',
+            builder: (context, state) => const LegalScreen(),
+            routes: [
+              GoRoute(
+                path: ':doc',
+                redirect: (context, state) =>
+                    legalDocFromSlug(state.pathParameters['doc']) == null
+                    ? '/settings/legal'
+                    : null,
+                builder: (context, state) => LegalDocScreen(
+                  doc: legalDocFromSlug(state.pathParameters['doc'])!,
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: 'notifications',

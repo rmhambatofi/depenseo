@@ -14,6 +14,7 @@ import 'core/clock.dart';
 import 'core/db/app_database.dart';
 import 'core/db/database_key.dart';
 import 'core/db/local_database.dart';
+import 'core/files/file_sharer.dart';
 import 'core/lock/biometric_auth.dart';
 import 'core/lock/screen_security.dart';
 import 'core/secure/secure_store.dart';
@@ -76,4 +77,9 @@ final biometricAuthProvider = Provider<BiometricAuth>(
 
 final screenSecurityProvider = Provider<ScreenSecurity>(
   (ref) => PlatformScreenSecurity(),
+);
+
+/// Remise des fichiers exportés à l'utilisateur (feuille de partage).
+final fileSharerProvider = Provider<FileSharer>(
+  (ref) => const SystemFileSharer(),
 );

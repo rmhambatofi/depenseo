@@ -38,6 +38,10 @@ class SyncController extends Notifier<SyncPhase> {
   int _failures = 0;
   bool _running = false;
   bool _again = false;
+  Completer<void>? _done;
+
+  /// Se termine quand le passage en cours (s'il y en a un) est fini.
+  Future<void> settled() => _done?.future ?? Future.value();
 
   @override
   SyncPhase build() {
@@ -66,6 +70,7 @@ class SyncController extends Notifier<SyncPhase> {
       return;
     }
     _running = true;
+    final done = _done = Completer<void>();
     _retry?.cancel();
     try {
       do {
@@ -74,6 +79,7 @@ class SyncController extends Notifier<SyncPhase> {
       } while (_again);
     } finally {
       _running = false;
+      done.complete();
     }
   }
 

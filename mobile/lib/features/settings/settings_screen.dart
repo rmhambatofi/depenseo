@@ -108,6 +108,15 @@ class SettingsScreen extends ConsumerWidget {
               value: settings.blockScreenshots,
               onChanged: controller.setBlockScreenshots,
             ),
+          const Divider(),
+          ListTile(
+            key: const Key('open-account'),
+            leading: const Icon(Icons.person_outline),
+            title: Text(l10n.accountTitle),
+            subtitle: Text(l10n.accountSettingsHint),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/settings/account'),
+          ),
         ],
       ),
     );

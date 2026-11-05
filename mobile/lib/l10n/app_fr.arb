@@ -441,5 +441,39 @@
   "notificationsQuietStart": "Début",
   "notificationsQuietEnd": "Fin",
   "notificationsQuietInvalid": "Le début et la fin de la plage doivent être différents.",
-  "notificationsNoAmount": "Aucun montant n’apparaît dans les notifications."
+  "notificationsNoAmount": "Aucun montant n’apparaît dans les notifications.",
+  "accountTitle": "Compte",
+  "accountSettingsHint": "Exports, suppression du compte, informations légales",
+  "accountOffline": "Connexion impossible. Réessayez une fois en ligne.",
+  "exportExpensesTitle": "Exporter mes dépenses",
+  "exportFrom": "Du",
+  "exportTo": "Au",
+  "exportCsv": "CSV",
+  "exportExcel": "Excel (Premium)",
+  "exportExpensesAction": "Exporter",
+  "exportPreparing": "Préparation du fichier…",
+  "exportPremiumOnly": "L’export Excel est réservé à l’abonnement Premium. L’export CSV reste gratuit.",
+  "exportFailed": "L’export n’a pas pu être préparé. Réessayez plus tard.",
+  "exportPeriodInvalid": "La date de début doit précéder la date de fin.",
+  "accountDataTitle": "Mes données",
+  "exportPersonalAction": "Exporter mes données personnelles",
+  "exportPersonalHint": "Archive zip au format JSON et CSV",
+  "legalTitle": "Informations légales",
+  "legalLicenses": "Licences des logiciels",
+  "deleteAccountAction": "Supprimer mon compte",
+  "deleteAccountHint": "Efface définitivement le compte et toutes ses données",
+  "deleteAccountConfirmTitle": "Supprimer votre compte ?",
+  "deleteAccountConfirmBody": "Votre compte et toutes vos données (dépenses, catégories, limites, dépenses récurrentes, réglages) seront supprimés immédiatement et définitivement. Cette action est irréversible. Pensez à exporter vos données avant.",
+  "deleteAccountWord": "SUPPRIMER",
+  "deleteAccountTypeWord": "Saisissez {word} pour confirmer",
+  "@deleteAccountTypeWord": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountConfirm": "Supprimer définitivement",
+  "deleteFailed": "La suppression a échoué. Réessayez.",
+  "accountDeleted": "Votre compte a été supprimé."
 }

@@ -854,4 +854,93 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsNoAmount => 'Notifications never show any amount.';
+
+  @override
+  String get accountTitle => 'Account';
+
+  @override
+  String get accountSettingsHint =>
+      'Exports, account deletion, legal information';
+
+  @override
+  String get accountOffline => 'Cannot connect. Try again once you are online.';
+
+  @override
+  String get exportExpensesTitle => 'Export my expenses';
+
+  @override
+  String get exportFrom => 'From';
+
+  @override
+  String get exportTo => 'To';
+
+  @override
+  String get exportCsv => 'CSV';
+
+  @override
+  String get exportExcel => 'Excel (Premium)';
+
+  @override
+  String get exportExpensesAction => 'Export';
+
+  @override
+  String get exportPreparing => 'Preparing the file…';
+
+  @override
+  String get exportPremiumOnly =>
+      'Excel export requires a Premium subscription. CSV export remains free.';
+
+  @override
+  String get exportFailed =>
+      'The export could not be prepared. Try again later.';
+
+  @override
+  String get exportPeriodInvalid =>
+      'The start date must be before the end date.';
+
+  @override
+  String get accountDataTitle => 'My data';
+
+  @override
+  String get exportPersonalAction => 'Export my personal data';
+
+  @override
+  String get exportPersonalHint => 'Zip archive in JSON and CSV formats';
+
+  @override
+  String get legalTitle => 'Legal information';
+
+  @override
+  String get legalLicenses => 'Software licences';
+
+  @override
+  String get deleteAccountAction => 'Delete my account';
+
+  @override
+  String get deleteAccountHint =>
+      'Permanently erases the account and all its data';
+
+  @override
+  String get deleteAccountConfirmTitle => 'Delete your account?';
+
+  @override
+  String get deleteAccountConfirmBody =>
+      'Your account and all your data (expenses, categories, limits, recurring expenses, settings) will be deleted immediately and permanently. This cannot be undone. Consider exporting your data first.';
+
+  @override
+  String get deleteAccountWord => 'DELETE';
+
+  @override
+  String deleteAccountTypeWord(String word) {
+    return 'Type $word to confirm';
+  }
+
+  @override
+  String get deleteAccountConfirm => 'Delete permanently';
+
+  @override
+  String get deleteFailed => 'Deletion failed. Try again.';
+
+  @override
+  String get accountDeleted => 'Your account has been deleted.';
 }

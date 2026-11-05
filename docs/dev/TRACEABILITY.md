@@ -71,3 +71,4 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | NF-QUA-02 ≥ 99,5 % sessions sans plantage (Sentry UE) | P7-05 | `api/test/observability/sentry-scrub.spec.ts`, `mobile/test/observability/sentry_config_test.dart` |
 | NF-QUA-03 CI, environnements séparés, même moteur partout | P0-01, P0-02, P0-03, P7-07 | `.github/workflows/ci.yml` (service MariaDB 10.6), `api/test/db/server-version.spec.ts` |
 | NF-QUA-04 Accessibilité WCAG 2.1 AA | P7-04 | `mobile/test/a11y/guidelines_test.dart` (`meetsGuideline`), `docs/dev/A11Y.md` |
+| §6 Mentions obligatoires dans l'app (mentions légales, confidentialité, CGU, CGV, contact données, accessibilité) | P6-12 | `mobile/test/account/legal_pages_test.dart` |

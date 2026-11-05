@@ -1,14 +1,17 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:depenseo/app.dart';
 import 'package:depenseo/core/auth/auth_api.dart' show SocialProvider;
 import 'package:depenseo/core/auth/reinstall_guard.dart';
 import 'package:depenseo/core/auth/social_sign_in.dart';
 import 'package:depenseo/core/auth/token_store.dart';
+import 'package:depenseo/core/files/file_sharer.dart';
 import 'package:depenseo/core/lock/biometric_auth.dart';
 import 'package:depenseo/core/lock/screen_security.dart';
 import 'package:depenseo/core/push/push_service.dart';
+import 'package:depenseo/features/account/account_screen.dart';
 import 'package:depenseo/features/notifications/push_registration.dart';
 import 'package:depenseo/features/sync/sync_controller.dart';
 import 'package:depenseo/providers.dart';
@@ -41,6 +44,23 @@ class FakeSocialSignIn implements SocialSignIn {
 }
 
 /// Horloge murale réglable à la main.
+/// Fichiers remis à la feuille de partage ; [cleared] compte les effacements.
+class FakeFileSharer implements FileSharer {
+  final List<({String name, String mime, Uint8List bytes})> shared = [];
+  int cleared = 0;
+
+  @override
+  Future<void> share(
+    String fileName,
+    String mimeType,
+    Uint8List bytes, {
+    Rect? origin,
+  }) async => shared.add((name: fileName, mime: mimeType, bytes: bytes));
+
+  @override
+  Future<void> clear() async => cleared++;
+}
+
 class FakeClock {
   DateTime now = DateTime.utc(2026, 11, 5, 9);
   void advance(Duration d) => now = now.add(d);
@@ -114,6 +134,7 @@ class TestApp {
   final FakeBiometrics biometrics = FakeBiometrics();
   final FakeScreenSecurity screen = FakeScreenSecurity();
   final FakePushService push = FakePushService();
+  final FakeFileSharer files = FakeFileSharer();
 
   /// Nouveaux essais de synchro : aucun par défaut (pas de minuterie en fin de test).
   List<Duration> syncRetryDelays = const [];
@@ -152,6 +173,9 @@ class TestApp {
         biometricAuthProvider.overrideWithValue(biometrics),
         screenSecurityProvider.overrideWithValue(screen),
         pushServiceProvider.overrideWithValue(push),
+        fileSharerProvider.overrideWithValue(files),
+        // Interrogation des exports sans attente réelle.
+        exportSleepProvider.overrideWithValue((_) async {}),
         syncRetryDelaysProvider.overrideWith((ref) => syncRetryDelays),
         syncEnabledProvider.overrideWith((ref) => syncEnabled),
       ],

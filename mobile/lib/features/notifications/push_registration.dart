@@ -83,6 +83,13 @@ class DeviceRegistrar {
       // Au mieux (ADR-056).
     }
   }
+
+  /// Compte supprimé : l'API a déjà retiré ses appareils ; on oublie
+  /// l'identifiant local et on bloque tout réenregistrement jusqu'à la session suivante.
+  Future<void> forget() async {
+    _closing = true;
+    await _store.delete(deviceIdKey);
+  }
 }
 
 final pushServiceProvider = Provider<PushService>(

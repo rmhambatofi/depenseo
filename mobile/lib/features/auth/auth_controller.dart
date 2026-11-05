@@ -72,6 +72,7 @@ class AuthController extends AsyncNotifier<AuthStatus> {
     // notifications de ce compte (au mieux, borné dans le temps).
     if (session != null) await ref.read(deviceRegistrarProvider).unregister();
     await store.clear();
+    _clearSharedFiles();
     try {
       await ref.read(accountEpochProvider).clear();
     } on Object {
@@ -87,9 +88,46 @@ class AuthController extends AsyncNotifier<AuthStatus> {
     }
   }
 
+  /// Après `DELETE /me` réussi (F-AUTH-07, ADR-057) : plus de révocation à
+  /// demander (les jetons sont déjà invalides) ; la copie locale des données
+  /// du compte et les fichiers d'export partagés sont effacés.
+  /// [settleSync] attend la fin du passage de synchro en cours (fourni par
+  /// l'appelant : la synchro dépend elle-même de la session).
+  Future<void> accountDeleted({Future<void> Function()? settleSync}) async {
+    // Chaque étape au mieux : un échec n'empêche ni les suivantes ni la sortie.
+    Future<void> step(Future<void> Function() action) async {
+      try {
+        await action();
+      } on Object {
+        // La synchro de la connexion suivante purge les autres carnets.
+      }
+    }
+
+    try {
+      await step(() => ref.read(deviceRegistrarProvider).forget());
+      await step(() => ref.read(tokenStoreProvider).clear());
+      // Marqueur effacé : un passage de synchro s'arrête à son prochain
+      // contrôle ; on attend sa fin pour qu'il n'écrive pas après la purge.
+      await step(() => ref.read(accountEpochProvider).clear());
+      if (settleSync != null) await step(settleSync);
+      await step(() => ref.read(fileSharerProvider).clear());
+      await step(() async {
+        final db = await ref.read(databaseProvider.future);
+        await db.wipeAll();
+      });
+    } finally {
+      state = const AsyncData(AuthStatus.signedOut);
+    }
+  }
+
+  /// Copies en clair des exports : jamais laissées au compte suivant (ADR-057).
+  void _clearSharedFiles() =>
+      ref.read(fileSharerProvider).clear().catchError((Object _) {}).ignore();
+
   /// Refresh refusé par l'API : jetons déjà effacés par le client HTTP.
   void sessionExpired() {
     state = const AsyncData(AuthStatus.signedOut);
+    _clearSharedFiles();
     // Au mieux : la connexion suivante renouvelle de toute façon le marqueur.
     ref.read(accountEpochProvider).clear().ignore();
   }

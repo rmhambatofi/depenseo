@@ -1621,6 +1621,168 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucun montant n’apparaît dans les notifications.'**
   String get notificationsNoAmount;
+
+  /// No description provided for @accountTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte'**
+  String get accountTitle;
+
+  /// No description provided for @accountSettingsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exports, suppression du compte, informations légales'**
+  String get accountSettingsHint;
+
+  /// No description provided for @accountOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion impossible. Réessayez une fois en ligne.'**
+  String get accountOffline;
+
+  /// No description provided for @exportExpensesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter mes dépenses'**
+  String get exportExpensesTitle;
+
+  /// No description provided for @exportFrom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Du'**
+  String get exportFrom;
+
+  /// No description provided for @exportTo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au'**
+  String get exportTo;
+
+  /// No description provided for @exportCsv.
+  ///
+  /// In fr, this message translates to:
+  /// **'CSV'**
+  String get exportCsv;
+
+  /// No description provided for @exportExcel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Excel (Premium)'**
+  String get exportExcel;
+
+  /// No description provided for @exportExpensesAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter'**
+  String get exportExpensesAction;
+
+  /// No description provided for @exportPreparing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation du fichier…'**
+  String get exportPreparing;
+
+  /// No description provided for @exportPremiumOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’export Excel est réservé à l’abonnement Premium. L’export CSV reste gratuit.'**
+  String get exportPremiumOnly;
+
+  /// No description provided for @exportFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’export n’a pas pu être préparé. Réessayez plus tard.'**
+  String get exportFailed;
+
+  /// No description provided for @exportPeriodInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'La date de début doit précéder la date de fin.'**
+  String get exportPeriodInvalid;
+
+  /// No description provided for @accountDataTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes données'**
+  String get accountDataTitle;
+
+  /// No description provided for @exportPersonalAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter mes données personnelles'**
+  String get exportPersonalAction;
+
+  /// No description provided for @exportPersonalHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Archive zip au format JSON et CSV'**
+  String get exportPersonalHint;
+
+  /// No description provided for @legalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations légales'**
+  String get legalTitle;
+
+  /// No description provided for @legalLicenses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Licences des logiciels'**
+  String get legalLicenses;
+
+  /// No description provided for @deleteAccountAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer mon compte'**
+  String get deleteAccountAction;
+
+  /// No description provided for @deleteAccountHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Efface définitivement le compte et toutes ses données'**
+  String get deleteAccountHint;
+
+  /// No description provided for @deleteAccountConfirmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer votre compte ?'**
+  String get deleteAccountConfirmTitle;
+
+  /// No description provided for @deleteAccountConfirmBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte et toutes vos données (dépenses, catégories, limites, dépenses récurrentes, réglages) seront supprimés immédiatement et définitivement. Cette action est irréversible. Pensez à exporter vos données avant.'**
+  String get deleteAccountConfirmBody;
+
+  /// No description provided for @deleteAccountWord.
+  ///
+  /// In fr, this message translates to:
+  /// **'SUPPRIMER'**
+  String get deleteAccountWord;
+
+  /// No description provided for @deleteAccountTypeWord.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez {word} pour confirmer'**
+  String deleteAccountTypeWord(String word);
+
+  /// No description provided for @deleteAccountConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer définitivement'**
+  String get deleteAccountConfirm;
+
+  /// No description provided for @deleteFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La suppression a échoué. Réessayez.'**
+  String get deleteFailed;
+
+  /// No description provided for @accountDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte a été supprimé.'**
+  String get accountDeleted;
 }
 
 class _AppLocalizationsDelegate
