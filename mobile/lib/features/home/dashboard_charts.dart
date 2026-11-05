@@ -105,10 +105,15 @@ class CategoryBreakdown extends ConsumerWidget {
               children: [
                 Icon(Icons.circle, size: 12, color: s.color),
                 Expanded(child: Text(s.name)),
-                Text(
-                  l10n.dashboardCategoryShare(
-                    formatAmount(s.share.total, currency, locale),
-                    s.share.percent,
+                // Texte agrandi : le montant passe à la ligne au lieu de
+                // déborder (NF-QUA-04).
+                Flexible(
+                  child: Text(
+                    l10n.dashboardCategoryShare(
+                      formatAmount(s.share.total, currency, locale),
+                      s.share.percent,
+                    ),
+                    textAlign: TextAlign.end,
                   ),
                 ),
               ],
@@ -207,7 +212,7 @@ class _Legend extends StatelessWidget {
     spacing: 4,
     children: [
       Icon(Icons.horizontal_rule, color: color),
-      Text(label),
+      Flexible(child: Text(label)),
     ],
   );
 }

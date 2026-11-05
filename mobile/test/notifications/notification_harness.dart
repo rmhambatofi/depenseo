@@ -66,7 +66,14 @@ Future<(TestApp, NotificationServer)> openNotifications(
   configure?.call(server);
   await tester.tap(byKey('open-settings'));
   await tester.pumpAndSettle();
+  // Liste paresseuse : à texte agrandi, l'entrée n'est pas encore construite.
+  await tester.scrollUntilVisible(
+    byKey('open-notifications'),
+    200,
+    scrollable: find.byType(Scrollable).last,
+  );
   await tester.ensureVisible(byKey('open-notifications'));
+  await tester.pumpAndSettle();
   await tester.tap(byKey('open-notifications'));
   await settle(tester, until ?? byKey('notif-limit'));
   return (app, server);

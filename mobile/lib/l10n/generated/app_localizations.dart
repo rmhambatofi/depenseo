@@ -1076,6 +1076,12 @@ abstract class AppLocalizations {
   /// **'Limite dépassée de {amount}'**
   String limitExceeded(String amount);
 
+  /// No description provided for @limitGaugeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Part de la limite consommée'**
+  String get limitGaugeLabel;
+
   /// No description provided for @limitPaceMonth.
   ///
   /// In fr, this message translates to:

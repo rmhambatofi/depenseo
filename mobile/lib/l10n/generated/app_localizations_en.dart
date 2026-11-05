@@ -543,6 +543,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get limitGaugeLabel => 'Share of the limit used';
+
+  @override
   String limitPaceMonth(int consumed, int elapsed) {
     return '$consumed% of the limit used at $elapsed% of the month';
   }

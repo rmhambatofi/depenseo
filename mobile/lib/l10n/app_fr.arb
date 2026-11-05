@@ -232,6 +232,7 @@
       }
     }
   },
+  "limitGaugeLabel": "Part de la limite consommée",
   "limitPaceMonth": "{consumed} % de la limite consommée à {elapsed} % du mois",
   "@limitPaceMonth": {
     "placeholders": {

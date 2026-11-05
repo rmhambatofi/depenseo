@@ -109,6 +109,11 @@ class LimitSummaryCard extends StatelessWidget {
               if (s.consumedPercent case final consumed?)
                 LinearProgressIndicator(
                   value: (consumed.clamp(0, 100)) / 100,
+                  // Libellé lu avec le pourcentage, plafonné à 100 % par
+                  // Flutter : le dépassement vient du texte voisin, fusionné
+                  // dans le même nœud sémantique (testé dans
+                  // test/a11y/guidelines_test.dart ; ne pas isoler la jauge).
+                  semanticsLabel: l10n.limitGaugeLabel,
                   color: consumed >= 100
                       ? Theme.of(context).colorScheme.error
                       : null,

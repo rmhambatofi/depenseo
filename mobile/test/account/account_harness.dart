@@ -83,6 +83,9 @@ Future<TestApp> openAccount(
     200,
     scrollable: find.byType(Scrollable).last,
   );
+  // Texte agrandi : l'entrée peut n'être qu'en partie visible.
+  await tester.ensureVisible(find.byKey(const Key('open-account')));
+  await tester.pumpAndSettle();
   await tester.tap(find.byKey(const Key('open-account')));
   await settle(tester, find.byKey(const Key('export-expenses')));
   return app;

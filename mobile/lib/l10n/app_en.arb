@@ -163,6 +163,7 @@
   "limitSpentNoLimit": "{spent} spent this period",
   "limitRemaining": "{amount} left before the limit",
   "limitExceeded": "Limit exceeded by {amount}",
+  "limitGaugeLabel": "Share of the limit used",
   "limitPaceMonth": "{consumed}% of the limit used at {elapsed}% of the month",
   "limitPaceWeek": "{consumed}% of the limit used at {elapsed}% of the week",
   "limitNone": "No limit set",
