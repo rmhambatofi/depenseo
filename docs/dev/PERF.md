@@ -35,7 +35,27 @@ précédent : p95 de 107 ms sur l'accueil, 112 ms sur la saisie). La CI (Node 22
 
 Limites : un seul processus Node en local, pas Passenger ni le mutualisé o2switch (CPU partagé,
 base distante). Marge d'environ ×3 sur la route la plus lente (saisie). À refaire en recette avec la même charge
-(`autocannon` contre l'URL de recette) lors de la mise en service (P7-07).
+(`autocannon` contre l'URL de recette) lors de la mise en service : protocole ci-dessous.
+
+### Mesure de recette (mise en service, `DEPLOY.md` §10)
+
+1. Recette déployée, crons actifs (l'API reste éveillée : le premier appel après veille est exclu
+   par NF-PERF-02). Données : `seed:fake` avec `SEED_FAKE_ACCOUNTS=1` et
+   `SEED_FAKE_EXPENSES=10000` (volume du banc), lancé **avant** toute autre génération (un compte
+   `demo.1` déjà présent n'est pas complété), voir `DEPLOY.md` §1.
+2. Jeton : `POST https://recette.<domaine>/api/v1/auth/login` avec `demo.1@example.test` ; noter
+   `accessToken` (15 min) et l'identifiant du carnet (`GET /api/v1/me`).
+3. Depuis un poste extérieur, pour chaque route en lecture du banc (accueil, liste, recherche,
+   synchro complète, catégories, limites en cours), 10 appels de chauffe puis :
+   `npx autocannon@8.0.0 -c 4 -d 5 --latency -H "Authorization=Bearer <jeton>" https://recette.<domaine>/api/v1/<route>`
+   La saisie se mesure avec le banc lui-même ou un script, chaque appel exigeant un UUID neuf.
+4. Relever le p95 (`--latency` donne p97,5 et p99 ; le p95 est encadré par p90 et p97,5 : la cible est
+   tenue si p97,5 < 300 ms) et le consigner ci-dessous, avec la date et la latence réseau de base
+   (`curl -w '%{time_total}' …/health`), qui s'ajoute à toutes les mesures.
+
+| Date | Route | p97,5 (ms) | p99 (ms) | Réseau (ms) |
+| --- | --- | --- | --- | --- |
+| à faire | — | — | — | — |
 
 ## NF-PERF-01 — ouverture de l'app jusqu'à l'accueil < 2 s
 

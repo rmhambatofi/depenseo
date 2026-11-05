@@ -20,6 +20,7 @@
     "db:export": "node dist/scripts/db-export.js",
     "db:restore": "node dist/scripts/db-restore.js",
     "admin:grant": "node dist/scripts/grant-admin.js",
+    "seed:fake": "node dist/scripts/seed-fake.js",
     "db:generate": "drizzle-kit generate",
     "bench": "vitest run --config vitest.bench.config.ts"
   },
