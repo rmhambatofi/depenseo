@@ -59,7 +59,7 @@ Couverture des exigences « M » : `docs/dev/TRACEABILITY.md` (à tenir à jour 
 - [x] P5-02 Notifications serveur des stores : points d'entrée signés (JWS App Store v2, Pub/Sub Google authentifié), mise à jour du statut ; à expiration, fonctions Premium en lecture seule sans suppression de données. Tests : signature invalide → 401, renouvellement, expiration → export Excel refusé (403) mais données conservées. (F-ABO-01, §5)
 - [x] P5-03 Rôle admin + TOTP : attribution uniquement par `scripts/grant-admin.ts`, connexion admin avec TOTP, session par cookie `HttpOnly; Secure; SameSite=Strict; Path=/admin`, 404 sur `/admin/*` et `/api/v1/admin/*` sans rôle ou sans session admin (test automatisé), journal d'audit de chaque accès admin. (F-ADM-01, 03, NF-SEC-06)
 - [x] P5-04 Routes admin : utilisateurs (sans montants), abonnements, tâches en échec (relance), statistiques agrégées, journaux d'audit. Tests : chaque route → 404 pour un non-admin ; un accès crée une ligne d'audit. (F-ADM-01, NF-SEC-06)
-- [ ] P5-05 `apps/admin` React-admin : écrans des routes P5-04 ; build servi par l'API uniquement à une session admin, seule la page de connexion est publique. Tests Playwright : non-admin → 404 sur `/admin/*` ; script CI qui vérifie qu'aucun code admin n'est présent dans `mobile/` ni dans les bundles publics. (F-ADM-01, 02, 03)
+- [x] P5-05 `apps/admin` React-admin : écrans des routes P5-04 ; build servi par l'API uniquement à une session admin, seule la page de connexion est publique. Tests Playwright : non-admin → 404 sur `/admin/*` ; script CI qui vérifie qu'aucun code admin n'est présent dans `mobile/` ni dans les bundles publics. (F-ADM-01, 02, 03)
 - [ ] P5-06 `packages/api-client` généré depuis `openapi.json` (openapi-typescript + client fetch), script `pnpm --filter api openapi`, vérifié en CI (diff vide). (§8.1, §8.4)
 
 ## Phase 6 — Application mobile Flutter
@@ -87,7 +87,7 @@ Couverture des exigences « M » : `docs/dev/TRACEABILITY.md` (à tenir à jour 
 - [ ] P7-04 Accessibilité : labels sémantiques, contrastes, tailles dynamiques sur les parcours clés (tests `meetsGuideline` Flutter) ; check-list `docs/dev/A11Y.md`. (NF-QUA-04)
 - [ ] P7-05 Suivi des erreurs Sentry (région UE) sur l'API et le mobile, avec filtrage des montants et PII (`beforeSend`). Test : un événement contenant un montant est nettoyé. (NF-QUA-02, NF-SEC-06)
 - [ ] P7-06 Performance : banc autocannon sur les routes clés avec base de 10 000 dépenses (p95 < 300 ms, en CI) ; mesure du démarrage mobile jusqu'à l'accueil (`integration_test` + timeline, cible < 2 s) consignée dans `docs/dev/PERF.md`. (NF-PERF-01, 02)
-- [ ] P7-07 Documentation de déploiement o2switch (`docs/dev/DEPLOY.md`) : Passenger, variables d'env, cron (jobs chaque minute, health, export horaire), `.htaccess`, utilisateurs de base séparés, environnements dev/recette/prod, script de données fictives `scripts/seed-fake.ts`, procédure de rotation des clés. (§8.5, NF-QUA-03, NF-SEC-01)
+- [ ] P7-07 Documentation de déploiement o2switch (`docs/dev/DEPLOY.md`) : Passenger, variables d'env, cron (jobs chaque minute, health, export horaire), `.htaccess`, utilisateurs de base séparés (dont `depenseo_admin` du back-office, écart consigné en ADR-044), environnements dev/recette/prod, script de données fictives `scripts/seed-fake.ts`, procédure de rotation des clés. (§8.5, NF-QUA-03, NF-SEC-01)
 - [ ] P7-08 Relecture finale par sous-agent `reviewer` sur chaque paquet ; corrections ; `PROGRESS.md` passé à « MVP terminé ».
 
 <!-- backlog -->

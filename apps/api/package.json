@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "pnpm --filter @depenseo/shared build && tsc -p tsconfig.build.json",
+    "build:e2e": "pnpm --filter @depenseo/shared build && tsc -p tsconfig.e2e.json",
     "start": "node dist/src/main.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",

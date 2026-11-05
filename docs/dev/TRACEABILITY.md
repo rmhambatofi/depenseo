@@ -41,9 +41,9 @@ Conventions : API `apps/api/test/**/*.spec.ts` (intégration contre MariaDB 10.6
 | F-ABO-01 Achats intégrés vérifiés serveur + notifications stores | P5-01, P5-02, P6-13 | `api/test/subscriptions/verify-receipt.spec.ts`, `api/test/subscriptions/{app-store,google-play}-verifier.spec.ts`, `api/test/subscriptions/store-notifications.spec.ts` (401, renouvellement, expiration → Excel 403 données conservées), `api/test/subscriptions/apple-signed-data.spec.ts` (chaîne x5c), `mobile/test/premium/purchase_test.dart` |
 | F-ABO-02 Essai Premium 14 jours | P5-01, P6-13 | `api/test/subscriptions/trial.spec.ts` (expiré au jour 15), `api/test/subscriptions/trial.tz.spec.ts`, `api/test/subscriptions/entitlements.spec.ts` |
 | F-ABO-03 Restauration, multi-appareils | P5-01, P6-13 | `api/test/subscriptions/restore.spec.ts`, `mobile/test/premium/restore_test.dart` |
-| F-ADM-01 Back-office `/admin`, rôle admin, 2FA | P5-03, P5-04, P5-05 | `api/test/admin/totp.spec.ts`, `api/test/admin/admin-session.spec.ts` (TOTP, cookie), `api/test/admin/admin-routes.spec.ts`, `apps/admin/e2e/admin.spec.ts` (Playwright) |
-| F-ADM-02 Aucun code admin dans le mobile ni le web public | P5-05, P6-01 | `scripts/check-no-admin-code.sh` (exécuté en CI) |
-| F-ADM-03 404 sans rôle admin, rôle attribué par script | P5-03, P5-05 | `api/test/admin/admin-access.spec.ts`, `api/test/admin/grant-admin.spec.ts`, `apps/admin/e2e/admin.spec.ts` |
+| F-ADM-01 Back-office `/admin`, rôle admin, 2FA | P5-03, P5-04, P5-05 | `api/test/admin/totp.spec.ts`, `api/test/admin/admin-session.spec.ts` (TOTP, cookie), `api/test/admin/admin-routes.spec.ts`, `api/test/admin/admin-console.spec.ts` (service du build), `apps/admin/e2e/admin.spec.ts` (Playwright), `apps/admin/src/app/*.test.ts` |
+| F-ADM-02 Aucun code admin dans le mobile ni le web public | P5-05, P6-01 | `scripts/check-no-admin-code.mjs` (exécuté en CI), `scripts/admin-code.test.mjs` |
+| F-ADM-03 404 sans rôle admin, rôle attribué par script | P5-03, P5-05 | `api/test/admin/admin-access.spec.ts`, `api/test/admin/grant-admin.spec.ts`, `api/test/admin/admin-console.spec.ts`, `apps/admin/e2e/admin.spec.ts` |
 
 ## Exigences non fonctionnelles
 

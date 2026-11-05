@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "dist-e2e"
+  },
+  "include": [],
+  "files": ["test/e2e/admin-e2e-server.ts"]
+}

@@ -1,4 +1,5 @@
 // Comptes administrateurs de test (ADR-042) : rôle attribué comme par `scripts/grant-admin.ts`.
+import { fileURLToPath } from 'node:url';
 import type { INestApplication } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
 import request from 'supertest';
@@ -8,6 +9,24 @@ import type { Database } from '../../src/db/connection.js';
 import { auditLog } from '../../src/db/schema/index.js';
 import { http, TEST_ENV } from './app.js';
 import { createUser, type TestUser } from './users.js';
+
+/** Build factice de `apps/admin` (`login/` public, `app/` réservé), pour `ADMIN_DIST_DIR`. */
+export const ADMIN_DIST_FIXTURE = fileURLToPath(new URL('../fixtures/admin-dist', import.meta.url));
+
+/** Seules routes du back-office accessibles sans session (ADR-042, ADR-044). */
+export const PUBLIC_ADMIN_ROUTES = [
+  'post /admin/api/session',
+  'get /admin/login',
+  'get /admin/login/assets/:file',
+] as const;
+
+/** Pages et fichiers de l'application `apps/admin` (hors API `/admin/api/*`). */
+export const ADMIN_CONSOLE_ROUTES = [
+  '/admin',
+  '/admin/assets/:file',
+  '/admin/login',
+  '/admin/login/assets/:file',
+];
 
 export const ADMIN_TOTP_KEY = Buffer.from(TEST_ENV.ADMIN_TOTP_KEY, 'base64');
 

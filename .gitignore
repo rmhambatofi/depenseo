@@ -1,6 +1,7 @@
 # Dépendances et builds
 node_modules/
 dist/
+dist-e2e/
 build/
 coverage/
 *.tsbuildinfo
@@ -43,3 +44,7 @@ mobile/android/.gradle/
 # PKI de test au format Apple (clés de test uniquement, ADR-041)
 !apps/api/test/fixtures/apple-pki/*.pem
 !apps/api/test/fixtures/apple-pki/*.key
+
+# Playwright
+test-results/
+playwright-report/

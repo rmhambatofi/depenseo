@@ -28,6 +28,9 @@ export const Public = () => SetMetadata(IS_PUBLIC, true);
  */
 export const ADMIN_AREA = Symbol('ADMIN_AREA');
 
+/** Express route sans tenir compte de la casse : `/ADMIN/` atteint aussi les routes `/admin`. */
+const isAdminPath = (path: string) => /^\/admin(?:\/|$)/i.test(path);
+
 export interface Principal {
   userId: string;
 }
@@ -56,7 +59,7 @@ export class AccessTokenGuard implements CanActivate {
     // Sous /admin seulement : toute route y est éprouvée par `test/admin/admin-access.spec.ts`.
     if (
       this.reflector.get<boolean | undefined>(ADMIN_AREA, context.getClass()) &&
-      request.path.startsWith('/admin/')
+      isAdminPath(request.path)
     ) {
       return true;
     }

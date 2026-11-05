@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Depenseo — connexion au back-office</title>
+    <link rel="stylesheet" href="./login.css" />
+    <script type="module" src="./login.ts"></script>
+  </head>
+  <body>
+    <main>
+      <h1>Back-office Depenseo</h1>
+      <form id="login" autocomplete="on">
+        <label>
+          Adresse e-mail
+          <input name="email" type="email" autocomplete="username" required maxlength="254" />
+        </label>
+        <label>
+          Mot de passe
+          <input name="password" type="password" autocomplete="current-password" required />
+        </label>
+        <label>
+          Code de l’application d’authentification
+          <input
+            name="code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            pattern="[0-9 ]{6,7}"
+            maxlength="7"
+            required
+          />
+        </label>
+        <button type="submit">Se connecter</button>
+        <p id="message" role="alert"></p>
+      </form>
+    </main>
+  </body>
+</html>

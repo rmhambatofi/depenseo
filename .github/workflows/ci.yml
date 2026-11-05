@@ -18,7 +18,7 @@ jobs:
   node:
     name: TypeScript (typecheck, lint, tests contre MariaDB)
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -47,6 +47,17 @@ jobs:
           DB_WAIT_TIMEOUT: '120'
 
       - run: pnpm test
+
+      # Back-office (F-ADM-01/02/03, ADR-044) : build, aucun code admin hors de son bundle, e2e.
+      # Après `pnpm test` (même base `depenseo_test`, jamais en parallèle de Vitest).
+      - name: Construire le back-office
+        run: pnpm --filter @depenseo/admin build
+      - name: Aucun code admin dans mobile/ ni dans les bundles publics
+        run: pnpm check:admin-code
+      - name: Installer Chromium (Playwright)
+        run: pnpm --filter @depenseo/admin exec playwright install --with-deps chromium
+      - name: Tests Playwright du back-office
+        run: pnpm --filter @depenseo/admin exec playwright test
 
       - name: Journaux MariaDB en cas d'échec
         if: failure()

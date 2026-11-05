@@ -20,6 +20,9 @@ export default tseslint.config(
     ignores: [
       '**/node_modules/**',
       '**/dist/**',
+      '**/dist-e2e/**',
+      // Build factice de apps/admin servi par l'API dans les tests (ADR-044).
+      'apps/api/test/fixtures/admin-dist/**',
       '**/coverage/**',
       'mobile/**',
       'scripts/lint-fixtures/**',
@@ -49,6 +52,23 @@ export default tseslint.config(
             message: calendarDateMessage,
           },
         ]),
+      ],
+    },
+  },
+  {
+    // Page de connexion publique du back-office (§8.5, F-ADM-02, ADR-044) : aucun code admin.
+    files: ['apps/admin/src/login/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/app', '**/app/**', 'react', 'react-*', 'react-admin', 'ra-*', '@mui/*'],
+              message: 'La page de connexion publique ne doit embarquer aucun code admin.',
+            },
+          ],
+        },
       ],
     },
   },

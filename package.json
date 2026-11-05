@@ -12,7 +12,8 @@
     "test": "node --test scripts/*.test.mjs && pnpm -r --if-present test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:tz": "pnpm -r --if-present test:tz"
+    "test:tz": "pnpm -r --if-present test:tz",
+    "check:admin-code": "node scripts/check-no-admin-code.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

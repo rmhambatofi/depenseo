@@ -12,11 +12,14 @@ import { user } from '../../src/db/schema/index.js';
 import { http, startTestApp, TEST_ENV } from '../support/app.js';
 import { createTenant, problemWithoutInstance, type Tenant } from '../support/access.js';
 import {
+  ADMIN_CONSOLE_ROUTES,
+  ADMIN_DIST_FIXTURE,
   ADMIN_TOTP_KEY,
   adminLogin,
   codeAt,
   createAdmin,
   mountedRoutes,
+  PUBLIC_ADMIN_ROUTES,
   sessionCookie,
   type TestAdmin,
 } from '../support/admin.js';
@@ -53,7 +56,7 @@ function expectSameAsMissing(
 }
 
 beforeAll(async () => {
-  ({ app } = await startTestApp({ clock }));
+  ({ app } = await startTestApp({ clock, env: { ADMIN_DIST_DIR: ADMIN_DIST_FIXTURE } }));
   admin = await createAdmin(db, clock.now());
   other = await createTenant(app, db, clock.now());
   // Jeton Bearer d'un administrateur : ne doit rien ouvrir côté /admin ni /api/v1/admin.
@@ -70,11 +73,14 @@ afterAll(async () => {
 });
 
 describe('routes du back-office', () => {
-  it('sont toutes sous /admin/api, aucune sous /api/v1/admin, aucune dans l’OpenAPI public', () => {
+  it('sont sous /admin/api (ou pages de l’application), aucune sous /api/v1/admin ni dans l’OpenAPI', () => {
     const routes = mountedRoutes(app);
     const adminRoutes = routes.filter((r) => r.path.startsWith('/admin'));
     expect(adminRoutes.length).toBeGreaterThan(0);
-    expect(adminRoutes.every((r) => r.path.startsWith('/admin/api/'))).toBe(true);
+    const pages = adminRoutes.filter((r) => !r.path.startsWith('/admin/api/'));
+    expect(pages.map((r) => `${r.method} ${r.path}`).sort()).toEqual(
+      ADMIN_CONSOLE_ROUTES.map((path) => `get ${path}`).sort(),
+    );
     expect(routes.filter((r) => r.path.startsWith('/api/v1/admin'))).toEqual([]);
     const paths = Object.keys(buildOpenApiDocument(app).paths);
     expect(paths.filter((p) => p.includes('admin'))).toEqual([]);
@@ -89,10 +95,9 @@ describe('routes du back-office', () => {
       'enrolement',
       clock.now(),
     );
-    const routes = mountedRoutes(app).filter(
-      (r) =>
-        r.path.startsWith('/admin') && !(r.method === 'post' && r.path === '/admin/api/session'),
-    );
+    const isPublic = (r: { method: string; path: string }) =>
+      (PUBLIC_ADMIN_ROUTES as readonly string[]).includes(`${r.method} ${r.path}`);
+    const routes = mountedRoutes(app).filter((r) => r.path.startsWith('/admin') && !isPublic(r));
     expect(routes.length).toBeGreaterThan(0);
     for (const route of routes) {
       const path = route.path.replace(/:[A-Za-z]+/g, admin.id);
@@ -111,7 +116,7 @@ describe('routes du back-office', () => {
     }
   });
 
-  it('/admin, /admin/ et toute page du back-office : 404 pour tous', async () => {
+  it('/admin, /admin/ et toute page du back-office hors connexion : 404 sans session admin', async () => {
     const reference = await notFoundShape('/admin/route-inexistante');
     for (const path of ['/admin', '/admin/', '/admin/users', '/admin/index.html']) {
       expectSameAsMissing(await request(http(app)).get(path), reference);

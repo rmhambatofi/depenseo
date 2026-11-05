@@ -91,6 +91,15 @@ const schema = z.object({
    */
   ADMIN_SESSION_SECRET: z.string().min(32).optional(),
   ADMIN_TOTP_KEY: aes256Key.optional(),
+  /**
+   * Build de `apps/admin` (ADR-044) : dossier absolu contenant `login/` (page de connexion publique)
+   * et `app/` (application servie à une session admin seulement). Absente = pages du back-office
+   * indisponibles (404) ; l'API admin reste utilisable.
+   */
+  ADMIN_DIST_DIR: z
+    .string()
+    .refine((value) => isAbsolute(value))
+    .optional(),
 });
 
 /** Variables qui ne vont que par groupe complet (toutes ou aucune). */
