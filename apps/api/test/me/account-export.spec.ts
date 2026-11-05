@@ -44,6 +44,7 @@ const SECRET_PROPERTIES = [
   'pushToken',
   'pushTokenHash',
   'subjectHash',
+  'purchaseKeyHash',
   'actorUserId',
 ];
 

@@ -6,12 +6,12 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { CLOCK, type Clock } from '../clock.js';
 import type { Database } from '../db/connection.js';
 import { DB } from '../db/database.module.js';
-import { exportFile, user } from '../db/schema/index.js';
+import { exportFile } from '../db/schema/index.js';
 import { withTransaction } from '../db/transaction.js';
 import { isUuid } from '../db/uuid.js';
 import { ProblemException } from '../errors/problem.exception.js';
 import { JobQueue } from '../jobs/job-queue.js';
-import { canExportExcel } from '../subscriptions/entitlements.js';
+import { canExportExcel, loadEntitlements } from '../subscriptions/entitlements.js';
 import { lockNotebook } from '../notebooks/notebook-lock.js';
 import { GENERATE_EXPORT } from './export-job.js';
 import { EXPORT_CONTENT_TYPES, type ExportFormat } from './export-format.js';
@@ -67,11 +67,8 @@ export class ExportsService {
         return this.view(existing);
       }
       if (input.format === 'xlsx') {
-        const [account] = await tx
-          .select({ plan: user.plan })
-          .from(user)
-          .where(eq(user.id, userId));
-        if (!account || !canExportExcel(account.plan)) {
+        const rights = await loadEntitlements(tx, userId, this.clock.now());
+        if (!canExportExcel(rights)) {
           throw new ProblemException(403, 'Export Excel réservé à l’offre Premium');
         }
       }

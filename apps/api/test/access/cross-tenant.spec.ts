@@ -40,7 +40,9 @@ import { PUBLIC_ROUTES } from '../support/public-routes.js';
 /** Routes du compte connecté, sans identifiant de ressource dans le chemin. */
 const ACCOUNT_ROUTES = ['GET /api/v1/me', 'PATCH /api/v1/me', 'GET /api/v1/notebooks'];
 /** Routes de compte éprouvées ailleurs : `test/notifications/devices.spec.ts` (appareil d'un autre
- * compte : 409 / inchangé), `test/me/account-export.spec.ts` (export d'un autre compte : 409 / 404). */
+ * compte : 409 / inchangé), `test/me/account-export.spec.ts` (export d'un autre compte : 409 / 404),
+ * `test/subscriptions/restore.spec.ts` (achat d'un autre compte : 409 ; droits et essai de B sans
+ * effet sur A — la réponse ne porte aucun identifiant, d'où l'impossible contre-épreuve ci-dessous). */
 const ACCOUNT_ROUTES_TESTED_ELSEWHERE = [
   'PUT /api/v1/me/devices/{deviceId}',
   'DELETE /api/v1/me/devices/{deviceId}',
@@ -50,6 +52,9 @@ const ACCOUNT_ROUTES_TESTED_ELSEWHERE = [
   'POST /api/v1/me/export',
   'GET /api/v1/me/export/{exportId}',
   'GET /api/v1/me/export/{exportId}/file',
+  'GET /api/v1/subscriptions',
+  'POST /api/v1/subscriptions/trial',
+  'POST /api/v1/subscriptions/verify',
 ];
 
 /** Corps valides par route d'écriture (sinon `{}`), pour que l'appelant ne soit pas refusé. */

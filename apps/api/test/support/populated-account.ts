@@ -15,6 +15,7 @@ import {
   limitAlert,
   notificationSetting,
   spendingLimit,
+  user,
   userIdentity,
 } from '../../src/db/schema/index.js';
 import { newId } from '../../src/db/uuid.js';
@@ -24,6 +25,7 @@ import { http } from './app.js';
 import { FakeClock } from './clock.js';
 import { auth, expenseClient } from './expenses.js';
 import { insertDevice } from './push.js';
+import { insertSubscription } from './subscriptions.js';
 import { recurringClient } from './recurring.js';
 
 const subcategory = async (db: Database, t: Tenant) => {
@@ -106,6 +108,8 @@ export async function populatedAccount(
     ...stamps,
   });
   await insertDevice(db, t.id, 'ios', now);
+  await insertSubscription(db, t.id, now, { expiresAt: new Date(now.getTime() + 30 * 86_400_000) });
+  await db.update(user).set({ trialEndsAt: now }).where(eq(user.id, t.id));
   await db
     .insert(notificationSetting)
     .values({ id: newId(), userId: t.id, quietStart: '22:00', quietEnd: '07:00', ...stamps });

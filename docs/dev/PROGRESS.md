@@ -6,10 +6,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 ## État courant
 
 - Tâche en cours : aucune
-- Prochaine tâche : P5-01 (abonnements, `StoreReceiptVerifier`, essai 14 j, `Entitlements`).
-- Dernier commit : 190227d feat(api): hourly encrypted database export and restore (NF-DISP-01)
+- Prochaine tâche : P5-02 (notifications serveur des stores : JWS App Store v2 + Pub/Sub Google, lecture seule à expiration).
+- Dernier commit : feat(api): store-verified subscriptions, 14-day trial and entitlements (F-ABO-01/02/03)
 - Branche : main
-- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (10 racine, 155 shared, 643 api), `pnpm test:tz` vert (api : 84 par fuseau), `pnpm --filter api build` vert ; `test/backup`, `test/me` stables sur 3 relances
+- Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (10 racine, 155 shared, 726 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build` vert ; `test/subscriptions/{trial,restore}` stables sur 3 relances
 
 ## Pièges connus (à lire avant de coder)
 
@@ -127,6 +127,11 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Sauvegardes (P4-08, ADR-039) : `src/backup/` — `db-dump.ts` (export SQL Node, instantané `WITH CONSISTENT SNAPSHOT`, une instruction par ligne, `sqlLiteral` refuse tout type hors chaîne/entier sûr/Buffer/NULL), `db-restore.ts` (base vide seulement, en-tête + marque de fin vérifiées), `backup-files.ts` (gzip + DPF1, clé `BACKUP_ENCRYPTION_KEY`, rotation `BACKUP_RETENTION_HOURS`). Scripts `apps/api/scripts/db-export.ts`/`db-restore.ts`. Procédure : `docs/dev/BACKUP.md`. **Toute nouvelle vue/déclencheur/routine** casse `test/backup/export-restore.spec.ts` (non exportés). Base de test `depenseo_restore_test` (migrator) : volume Docker antérieur → la créer à la main (commande dans BACKUP.md) ; `scripts/db.test.mjs` vérifie qu'elle existe. `databaseUrl`/`aes256Key` zod exportés de `src/config/env.ts`.
 - Une suite qui doit comparer l'état de `depenseo_test` alors que d'autres suites écrivent en parallèle : relire **dans le même instantané** (hook `afterDump`) et exclure les tables `zz_test_*` des autres suites.
 
+- Abonnements (P5-01, ADR-040) : `src/subscriptions/` — `StoreReceiptVerifier` (`store-receipt-verifier.ts`, jeton Nest `STORE_RECEIPT_VERIFIER`), `AppStoreVerifier` (Get All Subscription Statuses, JWS **décodés sans x5c : P5-02 doit écrire le vérificateur de chaîne Apple et l'appliquer aussi ici**, TODO dans le fichier), `GooglePlayVerifier` (subscriptionsv2), `createStoreVerifier` (`store-config.ts`, env `APP_STORE_*`/`GOOGLE_PLAY_*` tout ou rien). Droits : `loadEntitlements(tx, userId, now)` / `canExportExcel(state)` (`entitlements.ts`) **à utiliser pour toute fonction Premium** (P5-02 : lecture seule à expiration). `user.plan` supprimée (migration 0016) ; `user.trial_ends_at`, table `subscription` (0015). Routes `GET /subscriptions`, `POST /subscriptions/trial`, `POST /subscriptions/verify`. Tests : `startTestApp({ storeVerifier })`, `FakeStoreVerifier` + `insertSubscription` (`test/support/subscriptions.ts`), `subscriptionClient`, `test/support/store-fixtures.ts` + `local-server.ts` (serveurs locaux). Suites en **août 2027**. Jeton OAuth Google commun : `src/google/service-account-token.ts` (FCM l'utilise).
+- drizzle-kit `generate` est **interactif** quand une colonne disparaît et une autre apparaît dans la même table (rename ?) : le faire en deux migrations (ajout, puis suppression).
+- zod 4 : `z.uuid()` exige une variante RFC 4122 ; l'exemple d'issuer Apple ne passe pas → `z.guid()` pour un identifiant externe au format 8-4-4-4-12 quelconque.
+- Contre-épreuve du harnais `ACCOUNT_ROUTES` (cross-tenant) : exige l'identifiant de B dans la réponse ; une route qui n'en renvoie pas va dans `ACCOUNT_ROUTES_TESTED_ELSEWHERE` avec un test d'isolement dédié.
+
 ## Actions humaines (non bloquantes)
 
 - Pousser `main` vers `origin` (dépôt **public**, rien n'a été poussé depuis 5+ commits), puis noter ici le résultat du premier run CI (critère P0-03).
@@ -137,6 +142,8 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 (rien)
 
 ## Historique (plus récent en haut)
+
+- 2026-11-05 session 28 — P5-01 fait : abonnements vérifiés (App Store Server API, Google Play subscriptionsv2, faux en test), `POST /subscriptions/verify` (400 reçu invalide, 409 achat d'un autre compte via `accountRef` ou premier présentateur, 503 store absent), essai 14 j (minuit local du jour 15, une fois par compte), `GET /subscriptions`, `Entitlements` (export Excel) ; migrations 0015/0016 ; ADR-040. Relecture : 0 bloquant, 3 importants traités (spec > 400 lignes découpée, rattachement par `appAccountToken`/`obfuscatedExternalAccountId`, réponse illisible → 503) + mineurs (jeton `..`, actif prioritaire, clé en cache, test d'isolement, description OpenAPI). 5 mutations tuées. Passation après 1 tâche (~22 fichiers lus).
 
 - 2026-11-05 session 27 — P4-08 fait : export horaire chiffré (SQL Node, instantané cohérent, gzip + AES-256-GCM, clé dédiée, rotation 48 h), restauration vers base vide (`db:restore`), `BACKUP.md` (cron, rétention/comptes supprimés, restauration, rotation de clé, journal des tests trimestriels), ADR-039. Test export → restauration → schéma/collation/données identiques (valeurs limites). Relecture : 0 bloquant, 3 importants traités (types de valeur refusés, secrets hors ligne de commande, reprise après échec). 4 mutations tuées.
 

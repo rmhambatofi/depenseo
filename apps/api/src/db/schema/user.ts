@@ -21,7 +21,11 @@ export const user = mysqlTable(
     reminderTime: char('reminder_time', { length: 5 }).notNull().default('09:00'),
     /** Heure locale `HH:MM` du rappel quotidien de saisie ; NULL = désactivé (F-NOT-02). */
     dailyReminderTime: char('daily_reminder_time', { length: 5 }),
-    plan: varchar('plan', { length: 16 }).notNull().default('free'),
+    /**
+     * Fin de l'essai Premium de 14 jours (F-ABO-02, ADR-040) : minuit local au début du 15e jour.
+     * NULL = essai jamais commencé ; renseignée = essai consommé (une fois par compte).
+     */
+    trialEndsAt: utcDateTime('trial_ends_at'),
     /** Attribué par script uniquement (F-ADM-03). */
     role: varchar('role', { length: 16 }).$type<UserRole>().notNull().default('user'),
     /** Secret TOTP administrateur, chiffré par l'application. */

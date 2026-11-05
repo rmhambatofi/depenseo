@@ -18,6 +18,7 @@ import { MAX_ATTEMPTS } from '../../src/jobs/job-runner.js';
 import { createTenant, type Tenant } from '../support/access.js';
 import { http, startTestApp, TEST_ENV } from '../support/app.js';
 import { FakeClock } from '../support/clock.js';
+import { insertSubscription } from '../support/subscriptions.js';
 import { auth } from '../support/expenses.js';
 import { jobsOfType, testDb } from '../support/jobs.js';
 
@@ -210,7 +211,10 @@ describe('exports de dépenses', () => {
     expect(refused.status).toBe(403);
     expect(await db.select().from(exportFile).where(eq(exportFile.userId, t.id))).toEqual([]);
 
-    await db.update(user).set({ plan: 'premium', language: 'en' }).where(eq(user.id, t.id));
+    await db.update(user).set({ language: 'en' }).where(eq(user.id, t.id));
+    await insertSubscription(db, t.id, clock.now(), {
+      expiresAt: new Date(clock.now().getTime() + 86_400_000),
+    });
     const req = request_('xlsx');
     expect((await post(t, req)).status).toBe(202);
     await generate(req.id);

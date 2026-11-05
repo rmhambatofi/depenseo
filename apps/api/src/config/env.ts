@@ -22,6 +22,12 @@ export const databaseUrl = z.string().refine((value) => {
   return url.protocol === 'mysql:' && url.pathname.length > 1 && url.search === '';
 });
 
+/** Clé privée PKCS#8 en PEM ; les `\n` échappés (variable sur une ligne) sont restaurés. */
+export const pkcs8Pem = z
+  .string()
+  .transform((value) => value.replace(/\\n/g, '\n'))
+  .refine((value) => value.includes('-----BEGIN PRIVATE KEY-----'));
+
 /** Clé AES-256 en base64 (32 octets). */
 export const aes256Key = z.string().regex(/^[A-Za-z0-9+/]{43}=$/);
 
@@ -48,16 +54,46 @@ const schema = z.object({
     .refine((value) => isAbsolute(value))
     .optional(),
   FILE_ENCRYPTION_KEY: aes256Key.optional(),
+  /**
+   * App Store Server API (abonnements, ADR-040) : clé d'API In-App Purchase (issuer, key ID, clé
+   * PKCS#8) et bundle iOS. Toutes ou aucune ; absentes = vérification App Store indisponible (503).
+   */
+  APP_STORE_ISSUER_ID: z.guid().optional(),
+  APP_STORE_KEY_ID: z
+    .string()
+    .regex(/^[A-Z0-9]{10}$/)
+    .optional(),
+  APP_STORE_PRIVATE_KEY: pkcs8Pem.optional(),
+  APP_STORE_BUNDLE_ID: z.string().min(1).max(155).optional(),
+  APP_STORE_ENVIRONMENT: z.enum(['production', 'sandbox']).default('production'),
+  /**
+   * Google Play Developer API (abonnements, ADR-040) : nom du paquet Android et compte de service
+   * (adresse, clé PKCS#8). Toutes ou aucune ; absentes = vérification Google Play indisponible (503).
+   */
+  GOOGLE_PLAY_PACKAGE_NAME: z
+    .string()
+    .regex(/^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$/)
+    .max(255)
+    .optional(),
+  GOOGLE_PLAY_CLIENT_EMAIL: z.email().optional(),
+  GOOGLE_PLAY_PRIVATE_KEY: pkcs8Pem.optional(),
 });
 
-const FILE_STORAGE_KEYS = ['FILE_STORAGE_DIR', 'FILE_ENCRYPTION_KEY'] as const;
-
 /** Variables qui ne vont que par groupe complet (toutes ou aucune). */
-function assertComplete<T extends Partial<Record<(typeof FILE_STORAGE_KEYS)[number], unknown>>>(
-  config: T,
-): T {
-  const missing = FILE_STORAGE_KEYS.filter((key) => config[key] === undefined);
-  if (missing.length > 0 && missing.length < FILE_STORAGE_KEYS.length) {
+const COMPLETE_GROUPS = [
+  ['FILE_STORAGE_DIR', 'FILE_ENCRYPTION_KEY'],
+  ['APP_STORE_ISSUER_ID', 'APP_STORE_KEY_ID', 'APP_STORE_PRIVATE_KEY', 'APP_STORE_BUNDLE_ID'],
+  ['GOOGLE_PLAY_PACKAGE_NAME', 'GOOGLE_PLAY_CLIENT_EMAIL', 'GOOGLE_PLAY_PRIVATE_KEY'],
+] as const;
+
+function assertComplete<T extends object>(config: T): T {
+  const values = config as Record<string, unknown>;
+  const missing = COMPLETE_GROUPS.flatMap((group) => {
+    const missing = group.filter((key) => values[key] === undefined);
+    // Groupe vide ou hors du schéma (ex. stores pour le cron) : rien à exiger.
+    return missing.length === group.length ? [] : missing;
+  });
+  if (missing.length > 0) {
     throw new ConfigError(
       `Configuration invalide, démarrage refusé — ${missing.map((k) => `${k} : absente`).join(' ; ')}`,
     );

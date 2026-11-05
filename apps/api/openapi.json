@@ -2405,6 +2405,115 @@
           "exports"
         ]
       }
+    },
+    "/api/v1/subscriptions": {
+      "get": {
+        "operationId": "SubscriptionsController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Droits Premium du compte",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntitlementsDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/api/v1/subscriptions/trial": {
+      "post": {
+        "operationId": "SubscriptionsController_startTrial",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Essai commencé : droits mis à jour",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntitlementsDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "409": {
+            "description": "Essai déjà utilisé par ce compte"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/api/v1/subscriptions/verify": {
+      "post": {
+        "operationId": "SubscriptionsController_verify",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyPurchaseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Achat vérifié auprès du store et rattaché au compte (ou restauré)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntitlementsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Corps invalide, ou reçu refusé par le store"
+          },
+          "401": {
+            "description": "Jeton d’accès absent, invalide ou expiré"
+          },
+          "409": {
+            "description": "Achat déjà rattaché à un autre compte"
+          },
+          "503": {
+            "description": "Store non configuré ou injoignable"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "subscriptions"
+        ]
+      }
     }
   },
   "info": {
@@ -4707,6 +4816,68 @@
           "to",
           "status",
           "expiresAt"
+        ]
+      },
+      "EntitlementsDto": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "type": "string",
+            "enum": [
+              "free",
+              "trial",
+              "premium"
+            ],
+            "description": "`trial` : essai de 14 jours en cours"
+          },
+          "premiumUntil": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Fin des droits Premium en cours (abonnement ou essai) ; null si gratuit"
+          },
+          "trialEndsAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Fin de l’essai (minuit local du 15e jour) ; null s’il n’a jamais commencé"
+          },
+          "trialAvailable": {
+            "type": "boolean",
+            "description": "Essai encore disponible (une fois par compte)"
+          }
+        },
+        "required": [
+          "plan",
+          "premiumUntil",
+          "trialEndsAt",
+          "trialAvailable"
+        ]
+      },
+      "VerifyPurchaseDto": {
+        "type": "object",
+        "properties": {
+          "store": {
+            "type": "string",
+            "enum": [
+              "app_store",
+              "google_play"
+            ],
+            "description": "Store de l’achat : exige `transactionId` (app_store) ou `purchaseToken` (google_play), à l’exclusion de l’autre champ"
+          },
+          "transactionId": {
+            "type": "string",
+            "description": "App Store : identifiant d’une transaction de l’abonnement (StoreKit 2)",
+            "maxLength": 64
+          },
+          "purchaseToken": {
+            "type": "string",
+            "description": "Google Play : jeton d’achat",
+            "maxLength": 2048
+          }
+        },
+        "required": [
+          "store"
         ]
       }
     }

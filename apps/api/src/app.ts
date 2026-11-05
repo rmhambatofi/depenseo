@@ -8,6 +8,7 @@ import { AppModule } from './app.module.js';
 import type { IdTokenKeys } from './auth/id-token-verifier.js';
 import type { Clock } from './clock.js';
 import type { AppConfig } from './config/env.js';
+import type { StoreReceiptVerifier } from './subscriptions/store-receipt-verifier.js';
 import { ProblemDetailsFilter } from './errors/problem-details.filter.js';
 
 export const API_PREFIX = 'api/v1';
@@ -19,6 +20,8 @@ export interface CreateAppOptions {
   clock?: Clock;
   /** Clés de signature Apple/Google (tests) ; JWKS distants des fournisseurs par défaut. */
   idTokenKeys?: IdTokenKeys;
+  /** Vérification des achats (tests) ; App Store Server API et Google Play par défaut. */
+  storeVerifier?: StoreReceiptVerifier;
 }
 
 export async function createApp(

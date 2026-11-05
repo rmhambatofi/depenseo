@@ -22,6 +22,7 @@ import {
   recurringExpense,
   refreshToken,
   spendingLimit,
+  subscription,
   tag,
   user,
   userIdentity,
@@ -34,7 +35,7 @@ export const EXCLUDED_TABLES: Readonly<Record<string, string>> = {
 
 /**
  * Propriétés jamais exportées : secrets, empreintes de jetons et d'identifiants externes, jeton
- * push (accréditation de l'appareil), identité de l'administrateur dans le journal d'audit.
+ * push (accréditation de l'appareil), clé d'achat des stores, identité de l'administrateur dans le journal d'audit.
  */
 export const OMITTED_PROPERTIES: ReadonlySet<string> = new Set([
   'passwordHash',
@@ -43,6 +44,7 @@ export const OMITTED_PROPERTIES: ReadonlySet<string> = new Set([
   'pushToken',
   'pushTokenHash',
   'subjectHash',
+  'purchaseKeyHash',
   'actorUserId',
 ]);
 
@@ -73,6 +75,7 @@ const SOURCES: readonly Source[] = [
   { table: userIdentity, where: byUser(userIdentity.userId) },
   { table: notificationSetting, where: byUser(notificationSetting.userId) },
   { table: device, where: byUser(device.userId) },
+  { table: subscription, where: byUser(subscription.userId) },
   { table: refreshToken, where: byUser(refreshToken.userId) },
   { table: emailToken, where: byUser(emailToken.userId) },
   { table: notebook, where: byNotebook(notebook.id) },

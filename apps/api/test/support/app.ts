@@ -31,7 +31,7 @@ export class LogCapture extends Writable {
 }
 
 export async function startTestApp(
-  options: Pick<CreateAppOptions, 'clock' | 'idTokenKeys'> = {},
+  options: Pick<CreateAppOptions, 'clock' | 'idTokenKeys' | 'storeVerifier'> = {},
 ): Promise<{ app: INestApplication; logs: LogCapture }> {
   const logs = new LogCapture();
   const app = await createApp(loadConfig(TEST_ENV), { ...options, logDestination: logs });
