@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P5-04 (routes admin : utilisateurs sans montants, abonnements, tâches en échec, statistiques, audit).
-- Dernier commit : feat(api): admin role by script, TOTP login, /admin cookie session, 404 and audit (F-ADM-01/03)
+- Dernier commit : 0385661 feat(api): admin role by script, TOTP login, /admin cookie session, 404 and audit (F-ADM-01/03)
 - Branche : main
 - Tests : `pnpm -r typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` verts (10 racine, 155 shared, 781 api), `pnpm test:tz` vert (api : 91 par fuseau), `pnpm --filter api build` vert
 
@@ -133,6 +133,10 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 - Contre-épreuve du harnais `ACCOUNT_ROUTES` (cross-tenant) : exige l'identifiant de B dans la réponse ; une route qui n'en renvoie pas va dans `ACCOUNT_ROUTES_TESTED_ELSEWHERE` avec un test d'isolement dédié.
 
 - Back-office (P5-03, ADR-042) : `src/admin/` — API admin sous **`/admin/api/*`** (hors préfixe `/api/v1`, exclusion `admin{/*rest}` dans `app.ts` ; Nest monte alors un attrape-tout `/admin{/*rest}` → 404). Nouveau contrôleur admin = `@AdminController('chemin')` (garde `AdminGuard` : cookie `depenseo_admin` + rôle + empreinte d'enrôlement relus à chaque requête, 404 sinon, ligne `admin.access` avec la route ; exclu de l'OpenAPI). **P5-04** : `@CurrentAdmin()` → `{userId}` ; renseigner `targetType/targetId` via `recordAdminAudit` (`admin-audit.ts`) pour chaque compte consulté ; le harnais `test/admin/admin-access.spec.ts` énumère les routes Express montées (`mountedRoutes`) et vérifie le 404 sans session : remplacer `:param` est automatique (id quelconque). Tests : `createAdmin(db, now)`, `adminLogin`, `codeAt`, `sessionCookie`, `auditOf` (`test/support/admin.ts`) ; suites en décembre 2026. Env `ADMIN_SESSION_SECRET`/`ADMIN_TOTP_KEY` (dans `TEST_ENV`) ; `startTestApp({ env: { X: undefined } })` retire une variable. `AuthModule` est désormais **global**. Script `pnpm --filter api admin:grant <email>` (refuse sans terminal).
+- Exclusion de préfixe Nest 12 : syntaxe path-to-regexp v8 (`admin{/*rest}` couvre `/admin` et `/admin/…` ; `admin/{*rest}` laisse `/admin` au 404 HTML d'Express). Hors des deux préfixes, Express répond un 404 **HTML** (pas problem+json).
+- Énumérer les routes montées (y compris hors OpenAPI) : `app.getHttpAdapter().getInstance().router.stack` (Express 5), ignorer les chemins contenant `*`.
+- `auditOf` trie par `created_at` : un test qui avance l'horloge puis la recule produit des lignes « futures » ; asserter par `toContain`, pas par `.at(-1)`.
+- Script Python d'édition multiple : s'il échoue sur la 1re substitution (`assert`), **aucune** des suivantes n'est appliquée — relancer après correction et contrôler par `grep -c`.
 - Reliquats mineurs P5-03 : pas de test de concurrence du plafond d'échecs TOTP ; compte de base distinct `depenseo_admin` (§8.3) non branché ; `/admin` 404 pour tous tant que P5-05 ne sert pas la page de connexion (adapter `admin-access.spec.ts`).
 
 ## Actions humaines (non bloquantes)
@@ -150,7 +154,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## Historique (plus récent en haut)
 
-- 2026-11-05 session 30 — P5-03 fait : rôle admin par script (`grant-admin`, secret TOTP AES-GCM, URI affichée une fois en terminal), connexion `POST /admin/api/session` (TOTP RFC 6238 maison, ±1 pas, anti-rejeu `admin_totp_last_step`, 5 échecs/15 min), cookie `HttpOnly; Secure; SameSite=Strict; Path=/admin` 30 min, 404 indiscernable partout, audit de chaque accès (colonne `route`) ; migration 0017 ; ADR-042. Relecture : 0 bloquant, 2 importants traités (secret hors terminal refusé, test back-office désactivé) + mineurs (empreinte d'enrôlement, clé distincte, compte sans mot de passe, contournement Bearer limité à `/admin/`). 8 mutations tuées.
+- 2026-11-05 session 30 — P5-03 fait : rôle admin par script (`grant-admin`, secret TOTP AES-GCM, URI affichée une fois en terminal), connexion `POST /admin/api/session` (TOTP RFC 6238 maison, ±1 pas, anti-rejeu `admin_totp_last_step`, 5 échecs/15 min), cookie `HttpOnly; Secure; SameSite=Strict; Path=/admin` 30 min, 404 indiscernable partout, audit de chaque accès (colonne `route`) ; migration 0017 ; ADR-042. Relecture : 0 bloquant, 2 importants traités (secret hors terminal refusé, test back-office désactivé) + mineurs (empreinte d'enrôlement, clé distincte, compte sans mot de passe, contournement Bearer limité à `/admin/`). 8 mutations tuées. Passation après 1 tâche (~20 fichiers lus).
 
 - 2026-11-05 session 29 — P5-02 fait : routes publiques `POST /store-notifications/{app-store,google-play}` (JWS Apple vérifié jusqu'à Apple Root CA G3 + OID, jeton OIDC Pub/Sub `aud`/`email`), relecture de l'achat au store puis mise à jour de la ligne, lecture seule à expiration (Excel 403, données/CSV conservés), x5c appliqué aussi à l'App Store Server API ; env `GOOGLE_PLAY_PUSH_{AUDIENCE,SERVICE_ACCOUNT}` ; ADR-041. Relecture : 0 bloquant, 3 importants traités (date de validité illisible, `fetch failed` → 503, tests validTo/iss/email_verified/expiré). Test instable `notify-handler` (« 500 » dans un UUID) corrigé à part. 4 mutations, 3 tuées (contrôle `ca` redondant avec `checkIssued`, documenté).
 
