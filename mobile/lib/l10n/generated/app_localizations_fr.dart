@@ -160,4 +160,79 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get retry => 'Réessayer';
+
+  @override
+  String get settingsTitle => 'Réglages';
+
+  @override
+  String get settingsSecurity => 'Sécurité';
+
+  @override
+  String get lockEnable => 'Verrouiller l’application';
+
+  @override
+  String get lockEnableHint => 'Code à 6 chiffres demandé à l’ouverture';
+
+  @override
+  String get lockDelayLabel => 'Verrouiller après';
+
+  @override
+  String get lockDelayImmediate => 'Immédiat';
+
+  @override
+  String get lockDelayOneMinute => '1 min';
+
+  @override
+  String get lockDelayFiveMinutes => '5 min';
+
+  @override
+  String get lockBiometrics => 'Déverrouiller par biométrie';
+
+  @override
+  String get lockScreenshots => 'Bloquer les captures d’écran';
+
+  @override
+  String get lockTitle => 'Depenseo est verrouillé';
+
+  @override
+  String get lockPrompt => 'Saisissez votre code';
+
+  @override
+  String lockWrongPin(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Code incorrect. $count essais restants.',
+      one: 'Code incorrect. 1 essai restant.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get lockUseBiometrics => 'Utiliser la biométrie';
+
+  @override
+  String get lockBiometricReason => 'Déverrouiller Depenseo';
+
+  @override
+  String get lockForgot => 'Code oublié ?';
+
+  @override
+  String get lockForgotBody =>
+      'Vous allez être déconnecté. Reconnectez-vous avec votre mot de passe, puis choisissez un nouveau code.';
+
+  @override
+  String get pinSetupTitle => 'Code de verrouillage';
+
+  @override
+  String get pinSetupPrompt => 'Choisissez un code à 6 chiffres';
+
+  @override
+  String get pinSetupConfirm => 'Confirmez le code';
+
+  @override
+  String get pinSetupMismatch => 'Les codes ne correspondent pas. Recommencez.';
+
+  @override
+  String get pinDelete => 'Effacer';
 }

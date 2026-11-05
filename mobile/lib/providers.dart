@@ -9,9 +9,12 @@ import 'core/api/api_client.dart';
 import 'core/auth/auth_api.dart';
 import 'core/auth/social_sign_in.dart';
 import 'core/auth/token_store.dart';
+import 'core/clock.dart';
 import 'core/db/app_database.dart';
 import 'core/db/database_key.dart';
 import 'core/db/local_database.dart';
+import 'core/lock/biometric_auth.dart';
+import 'core/lock/screen_security.dart';
 import 'core/secure/secure_store.dart';
 import 'features/auth/auth_controller.dart';
 
@@ -59,3 +62,13 @@ final databaseProvider = FutureProvider<AppDatabase>((ref) async {
   ref.onDispose(db.close);
   return db;
 });
+
+final clockProvider = Provider<Clock>((ref) => DateTime.now);
+
+final biometricAuthProvider = Provider<BiometricAuth>(
+  (ref) => PlatformBiometricAuth(),
+);
+
+final screenSecurityProvider = Provider<ScreenSecurity>(
+  (ref) => PlatformScreenSecurity(),
+);

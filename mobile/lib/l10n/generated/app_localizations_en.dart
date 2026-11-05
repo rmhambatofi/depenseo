@@ -159,4 +159,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retry => 'Try again';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsSecurity => 'Security';
+
+  @override
+  String get lockEnable => 'Lock the app';
+
+  @override
+  String get lockEnableHint => '6-digit passcode required on opening';
+
+  @override
+  String get lockDelayLabel => 'Lock after';
+
+  @override
+  String get lockDelayImmediate => 'Immediately';
+
+  @override
+  String get lockDelayOneMinute => '1 min';
+
+  @override
+  String get lockDelayFiveMinutes => '5 min';
+
+  @override
+  String get lockBiometrics => 'Unlock with biometrics';
+
+  @override
+  String get lockScreenshots => 'Block screenshots';
+
+  @override
+  String get lockTitle => 'Depenseo is locked';
+
+  @override
+  String get lockPrompt => 'Enter your passcode';
+
+  @override
+  String lockWrongPin(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Wrong passcode. $count attempts left.',
+      one: 'Wrong passcode. 1 attempt left.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get lockUseBiometrics => 'Use biometrics';
+
+  @override
+  String get lockBiometricReason => 'Unlock Depenseo';
+
+  @override
+  String get lockForgot => 'Forgot passcode?';
+
+  @override
+  String get lockForgotBody =>
+      'You will be signed out. Sign in again with your password, then choose a new passcode.';
+
+  @override
+  String get pinSetupTitle => 'Lock passcode';
+
+  @override
+  String get pinSetupPrompt => 'Choose a 6-digit passcode';
+
+  @override
+  String get pinSetupConfirm => 'Confirm the passcode';
+
+  @override
+  String get pinSetupMismatch => 'The passcodes do not match. Try again.';
+
+  @override
+  String get pinDelete => 'Delete';
 }

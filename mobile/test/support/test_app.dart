@@ -5,6 +5,8 @@ import 'package:depenseo/core/auth/auth_api.dart' show SocialProvider;
 import 'package:depenseo/core/auth/reinstall_guard.dart';
 import 'package:depenseo/core/auth/social_sign_in.dart';
 import 'package:depenseo/core/auth/token_store.dart';
+import 'package:depenseo/core/lock/biometric_auth.dart';
+import 'package:depenseo/core/lock/screen_security.dart';
 import 'package:depenseo/providers.dart';
 import 'package:depenseo/router.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +35,38 @@ class FakeSocialSignIn implements SocialSignIn {
   }
 }
 
+/// Horloge murale réglable à la main.
+class FakeClock {
+  DateTime now = DateTime.utc(2026, 11, 5, 9);
+  void advance(Duration d) => now = now.add(d);
+}
+
+/// Biométrie simulée : [result] renvoyé à chaque demande, comptée dans [prompts].
+class FakeBiometrics implements BiometricAuth {
+  bool available = true;
+  bool result = true;
+  int prompts = 0;
+
+  @override
+  Future<bool> isAvailable() async => available;
+
+  @override
+  Future<bool> authenticate(String reason) async {
+    prompts++;
+    return result;
+  }
+}
+
+class FakeScreenSecurity implements ScreenSecurity {
+  bool secure = false;
+
+  @override
+  bool get supported => true;
+
+  @override
+  Future<void> setSecure(bool secure) async => this.secure = secure;
+}
+
 /// Coffre qui échoue à la lecture tant que [failing] est vrai (trousseau verrouillé).
 class FlakySecureStore extends MemorySecureStore {
   bool failing = true;
@@ -52,6 +86,9 @@ class TestApp {
   final MemorySecureStore store;
   final FakeApi api = FakeApi();
   final FakeSocialSignIn social = FakeSocialSignIn();
+  final FakeClock clock = FakeClock();
+  final FakeBiometrics biometrics = FakeBiometrics();
+  final FakeScreenSecurity screen = FakeScreenSecurity();
   late final ProviderContainer container;
   late final Directory dir;
 
@@ -78,6 +115,9 @@ class TestApp {
         httpAdapterProvider.overrideWithValue(api),
         appSupportDirProvider.overrideWith((ref) async => dir),
         socialSignInProvider.overrideWithValue(social),
+        clockProvider.overrideWithValue(() => clock.now),
+        biometricAuthProvider.overrideWithValue(biometrics),
+        screenSecurityProvider.overrideWithValue(screen),
       ],
     );
     addTearDown(container.dispose);

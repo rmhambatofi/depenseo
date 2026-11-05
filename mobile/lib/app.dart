@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'features/lock/lock_gate.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'router.dart';
 import 'theme.dart';
@@ -17,6 +18,7 @@ class DepenseoApp extends ConsumerWidget {
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       routerConfig: ref.watch(routerProvider),
+      builder: (context, child) => LockGate(child: child ?? const SizedBox()),
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [

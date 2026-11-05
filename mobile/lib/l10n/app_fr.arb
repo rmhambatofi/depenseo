@@ -46,5 +46,34 @@
   "errorUnknown": "Une erreur est survenue. Réessayez.",
   "storageErrorTitle": "Stockage sécurisé inaccessible",
   "storageErrorBody": "Depenseo ne peut pas lire son coffre sécurisé. Déverrouillez l’appareil puis réessayez.",
-  "retry": "Réessayer"
+  "retry": "Réessayer",
+  "settingsTitle": "Réglages",
+  "settingsSecurity": "Sécurité",
+  "lockEnable": "Verrouiller l’application",
+  "lockEnableHint": "Code à 6 chiffres demandé à l’ouverture",
+  "lockDelayLabel": "Verrouiller après",
+  "lockDelayImmediate": "Immédiat",
+  "lockDelayOneMinute": "1 min",
+  "lockDelayFiveMinutes": "5 min",
+  "lockBiometrics": "Déverrouiller par biométrie",
+  "lockScreenshots": "Bloquer les captures d’écran",
+  "lockTitle": "Depenseo est verrouillé",
+  "lockPrompt": "Saisissez votre code",
+  "lockWrongPin": "{count, plural, =1{Code incorrect. 1 essai restant.} other{Code incorrect. {count} essais restants.}}",
+  "@lockWrongPin": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lockUseBiometrics": "Utiliser la biométrie",
+  "lockBiometricReason": "Déverrouiller Depenseo",
+  "lockForgot": "Code oublié ?",
+  "lockForgotBody": "Vous allez être déconnecté. Reconnectez-vous avec votre mot de passe, puis choisissez un nouveau code.",
+  "pinSetupTitle": "Code de verrouillage",
+  "pinSetupPrompt": "Choisissez un code à 6 chiffres",
+  "pinSetupConfirm": "Confirmez le code",
+  "pinSetupMismatch": "Les codes ne correspondent pas. Recommencez.",
+  "pinDelete": "Effacer"
 }

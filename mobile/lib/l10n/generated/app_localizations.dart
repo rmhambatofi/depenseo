@@ -379,6 +379,138 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Réessayer'**
   String get retry;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglages'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsSecurity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sécurité'**
+  String get settingsSecurity;
+
+  /// No description provided for @lockEnable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Verrouiller l’application'**
+  String get lockEnable;
+
+  /// No description provided for @lockEnableHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code à 6 chiffres demandé à l’ouverture'**
+  String get lockEnableHint;
+
+  /// No description provided for @lockDelayLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Verrouiller après'**
+  String get lockDelayLabel;
+
+  /// No description provided for @lockDelayImmediate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Immédiat'**
+  String get lockDelayImmediate;
+
+  /// No description provided for @lockDelayOneMinute.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 min'**
+  String get lockDelayOneMinute;
+
+  /// No description provided for @lockDelayFiveMinutes.
+  ///
+  /// In fr, this message translates to:
+  /// **'5 min'**
+  String get lockDelayFiveMinutes;
+
+  /// No description provided for @lockBiometrics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déverrouiller par biométrie'**
+  String get lockBiometrics;
+
+  /// No description provided for @lockScreenshots.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer les captures d’écran'**
+  String get lockScreenshots;
+
+  /// No description provided for @lockTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depenseo est verrouillé'**
+  String get lockTitle;
+
+  /// No description provided for @lockPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez votre code'**
+  String get lockPrompt;
+
+  /// No description provided for @lockWrongPin.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{Code incorrect. 1 essai restant.} other{Code incorrect. {count} essais restants.}}'**
+  String lockWrongPin(int count);
+
+  /// No description provided for @lockUseBiometrics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser la biométrie'**
+  String get lockUseBiometrics;
+
+  /// No description provided for @lockBiometricReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déverrouiller Depenseo'**
+  String get lockBiometricReason;
+
+  /// No description provided for @lockForgot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code oublié ?'**
+  String get lockForgot;
+
+  /// No description provided for @lockForgotBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous allez être déconnecté. Reconnectez-vous avec votre mot de passe, puis choisissez un nouveau code.'**
+  String get lockForgotBody;
+
+  /// No description provided for @pinSetupTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code de verrouillage'**
+  String get pinSetupTitle;
+
+  /// No description provided for @pinSetupPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez un code à 6 chiffres'**
+  String get pinSetupPrompt;
+
+  /// No description provided for @pinSetupConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmez le code'**
+  String get pinSetupConfirm;
+
+  /// No description provided for @pinSetupMismatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les codes ne correspondent pas. Recommencez.'**
+  String get pinSetupMismatch;
+
+  /// No description provided for @pinDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer'**
+  String get pinDelete;
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../auth/auth_controller.dart';
@@ -14,6 +15,12 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.homeTitle),
         actions: [
+          IconButton(
+            key: const Key('open-settings'),
+            tooltip: l10n.settingsTitle,
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => context.push('/settings'),
+          ),
           IconButton(
             tooltip: l10n.logout,
             icon: const Icon(Icons.logout),

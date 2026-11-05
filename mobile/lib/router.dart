@@ -9,6 +9,8 @@ import 'features/auth/register_screen.dart';
 import 'features/auth/storage_error_screen.dart';
 import 'features/auth/verify_email_screen.dart';
 import 'features/home/home_screen.dart';
+import 'features/settings/pin_setup_screen.dart';
+import 'features/settings/settings_screen.dart';
 
 /// Écrans réservés aux visiteurs non connectés.
 const _signedOutOnly = {
@@ -47,6 +49,16 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) => authRedirect(refresh.value, state.uri.path),
     routes: [
       GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
+        routes: [
+          GoRoute(
+            path: 'pin',
+            builder: (context, state) => const PinSetupScreen(),
+          ),
+        ],
+      ),
       GoRoute(
         path: '/splash',
         builder: (context, state) =>
