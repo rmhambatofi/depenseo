@@ -7,6 +7,7 @@ import '../auth/auth_controller.dart';
 import '../expenses/expense_providers.dart';
 import '../expenses/expense_tile.dart';
 import '../sync/sync_controller.dart';
+import 'dashboard_section.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -49,7 +50,7 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: const _RecentExpenses(),
+      body: const _HomeBody(),
       // « + » toujours visible sur l'accueil (F-DEP-01).
       floatingActionButton: FloatingActionButton(
         key: const Key('add-expense'),
@@ -76,9 +77,10 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-/// Dernières dépenses de la copie locale : consultables hors connexion.
-class _RecentExpenses extends ConsumerWidget {
-  const _RecentExpenses();
+/// Indicateurs de la période (en ligne) puis dernières dépenses de la copie
+/// locale (consultables hors connexion, saisies non synchronisées comprises).
+class _HomeBody extends ConsumerWidget {
+  const _HomeBody();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -87,11 +89,26 @@ class _RecentExpenses extends ConsumerWidget {
       ref,
       ref.watch(localExpensesProvider).value ?? const [],
     );
-    if (items.isEmpty) return Center(child: Text(l10n.homeEmpty));
-    return ListView.builder(
+    return ListView(
       key: const Key('recent-expenses'),
-      itemCount: items.length,
-      itemBuilder: (context, i) => ExpenseTile(item: items[i]),
+      // Place pour le « + » sous la dernière dépense.
+      padding: const EdgeInsets.only(bottom: 88),
+      children: [
+        const DashboardSection(),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+          child: Text(
+            l10n.dashboardRecentTitle,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
+        if (items.isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(l10n.homeEmpty),
+          ),
+        for (final item in items) ExpenseTile(item: item),
+      ],
     );
   }
 }

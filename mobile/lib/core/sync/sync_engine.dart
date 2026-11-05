@@ -359,6 +359,13 @@ class SyncEngine {
                 m.key.like('sync.%') & m.key.equals(sinceKey(notebookId)).not(),
           ))
           .go();
+      // Dernier tableau de bord gardé des autres carnets (ADR-055).
+      await (_db.delete(_db.appMeta)..where(
+            (m) =>
+                m.key.like('dashboard.%') &
+                m.key.like('dashboard.%.$notebookId').not(),
+          ))
+          .go();
     },
   );
 }

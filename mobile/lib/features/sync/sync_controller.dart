@@ -9,6 +9,7 @@ import '../../core/sync/sync_engine.dart';
 import '../../providers.dart';
 import '../categories/category_providers.dart';
 import '../expenses/expense_providers.dart';
+import '../home/dashboard_providers.dart';
 
 enum SyncPhase { idle, syncing, upToDate, offline }
 
@@ -131,6 +132,8 @@ class SyncController extends Notifier<SyncPhase> {
         // Pas `quickEntryDataProvider` : le formulaire ouvert serait réinitialisé.
         refreshLocalExpenses(ref.invalidate);
         refreshCategories(ref.invalidate);
+        // Indicateurs recalculés par l'API à partir des données envoyées.
+        if (state == SyncPhase.upToDate) ref.invalidate(dashboardProvider);
       }
     }
   }

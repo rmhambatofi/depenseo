@@ -346,5 +346,80 @@
         "type": "String"
       }
     }
-  }
+  },
+  "dashboardOffline": "Connexion requise pour afficher les indicateurs de la période.",
+  "dashboardUpcomingTitle": "Prochaines échéances",
+  "dashboardUpcomingEmpty": "Aucune échéance à venir.",
+  "dashboardOverdue": "En retard",
+  "dashboardCategoriesTitle": "Répartition par catégorie",
+  "dashboardCategoriesEmpty": "Aucune dépense sur la période.",
+  "dashboardCategoryUnknown": "Catégorie indisponible",
+  "dashboardCategoryShare": "{amount} · {percent} %",
+  "@dashboardCategoryShare": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardCumulativeTitle": "Cumul de la période",
+  "dashboardCumulativeVsPrevious": "{current} à ce jour, contre {previous} au même jour de la période précédente.",
+  "@dashboardCumulativeVsPrevious": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "previous": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardCumulativeOnly": "{current} à ce jour.",
+  "@dashboardCumulativeOnly": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardCurrentPeriod": "Période en cours",
+  "dashboardPreviousPeriod": "Période précédente",
+  "dashboardEvolutionTitle": "12 dernières périodes",
+  "dashboardEvolutionRange": "Du {start} au {end}",
+  "@dashboardEvolutionRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardEvolutionItem": "{period} : {amount}",
+  "@dashboardEvolutionItem": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardEvolutionCurrentItem": "{period} (en cours) : {amount}",
+  "@dashboardEvolutionCurrentItem": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardRecentTitle": "Dernières dépenses"
 }

@@ -601,3 +601,19 @@ Décision (`mobile/lib/core/recurring/`, `lib/features/recurring/`) :
 - **Erreurs** : 400/422 → « Refusé : vérifiez les champs » ; 404/409 → « ont changé entre-temps » + rechargement ; réseau, 5xx, 401, réponse illisible ou session changée (`epoch`, comme ADR-052/053) → « Connexion requise ». Rechargement en échec : liste affichée sous l'avertissement, actions désactivées.
 
 Conséquences : gérer les récurrences exige le réseau ; la dépense payée apparaît localement après la synchro.
+
+## ADR-055 — Accueil mobile et graphiques (2026-11-05)
+
+Contexte : F-TB-01/02. L'API fournit tout le tableau de bord en une requête (`GET …/dashboard`, ADR-031 : jauge, 5 prochaines échéances, 5 dernières dépenses, répartition par catégorie racine, cumuls courant/précédent par rang de jour, 12 périodes). Invariant 8 : aucun calcul sur l'appareil. L'accueil existant affiche la copie locale des dépenses (hors ligne, NF-OFF-01).
+
+Décision (`mobile/lib/core/dashboard/`, `lib/features/home/`) :
+- **Indicateurs en ligne** : jauge (`LimitSummaryCard` réutilisée), prochaines échéances (« En retard » = champ `overdue` de l'API ; toucher → écran des récurrences pour payer/sauter), répartition (anneau fl_chart + légende nom/montant/%), cumul (deux courbes + phrase « X à ce jour, contre Y au même jour de la période précédente »), évolution (12 barres, la dernière = période en cours). Le « même jour » est **lu** dans `cumulative.previous` (point de rang ≤ dernier rang courant), pas calculé.
+- **Dernières dépenses : copie locale**, pas `recent` de l'API. Raison : disponibles hors ligne, incluent les saisies non synchronisées et restent modifiables/supprimables (P6-06). Le champ `recent` est ignoré.
+- **Rafraîchissement et hors ligne (NF-OFF-01)** : au chargement de l'accueil, après chaque synchro **réussie** (les données envoyées sont prises en compte), et par « Réessayer ». Chaque réponse lue est gardée brute dans `app_meta` (`dashboard.v1.<carnet>`, base chiffrée ; purgée avec les autres carnets par la synchro, ADR-050). API injoignable ou réponse illisible : dernière réponse gardée affichée sous l'avertissement « Connexion requise » (indicateurs du jour de cette réponse, non recalculés). Pas d'indicateur animé pendant le chargement (liste locale et « + » utilisables aussitôt).
+- **Noms et couleurs des catégories** : copie locale (`filterableCategories`) ; identifiant inconnu (supprimée, pas encore synchronisée) → « Catégorie indisponible » en gris.
+- **Devises** : la comparaison au cumul précédent n'est affichée que si la période précédente (`evolution`, avant-dernière) est dans la devise de la jauge (ADR-031 : devise de chaque version de limite). `gauge.otherCurrencies` n'est pas affiché (devises hors MVP).
+- **Montants** : `double` uniquement comme coordonnées de tracé fl_chart ; tout texte affiché ou lu (légende, résumé, libellé d'accessibilité) passe par `formatAmount` sur les entiers. Interactions fl_chart (infobulles) et titres d'axes désactivés : ils formateraient des `double`.
+- **Accessibilité** : canevas exclus de l'arbre sémantique ; équivalents textuels visibles (légende, phrase de cumul, bornes des 12 périodes) ; le graphique d'évolution porte un libellé listant « période : montant », la dernière marquée « (en cours) » (aussi distinguée par la couleur `primary`, les autres en `outline`).
+- Session changée (`epoch`) pendant la requête → ni affichage ni copie. Réponse illisible → jamais affichée (copie précédente si elle existe).
+
+Conséquences : `fl_chart` ^1.3.0 ajouté. Hors ligne, les indicateurs affichés sont ceux de la dernière réponse reçue (période éventuellement révolue), signalés comme tels.

@@ -1393,6 +1393,114 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Sauter l’échéance du {date} ? Aucune dépense ne sera enregistrée.'**
   String occurrenceSkipConfirm(String date);
+
+  /// No description provided for @dashboardOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion requise pour afficher les indicateurs de la période.'**
+  String get dashboardOffline;
+
+  /// No description provided for @dashboardUpcomingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaines échéances'**
+  String get dashboardUpcomingTitle;
+
+  /// No description provided for @dashboardUpcomingEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune échéance à venir.'**
+  String get dashboardUpcomingEmpty;
+
+  /// No description provided for @dashboardOverdue.
+  ///
+  /// In fr, this message translates to:
+  /// **'En retard'**
+  String get dashboardOverdue;
+
+  /// No description provided for @dashboardCategoriesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répartition par catégorie'**
+  String get dashboardCategoriesTitle;
+
+  /// No description provided for @dashboardCategoriesEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune dépense sur la période.'**
+  String get dashboardCategoriesEmpty;
+
+  /// No description provided for @dashboardCategoryUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégorie indisponible'**
+  String get dashboardCategoryUnknown;
+
+  /// No description provided for @dashboardCategoryShare.
+  ///
+  /// In fr, this message translates to:
+  /// **'{amount} · {percent} %'**
+  String dashboardCategoryShare(String amount, int percent);
+
+  /// No description provided for @dashboardCumulativeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cumul de la période'**
+  String get dashboardCumulativeTitle;
+
+  /// No description provided for @dashboardCumulativeVsPrevious.
+  ///
+  /// In fr, this message translates to:
+  /// **'{current} à ce jour, contre {previous} au même jour de la période précédente.'**
+  String dashboardCumulativeVsPrevious(String current, String previous);
+
+  /// No description provided for @dashboardCumulativeOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'{current} à ce jour.'**
+  String dashboardCumulativeOnly(String current);
+
+  /// No description provided for @dashboardCurrentPeriod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Période en cours'**
+  String get dashboardCurrentPeriod;
+
+  /// No description provided for @dashboardPreviousPeriod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Période précédente'**
+  String get dashboardPreviousPeriod;
+
+  /// No description provided for @dashboardEvolutionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'12 dernières périodes'**
+  String get dashboardEvolutionTitle;
+
+  /// No description provided for @dashboardEvolutionRange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Du {start} au {end}'**
+  String dashboardEvolutionRange(String start, String end);
+
+  /// No description provided for @dashboardEvolutionItem.
+  ///
+  /// In fr, this message translates to:
+  /// **'{period} : {amount}'**
+  String dashboardEvolutionItem(String period, String amount);
+
+  /// No description provided for @dashboardEvolutionCurrentItem.
+  ///
+  /// In fr, this message translates to:
+  /// **'{period} (en cours) : {amount}'**
+  String dashboardEvolutionCurrentItem(String period, String amount);
+
+  /// No description provided for @dashboardRecentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernières dépenses'**
+  String get dashboardRecentTitle;
 }
 
 class _AppLocalizationsDelegate

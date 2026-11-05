@@ -138,9 +138,14 @@ void main() {
             ),
           );
       await saveLocal(e3, notebookId: otherNb);
+      await db.writeMeta('dashboard.v1.$otherNb', '{}');
+      await db.writeMeta('dashboard.v1.$nb', '{}');
       await engine.run(nb);
       final ids = (await allLocal()).map((e) => e.id);
       expect(ids, [e3]);
+      // Tableau de bord gardé (ADR-055) : seul celui du carnet courant reste.
+      expect(await db.readMeta('dashboard.v1.$otherNb'), isNull);
+      expect(await db.readMeta('dashboard.v1.$nb'), '{}');
       expect(api.requests.where((r) => r.path.contains(otherNb)), isEmpty);
     },
   );

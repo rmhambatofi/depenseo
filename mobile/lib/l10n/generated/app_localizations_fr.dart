@@ -728,4 +728,71 @@ class AppLocalizationsFr extends AppLocalizations {
   String occurrenceSkipConfirm(String date) {
     return 'Sauter l’échéance du $date ? Aucune dépense ne sera enregistrée.';
   }
+
+  @override
+  String get dashboardOffline =>
+      'Connexion requise pour afficher les indicateurs de la période.';
+
+  @override
+  String get dashboardUpcomingTitle => 'Prochaines échéances';
+
+  @override
+  String get dashboardUpcomingEmpty => 'Aucune échéance à venir.';
+
+  @override
+  String get dashboardOverdue => 'En retard';
+
+  @override
+  String get dashboardCategoriesTitle => 'Répartition par catégorie';
+
+  @override
+  String get dashboardCategoriesEmpty => 'Aucune dépense sur la période.';
+
+  @override
+  String get dashboardCategoryUnknown => 'Catégorie indisponible';
+
+  @override
+  String dashboardCategoryShare(String amount, int percent) {
+    return '$amount · $percent %';
+  }
+
+  @override
+  String get dashboardCumulativeTitle => 'Cumul de la période';
+
+  @override
+  String dashboardCumulativeVsPrevious(String current, String previous) {
+    return '$current à ce jour, contre $previous au même jour de la période précédente.';
+  }
+
+  @override
+  String dashboardCumulativeOnly(String current) {
+    return '$current à ce jour.';
+  }
+
+  @override
+  String get dashboardCurrentPeriod => 'Période en cours';
+
+  @override
+  String get dashboardPreviousPeriod => 'Période précédente';
+
+  @override
+  String get dashboardEvolutionTitle => '12 dernières périodes';
+
+  @override
+  String dashboardEvolutionRange(String start, String end) {
+    return 'Du $start au $end';
+  }
+
+  @override
+  String dashboardEvolutionItem(String period, String amount) {
+    return '$period : $amount';
+  }
+
+  @override
+  String dashboardEvolutionCurrentItem(String period, String amount) {
+    return '$period (en cours) : $amount';
+  }
+
+  @override
+  String get dashboardRecentTitle => 'Dernières dépenses';
 }
