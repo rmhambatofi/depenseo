@@ -7,7 +7,7 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 - Tâche en cours : aucune
 - Prochaine tâche : P7-07 (documentation de déploiement o2switch `docs/dev/DEPLOY.md`, + mesures de recette NF-PERF dans `docs/dev/PERF.md`).
-- Dernier commit : feat(api,mobile): p95 load bench and startup measurement (NF-PERF-01, NF-PERF-02) (session 51)
+- Dernier commit : chore(dev): handoff after P7-06 (session 51 ; fonctionnel : 3a21fce feat(api,mobile): p95 load bench and startup measurement (NF-PERF-01, NF-PERF-02))
 - Branche : main
 - Tests (P7-06) : `pnpm test` racine vert (API 841, couverture lignes 97,2 %), `test:tz` vert, `pnpm --filter api bench` vert (p95 max ~100 ms, saisie), `flutter test` 437 verts (couverture 92,6 %), analyse/format sans diff.
 
