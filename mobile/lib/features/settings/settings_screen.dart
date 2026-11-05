@@ -29,6 +29,14 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => context.push('/settings/categories'),
           ),
           ListTile(
+            key: const Key('open-limits'),
+            leading: const Icon(Icons.speed_outlined),
+            title: Text(l10n.limitsTitle),
+            subtitle: Text(l10n.limitsSettingsHint),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/settings/limits'),
+          ),
+          ListTile(
             title: Text(
               l10n.settingsSecurity,
               style: TextStyle(color: Theme.of(context).colorScheme.primary),

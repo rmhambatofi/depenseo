@@ -475,4 +475,102 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get categoryHiddenWithParent =>
       'Not offered when adding expenses: its parent category is hidden';
+
+  @override
+  String get limitsTitle => 'Spending limit';
+
+  @override
+  String get limitsSettingsHint => 'Monthly or weekly cap';
+
+  @override
+  String get limitCurrentTitle => 'Current period';
+
+  @override
+  String get limitSettingsTitle => 'Limit settings';
+
+  @override
+  String get limitKindNone => 'None';
+
+  @override
+  String get limitKindMonth => 'Monthly';
+
+  @override
+  String get limitKindWeek => 'Weekly';
+
+  @override
+  String get limitAmountLabel => 'Limit amount';
+
+  @override
+  String get limitStartDayMonth => 'Spending month starts on';
+
+  @override
+  String limitStartDayOption(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get limitStartDayWeek => 'First day of the week';
+
+  @override
+  String get limitIncludeRecurring => 'Include recurring expenses';
+
+  @override
+  String get limitIncludeRecurringHint => 'Paid bills count towards the limit.';
+
+  @override
+  String limitPeriod(String start, String end) {
+    return 'From $start to $end';
+  }
+
+  @override
+  String limitSpentOf(String spent, String limit) {
+    return '$spent spent of $limit';
+  }
+
+  @override
+  String limitSpentNoLimit(String spent) {
+    return '$spent spent this period';
+  }
+
+  @override
+  String limitRemaining(String amount) {
+    return '$amount left before the limit';
+  }
+
+  @override
+  String limitExceeded(String amount) {
+    return 'Limit exceeded by $amount';
+  }
+
+  @override
+  String limitPaceMonth(int consumed, int elapsed) {
+    return '$consumed% of the limit used at $elapsed% of the month';
+  }
+
+  @override
+  String limitPaceWeek(int consumed, int elapsed) {
+    return '$consumed% of the limit used at $elapsed% of the week';
+  }
+
+  @override
+  String get limitNone => 'No limit set';
+
+  @override
+  String limitUpcoming(String date) {
+    return 'These settings apply from $date.';
+  }
+
+  @override
+  String get limitSaved => 'Limit saved.';
+
+  @override
+  String get limitOffline =>
+      'You need a connection to view or change the limit.';
+
+  @override
+  String get limitInvalid => 'Settings rejected: check the fields.';
+
+  @override
+  String get limitConflict =>
+      'The limit changed in the meantime: check and save again.';
 }

@@ -8,15 +8,13 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../expenses/quick_entry_harness.dart';
 import '../support/fake_api.dart';
+import '../support/settle.dart';
 import '../support/test_app.dart';
 
 Finder byKey(String key) => find.byKey(Key(key));
 
 const base = '/notebooks/$notebookId/categories';
 const hiddenChild = '0190a000-0000-7000-8000-0000000000c1';
-final uuidV7 = RegExp(
-  r'^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
-);
 
 /// Réponse `CategoryDto` de l'API pour la ligne locale [c] modifiée par [patch].
 Map<String, dynamic> echo(Category c, Map<String, dynamic> patch) => {
@@ -29,22 +27,6 @@ Map<String, dynamic> echo(Category c, Map<String, dynamic> patch) => {
   'hidden': c.hidden,
   ...patch,
 };
-
-/// Requête Dio puis écriture en base : le minuteur zéro de Dio n'avance
-/// qu'avec une durée simulée, la base qu'avec de vraies E/S.
-Future<void> settle(WidgetTester tester, Finder until) =>
-    settleUntil(tester, () => until.evaluate().isNotEmpty);
-
-Future<void> settleUntil(WidgetTester tester, bool Function() done) async {
-  for (var i = 0; i < 100 && !done(); i++) {
-    await tester.pump(const Duration(milliseconds: 10));
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 10)),
-    );
-  }
-  await tester.pumpAndSettle();
-  expect(done(), isTrue);
-}
 
 Future<(TestApp, AppDatabase)> openCategories(WidgetTester tester) async {
   final app = await startSignedIn(tester);

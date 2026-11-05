@@ -13,6 +13,7 @@ import 'features/categories/category_edit_screen.dart';
 import 'features/expenses/expense_list_screen.dart';
 import 'features/expenses/quick_entry_screen.dart';
 import 'features/home/home_screen.dart';
+import 'features/limits/limits_screen.dart';
 import 'features/settings/pin_setup_screen.dart';
 import 'features/settings/settings_screen.dart';
 
@@ -76,6 +77,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'pin',
             builder: (context, state) => const PinSetupScreen(),
+          ),
+          GoRoute(
+            path: 'limits',
+            builder: (context, state) => const LimitsScreen(),
           ),
           GoRoute(
             path: 'categories',

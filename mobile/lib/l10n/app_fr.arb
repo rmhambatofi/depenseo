@@ -165,5 +165,106 @@
   "categoryWriteOffline": "Connexion requise pour modifier les catégories. Réessayez une fois en ligne.",
   "categoryWriteInvalid": "Modification refusée : vérifiez les champs.",
   "categoryWriteGone": "Cette catégorie n'existe plus.",
-  "categoryHiddenWithParent": "Non proposée à la saisie : sa catégorie parente est masquée"
+  "categoryHiddenWithParent": "Non proposée à la saisie : sa catégorie parente est masquée",
+  "limitsTitle": "Limite de dépenses",
+  "limitsSettingsHint": "Plafond mensuel ou hebdomadaire",
+  "limitCurrentTitle": "Période en cours",
+  "limitSettingsTitle": "Réglages de la limite",
+  "limitKindNone": "Aucune",
+  "limitKindMonth": "Mensuelle",
+  "limitKindWeek": "Hebdomadaire",
+  "limitAmountLabel": "Montant de la limite",
+  "limitStartDayMonth": "Début du mois de dépenses",
+  "limitStartDayOption": "Le {day}",
+  "@limitStartDayOption": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "limitStartDayWeek": "Premier jour de la semaine",
+  "limitIncludeRecurring": "Inclure les dépenses récurrentes",
+  "limitIncludeRecurringHint": "Les échéances payées comptent dans la limite.",
+  "limitPeriod": "Du {start} au {end}",
+  "@limitPeriod": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "limitSpentOf": "{spent} dépensés sur {limit}",
+  "@limitSpentOf": {
+    "placeholders": {
+      "spent": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "limitSpentNoLimit": "{spent} dépensés sur la période",
+  "@limitSpentNoLimit": {
+    "placeholders": {
+      "spent": {
+        "type": "String"
+      }
+    }
+  },
+  "limitRemaining": "Reste {amount} avant la limite",
+  "@limitRemaining": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "limitExceeded": "Limite dépassée de {amount}",
+  "@limitExceeded": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "limitPaceMonth": "{consumed} % de la limite consommée à {elapsed} % du mois",
+  "@limitPaceMonth": {
+    "placeholders": {
+      "consumed": {
+        "type": "int"
+      },
+      "elapsed": {
+        "type": "int"
+      }
+    }
+  },
+  "limitPaceWeek": "{consumed} % de la limite consommée à {elapsed} % de la semaine",
+  "@limitPaceWeek": {
+    "placeholders": {
+      "consumed": {
+        "type": "int"
+      },
+      "elapsed": {
+        "type": "int"
+      }
+    }
+  },
+  "limitNone": "Aucune limite définie",
+  "limitUpcoming": "Ces réglages s'appliquent à partir du {date}.",
+  "@limitUpcoming": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "limitSaved": "Limite enregistrée.",
+  "limitOffline": "Connexion requise pour consulter ou modifier la limite.",
+  "limitInvalid": "Réglage refusé : vérifiez les champs.",
+  "limitConflict": "La limite a changé entre-temps : vérifiez puis enregistrez à nouveau."
 }

@@ -967,6 +967,162 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Non proposée à la saisie : sa catégorie parente est masquée'**
   String get categoryHiddenWithParent;
+
+  /// No description provided for @limitsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Limite de dépenses'**
+  String get limitsTitle;
+
+  /// No description provided for @limitsSettingsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plafond mensuel ou hebdomadaire'**
+  String get limitsSettingsHint;
+
+  /// No description provided for @limitCurrentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Période en cours'**
+  String get limitCurrentTitle;
+
+  /// No description provided for @limitSettingsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglages de la limite'**
+  String get limitSettingsTitle;
+
+  /// No description provided for @limitKindNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune'**
+  String get limitKindNone;
+
+  /// No description provided for @limitKindMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mensuelle'**
+  String get limitKindMonth;
+
+  /// No description provided for @limitKindWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hebdomadaire'**
+  String get limitKindWeek;
+
+  /// No description provided for @limitAmountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant de la limite'**
+  String get limitAmountLabel;
+
+  /// No description provided for @limitStartDayMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Début du mois de dépenses'**
+  String get limitStartDayMonth;
+
+  /// No description provided for @limitStartDayOption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le {day}'**
+  String limitStartDayOption(int day);
+
+  /// No description provided for @limitStartDayWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier jour de la semaine'**
+  String get limitStartDayWeek;
+
+  /// No description provided for @limitIncludeRecurring.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inclure les dépenses récurrentes'**
+  String get limitIncludeRecurring;
+
+  /// No description provided for @limitIncludeRecurringHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les échéances payées comptent dans la limite.'**
+  String get limitIncludeRecurringHint;
+
+  /// No description provided for @limitPeriod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Du {start} au {end}'**
+  String limitPeriod(String start, String end);
+
+  /// No description provided for @limitSpentOf.
+  ///
+  /// In fr, this message translates to:
+  /// **'{spent} dépensés sur {limit}'**
+  String limitSpentOf(String spent, String limit);
+
+  /// No description provided for @limitSpentNoLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'{spent} dépensés sur la période'**
+  String limitSpentNoLimit(String spent);
+
+  /// No description provided for @limitRemaining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste {amount} avant la limite'**
+  String limitRemaining(String amount);
+
+  /// No description provided for @limitExceeded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Limite dépassée de {amount}'**
+  String limitExceeded(String amount);
+
+  /// No description provided for @limitPaceMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'{consumed} % de la limite consommée à {elapsed} % du mois'**
+  String limitPaceMonth(int consumed, int elapsed);
+
+  /// No description provided for @limitPaceWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'{consumed} % de la limite consommée à {elapsed} % de la semaine'**
+  String limitPaceWeek(int consumed, int elapsed);
+
+  /// No description provided for @limitNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune limite définie'**
+  String get limitNone;
+
+  /// No description provided for @limitUpcoming.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces réglages s\'appliquent à partir du {date}.'**
+  String limitUpcoming(String date);
+
+  /// No description provided for @limitSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Limite enregistrée.'**
+  String get limitSaved;
+
+  /// No description provided for @limitOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion requise pour consulter ou modifier la limite.'**
+  String get limitOffline;
+
+  /// No description provided for @limitInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglage refusé : vérifiez les champs.'**
+  String get limitInvalid;
+
+  /// No description provided for @limitConflict.
+  ///
+  /// In fr, this message translates to:
+  /// **'La limite a changé entre-temps : vérifiez puis enregistrez à nouveau.'**
+  String get limitConflict;
 }
 
 class _AppLocalizationsDelegate
