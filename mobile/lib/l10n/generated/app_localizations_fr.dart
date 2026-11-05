@@ -577,4 +577,155 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get limitConflict =>
       'La limite a changé entre-temps : vérifiez puis enregistrez à nouveau.';
+
+  @override
+  String get recurringTitle => 'Dépenses récurrentes';
+
+  @override
+  String get recurringSettingsHint => 'Loyer, abonnements, échéances à payer';
+
+  @override
+  String get recurringUpcomingTitle => 'Échéances en attente';
+
+  @override
+  String get recurringUpcomingNone => 'Aucune échéance en attente.';
+
+  @override
+  String get recurringListTitle => 'Récurrences';
+
+  @override
+  String get recurringNone =>
+      'Aucune dépense récurrente : ajoutez votre loyer, vos abonnements…';
+
+  @override
+  String get recurringAdd => 'Nouvelle récurrence';
+
+  @override
+  String get recurringEditTitle => 'Modifier la récurrence';
+
+  @override
+  String get recurringNameLabel => 'Nom';
+
+  @override
+  String get recurringNameRequired => 'Indiquez un nom.';
+
+  @override
+  String get recurringAmountFixed => 'Fixe';
+
+  @override
+  String get recurringAmountEstimated => 'Estimé';
+
+  @override
+  String get recurringFrequencyLabel => 'Fréquence';
+
+  @override
+  String get recurringFrequencyWeekly => 'Chaque semaine';
+
+  @override
+  String get recurringFrequencyMonthly => 'Chaque mois';
+
+  @override
+  String get recurringFrequencyQuarterly => 'Chaque trimestre';
+
+  @override
+  String get recurringFrequencyYearly => 'Chaque année';
+
+  @override
+  String get recurringFrequencyOnce => 'Une seule fois';
+
+  @override
+  String get recurringStartDateLabel => 'Première échéance';
+
+  @override
+  String get recurringScheduleLocked =>
+      'La fréquence et la première échéance ne se modifient pas : supprimez la récurrence et créez-en une autre.';
+
+  @override
+  String get recurringModeAuto => 'Enregistrer automatiquement à l’échéance';
+
+  @override
+  String get recurringModeAutoHint =>
+      'Sinon, une confirmation vous est demandée.';
+
+  @override
+  String get recurringRemindThreeDays => 'Rappel 3 jours avant';
+
+  @override
+  String get recurringRemindOnDueDate => 'Rappel le jour de l’échéance';
+
+  @override
+  String get recurringReminderTime => 'Heure des rappels';
+
+  @override
+  String get recurringSaved => 'Récurrence enregistrée.';
+
+  @override
+  String get recurringDeleted => 'Récurrence supprimée.';
+
+  @override
+  String get recurringDelete => 'Supprimer';
+
+  @override
+  String get recurringAwaiting => 'À confirmer';
+
+  @override
+  String get occurrencePay => 'Payer';
+
+  @override
+  String get occurrenceConfirm => 'Confirmer';
+
+  @override
+  String get occurrenceAdjust => 'Ajuster le montant';
+
+  @override
+  String get occurrenceSkip => 'Sauter';
+
+  @override
+  String get occurrenceResetAmount => 'Revenir au montant prévu';
+
+  @override
+  String get occurrencePaid => 'Échéance payée : dépense enregistrée.';
+
+  @override
+  String get occurrenceSkipped => 'Échéance sautée.';
+
+  @override
+  String get occurrenceAdjusted => 'Montant ajusté.';
+
+  @override
+  String get recurringOffline =>
+      'Connexion requise pour consulter ou modifier les récurrences.';
+
+  @override
+  String get recurringInvalid =>
+      'Refusé : vérifiez les champs (catégorie, date).';
+
+  @override
+  String get recurringConflict =>
+      'Les récurrences ont changé entre-temps : liste rechargée.';
+
+  @override
+  String recurringDue(String date) {
+    return 'Échéance le $date';
+  }
+
+  @override
+  String recurringEstimated(String amount) {
+    return '≈ $amount';
+  }
+
+  @override
+  String recurringReminderTimeValue(String time) {
+    return '$time, heure locale';
+  }
+
+  @override
+  String recurringDeleteConfirm(String name) {
+    return 'Supprimer « $name » et ses échéances en attente ? Les dépenses déjà enregistrées sont conservées.';
+  }
+
+  @override
+  String occurrenceSkipConfirm(String date) {
+    return 'Sauter l’échéance du $date ? Aucune dépense ne sera enregistrée.';
+  }
 }

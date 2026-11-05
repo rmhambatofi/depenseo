@@ -573,4 +573,154 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get limitConflict =>
       'The limit changed in the meantime: check and save again.';
+
+  @override
+  String get recurringTitle => 'Recurring expenses';
+
+  @override
+  String get recurringSettingsHint => 'Rent, subscriptions, bills to pay';
+
+  @override
+  String get recurringUpcomingTitle => 'Pending payments';
+
+  @override
+  String get recurringUpcomingNone => 'No pending payment.';
+
+  @override
+  String get recurringListTitle => 'Recurring expenses';
+
+  @override
+  String get recurringNone =>
+      'No recurring expense yet: add your rent, subscriptions…';
+
+  @override
+  String get recurringAdd => 'New recurring expense';
+
+  @override
+  String get recurringEditTitle => 'Edit recurring expense';
+
+  @override
+  String get recurringNameLabel => 'Name';
+
+  @override
+  String get recurringNameRequired => 'Enter a name.';
+
+  @override
+  String get recurringAmountFixed => 'Fixed';
+
+  @override
+  String get recurringAmountEstimated => 'Estimated';
+
+  @override
+  String get recurringFrequencyLabel => 'Frequency';
+
+  @override
+  String get recurringFrequencyWeekly => 'Every week';
+
+  @override
+  String get recurringFrequencyMonthly => 'Every month';
+
+  @override
+  String get recurringFrequencyQuarterly => 'Every quarter';
+
+  @override
+  String get recurringFrequencyYearly => 'Every year';
+
+  @override
+  String get recurringFrequencyOnce => 'Once';
+
+  @override
+  String get recurringStartDateLabel => 'First due date';
+
+  @override
+  String get recurringScheduleLocked =>
+      'Frequency and first due date cannot be changed: delete this recurring expense and create another one.';
+
+  @override
+  String get recurringModeAuto => 'Record automatically when due';
+
+  @override
+  String get recurringModeAutoHint =>
+      'Otherwise, you will be asked to confirm.';
+
+  @override
+  String get recurringRemindThreeDays => 'Reminder 3 days before';
+
+  @override
+  String get recurringRemindOnDueDate => 'Reminder on the due date';
+
+  @override
+  String get recurringReminderTime => 'Reminder time';
+
+  @override
+  String get recurringSaved => 'Recurring expense saved.';
+
+  @override
+  String get recurringDeleted => 'Recurring expense deleted.';
+
+  @override
+  String get recurringDelete => 'Delete';
+
+  @override
+  String get recurringAwaiting => 'To confirm';
+
+  @override
+  String get occurrencePay => 'Pay';
+
+  @override
+  String get occurrenceConfirm => 'Confirm';
+
+  @override
+  String get occurrenceAdjust => 'Adjust amount';
+
+  @override
+  String get occurrenceSkip => 'Skip';
+
+  @override
+  String get occurrenceResetAmount => 'Back to the planned amount';
+
+  @override
+  String get occurrencePaid => 'Payment recorded as an expense.';
+
+  @override
+  String get occurrenceSkipped => 'Payment skipped.';
+
+  @override
+  String get occurrenceAdjusted => 'Amount adjusted.';
+
+  @override
+  String get recurringOffline =>
+      'A connection is required to view or edit recurring expenses.';
+
+  @override
+  String get recurringInvalid => 'Rejected: check the fields (category, date).';
+
+  @override
+  String get recurringConflict =>
+      'Recurring expenses changed in the meantime: list reloaded.';
+
+  @override
+  String recurringDue(String date) {
+    return 'Due on $date';
+  }
+
+  @override
+  String recurringEstimated(String amount) {
+    return '≈ $amount';
+  }
+
+  @override
+  String recurringReminderTimeValue(String time) {
+    return '$time, local time';
+  }
+
+  @override
+  String recurringDeleteConfirm(String name) {
+    return 'Delete “$name” and its pending payments? Expenses already recorded are kept.';
+  }
+
+  @override
+  String occurrenceSkipConfirm(String date) {
+    return 'Skip the payment due on $date? No expense will be recorded.';
+  }
 }

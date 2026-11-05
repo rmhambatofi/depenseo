@@ -37,6 +37,14 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => context.push('/settings/limits'),
           ),
           ListTile(
+            key: const Key('open-recurring'),
+            leading: const Icon(Icons.event_repeat_outlined),
+            title: Text(l10n.recurringTitle),
+            subtitle: Text(l10n.recurringSettingsHint),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/settings/recurring'),
+          ),
+          ListTile(
             title: Text(
               l10n.settingsSecurity,
               style: TextStyle(color: Theme.of(context).colorScheme.primary),

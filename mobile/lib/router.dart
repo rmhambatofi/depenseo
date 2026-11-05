@@ -14,6 +14,8 @@ import 'features/expenses/expense_list_screen.dart';
 import 'features/expenses/quick_entry_screen.dart';
 import 'features/home/home_screen.dart';
 import 'features/limits/limits_screen.dart';
+import 'features/recurring/recurring_edit_screen.dart';
+import 'features/recurring/recurring_screen.dart';
 import 'features/settings/pin_setup_screen.dart';
 import 'features/settings/settings_screen.dart';
 
@@ -81,6 +83,24 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'limits',
             builder: (context, state) => const LimitsScreen(),
+          ),
+          GoRoute(
+            path: 'recurring',
+            builder: (context, state) => const RecurringScreen(),
+            routes: [
+              // `new` avant `:recurringId`.
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => const RecurringEditScreen(),
+              ),
+              GoRoute(
+                path: ':recurringId',
+                builder: (context, state) => RecurringEditScreen(
+                  key: ValueKey(state.pathParameters['recurringId']),
+                  recurringId: state.pathParameters['recurringId'],
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: 'categories',

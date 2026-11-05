@@ -587,3 +587,17 @@ Décision (`mobile/lib/core/limits/`, `lib/features/limits/`) :
 - **Hors périmètre** : affichage de l'historique des limites (Premium, P6-13), limites par catégorie (backlog), autres devises (`otherCurrencies` ignoré, devises hors MVP).
 
 Conséquences : consulter ou modifier la limite exige le réseau. Pas de `syncFormat` à incrémenter (aucune table locale).
+
+## ADR-054 — Dépenses récurrentes sur mobile, en ligne (2026-11-05)
+
+Contexte : F-REC-01..04. L'API calcule et matérialise les échéances (ADR-032/033, invariant 8), crée la dépense au paiement avec l'identifiant fourni par le client, et porte les réglages de rappel (par récurrence : J-3 / jour J ; par compte : `reminderTime`, ADR-034). Les tables `recurring_expense` et `occurrence` sont dans la synchro, mais l'app n'a pas de table locale pour elles.
+
+Décision (`mobile/lib/core/recurring/`, `lib/features/recurring/`) :
+- **Tout en ligne**, comme ADR-052/053 : écran `/settings/recurring` (depuis Réglages) qui lit `GET …/recurring-expenses`, puis `GET …/{id}/occurrences` de chaque récurrence (en parallèle), puis `GET /me` (`reminderTime`). Raison : option la plus simple ; pas de calcul d'échéance sur l'appareil ; pas de nouvelle table locale ni de `syncFormat` à incrémenter. Le nombre de récurrences d'un carnet est faible (N+1 requêtes acceptables) ; une route d'échéances par carnet pourra les remplacer. La liste hors ligne des prochaines échéances relèvera de l'accueil (P6-10, `/dashboard`).
+- **Échéances** : seules les `pending` sont affichées, par date puis nom ; « À confirmer » si `awaitingConfirmation` ; montant estimé préfixé « ≈ ». Aucune mention « en retard » calculée sur l'appareil.
+- **Actions** (feuille du bas) : « Payer » (« Confirmer » si à confirmer : même route `POST …/pay`, F-REC-02) avec un UUID v7 de dépense tiré **une fois par échéance** et gardé en mémoire (rejeu idempotent après réponse perdue), puis demande de synchro pour rapatrier la dépense ; « Ajuster le montant » (`PATCH …/occurrences/{id}` `{amount}`) et « Revenir au montant prévu » (`{amount: null}`) si ajustée ; « Sauter » après confirmation. Payer un montant différent = ajuster puis payer (pas de champ montant/date au paiement).
+- **Formulaire** : nom, montant (devise du compte), fixe / estimé, fréquence, première échéance (aujourd'hui dans le fuseau du compte par défaut), catégorie, « Enregistrer automatiquement » (mode `auto`, sinon `confirm` par défaut), rappels J-3 et jour J (le second masqué en mode automatique, sans effet, ADR-034). Création : `POST` complet avec UUID v7 tiré une fois par formulaire ; modification : `PATCH` des seuls champs changés (rien si aucun) ; fréquence et première échéance affichées mais figées (immuables côté API). Suppression après confirmation (`DELETE`, échéances en attente supprimées, dépenses conservées).
+- **Heure des rappels** : réglage commun du compte (`PATCH /me {reminderTime}`), au sélecteur d'heure, sur le même écran. Les autres réglages de notification (types, plage de silence, rappel quotidien) relèvent de P6-11.
+- **Erreurs** : 400/422 → « Refusé : vérifiez les champs » ; 404/409 → « ont changé entre-temps » + rechargement ; réseau, 5xx, 401, réponse illisible ou session changée (`epoch`, comme ADR-052/053) → « Connexion requise ». Rechargement en échec : liste affichée sous l'avertissement, actions désactivées.
+
+Conséquences : gérer les récurrences exige le réseau ; la dépense payée apparaît localement après la synchro.

@@ -266,5 +266,85 @@
   "limitSaved": "Limite enregistrée.",
   "limitOffline": "Connexion requise pour consulter ou modifier la limite.",
   "limitInvalid": "Réglage refusé : vérifiez les champs.",
-  "limitConflict": "La limite a changé entre-temps : vérifiez puis enregistrez à nouveau."
+  "limitConflict": "La limite a changé entre-temps : vérifiez puis enregistrez à nouveau.",
+  "recurringTitle": "Dépenses récurrentes",
+  "recurringSettingsHint": "Loyer, abonnements, échéances à payer",
+  "recurringUpcomingTitle": "Échéances en attente",
+  "recurringUpcomingNone": "Aucune échéance en attente.",
+  "recurringListTitle": "Récurrences",
+  "recurringNone": "Aucune dépense récurrente : ajoutez votre loyer, vos abonnements…",
+  "recurringAdd": "Nouvelle récurrence",
+  "recurringEditTitle": "Modifier la récurrence",
+  "recurringNameLabel": "Nom",
+  "recurringNameRequired": "Indiquez un nom.",
+  "recurringAmountFixed": "Fixe",
+  "recurringAmountEstimated": "Estimé",
+  "recurringFrequencyLabel": "Fréquence",
+  "recurringFrequencyWeekly": "Chaque semaine",
+  "recurringFrequencyMonthly": "Chaque mois",
+  "recurringFrequencyQuarterly": "Chaque trimestre",
+  "recurringFrequencyYearly": "Chaque année",
+  "recurringFrequencyOnce": "Une seule fois",
+  "recurringStartDateLabel": "Première échéance",
+  "recurringScheduleLocked": "La fréquence et la première échéance ne se modifient pas : supprimez la récurrence et créez-en une autre.",
+  "recurringModeAuto": "Enregistrer automatiquement à l’échéance",
+  "recurringModeAutoHint": "Sinon, une confirmation vous est demandée.",
+  "recurringRemindThreeDays": "Rappel 3 jours avant",
+  "recurringRemindOnDueDate": "Rappel le jour de l’échéance",
+  "recurringReminderTime": "Heure des rappels",
+  "recurringSaved": "Récurrence enregistrée.",
+  "recurringDeleted": "Récurrence supprimée.",
+  "recurringDelete": "Supprimer",
+  "recurringAwaiting": "À confirmer",
+  "occurrencePay": "Payer",
+  "occurrenceConfirm": "Confirmer",
+  "occurrenceAdjust": "Ajuster le montant",
+  "occurrenceSkip": "Sauter",
+  "occurrenceResetAmount": "Revenir au montant prévu",
+  "occurrencePaid": "Échéance payée : dépense enregistrée.",
+  "occurrenceSkipped": "Échéance sautée.",
+  "occurrenceAdjusted": "Montant ajusté.",
+  "recurringOffline": "Connexion requise pour consulter ou modifier les récurrences.",
+  "recurringInvalid": "Refusé : vérifiez les champs (catégorie, date).",
+  "recurringConflict": "Les récurrences ont changé entre-temps : liste rechargée.",
+  "recurringDue": "Échéance le {date}",
+  "@recurringDue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "recurringEstimated": "≈ {amount}",
+  "@recurringEstimated": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "recurringReminderTimeValue": "{time}, heure locale",
+  "@recurringReminderTimeValue": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "recurringDeleteConfirm": "Supprimer « {name} » et ses échéances en attente ? Les dépenses déjà enregistrées sont conservées.",
+  "@recurringDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceSkipConfirm": "Sauter l’échéance du {date} ? Aucune dépense ne sera enregistrée.",
+  "@occurrenceSkipConfirm": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  }
 }

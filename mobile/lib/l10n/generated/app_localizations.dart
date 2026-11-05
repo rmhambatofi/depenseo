@@ -1123,6 +1123,276 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'La limite a changé entre-temps : vérifiez puis enregistrez à nouveau.'**
   String get limitConflict;
+
+  /// No description provided for @recurringTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenses récurrentes'**
+  String get recurringTitle;
+
+  /// No description provided for @recurringSettingsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Loyer, abonnements, échéances à payer'**
+  String get recurringSettingsHint;
+
+  /// No description provided for @recurringUpcomingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échéances en attente'**
+  String get recurringUpcomingTitle;
+
+  /// No description provided for @recurringUpcomingNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune échéance en attente.'**
+  String get recurringUpcomingNone;
+
+  /// No description provided for @recurringListTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récurrences'**
+  String get recurringListTitle;
+
+  /// No description provided for @recurringNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune dépense récurrente : ajoutez votre loyer, vos abonnements…'**
+  String get recurringNone;
+
+  /// No description provided for @recurringAdd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle récurrence'**
+  String get recurringAdd;
+
+  /// No description provided for @recurringEditTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier la récurrence'**
+  String get recurringEditTitle;
+
+  /// No description provided for @recurringNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom'**
+  String get recurringNameLabel;
+
+  /// No description provided for @recurringNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquez un nom.'**
+  String get recurringNameRequired;
+
+  /// No description provided for @recurringAmountFixed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fixe'**
+  String get recurringAmountFixed;
+
+  /// No description provided for @recurringAmountEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimé'**
+  String get recurringAmountEstimated;
+
+  /// No description provided for @recurringFrequencyLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fréquence'**
+  String get recurringFrequencyLabel;
+
+  /// No description provided for @recurringFrequencyWeekly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque semaine'**
+  String get recurringFrequencyWeekly;
+
+  /// No description provided for @recurringFrequencyMonthly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque mois'**
+  String get recurringFrequencyMonthly;
+
+  /// No description provided for @recurringFrequencyQuarterly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque trimestre'**
+  String get recurringFrequencyQuarterly;
+
+  /// No description provided for @recurringFrequencyYearly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque année'**
+  String get recurringFrequencyYearly;
+
+  /// No description provided for @recurringFrequencyOnce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une seule fois'**
+  String get recurringFrequencyOnce;
+
+  /// No description provided for @recurringStartDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Première échéance'**
+  String get recurringStartDateLabel;
+
+  /// No description provided for @recurringScheduleLocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'La fréquence et la première échéance ne se modifient pas : supprimez la récurrence et créez-en une autre.'**
+  String get recurringScheduleLocked;
+
+  /// No description provided for @recurringModeAuto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer automatiquement à l’échéance'**
+  String get recurringModeAuto;
+
+  /// No description provided for @recurringModeAutoHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sinon, une confirmation vous est demandée.'**
+  String get recurringModeAutoHint;
+
+  /// No description provided for @recurringRemindThreeDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel 3 jours avant'**
+  String get recurringRemindThreeDays;
+
+  /// No description provided for @recurringRemindOnDueDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel le jour de l’échéance'**
+  String get recurringRemindOnDueDate;
+
+  /// No description provided for @recurringReminderTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Heure des rappels'**
+  String get recurringReminderTime;
+
+  /// No description provided for @recurringSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récurrence enregistrée.'**
+  String get recurringSaved;
+
+  /// No description provided for @recurringDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récurrence supprimée.'**
+  String get recurringDeleted;
+
+  /// No description provided for @recurringDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get recurringDelete;
+
+  /// No description provided for @recurringAwaiting.
+  ///
+  /// In fr, this message translates to:
+  /// **'À confirmer'**
+  String get recurringAwaiting;
+
+  /// No description provided for @occurrencePay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Payer'**
+  String get occurrencePay;
+
+  /// No description provided for @occurrenceConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get occurrenceConfirm;
+
+  /// No description provided for @occurrenceAdjust.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajuster le montant'**
+  String get occurrenceAdjust;
+
+  /// No description provided for @occurrenceSkip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauter'**
+  String get occurrenceSkip;
+
+  /// No description provided for @occurrenceResetAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir au montant prévu'**
+  String get occurrenceResetAmount;
+
+  /// No description provided for @occurrencePaid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échéance payée : dépense enregistrée.'**
+  String get occurrencePaid;
+
+  /// No description provided for @occurrenceSkipped.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échéance sautée.'**
+  String get occurrenceSkipped;
+
+  /// No description provided for @occurrenceAdjusted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant ajusté.'**
+  String get occurrenceAdjusted;
+
+  /// No description provided for @recurringOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion requise pour consulter ou modifier les récurrences.'**
+  String get recurringOffline;
+
+  /// No description provided for @recurringInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refusé : vérifiez les champs (catégorie, date).'**
+  String get recurringInvalid;
+
+  /// No description provided for @recurringConflict.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les récurrences ont changé entre-temps : liste rechargée.'**
+  String get recurringConflict;
+
+  /// No description provided for @recurringDue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échéance le {date}'**
+  String recurringDue(String date);
+
+  /// No description provided for @recurringEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'≈ {amount}'**
+  String recurringEstimated(String amount);
+
+  /// No description provided for @recurringReminderTimeValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{time}, heure locale'**
+  String recurringReminderTimeValue(String time);
+
+  /// No description provided for @recurringDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer « {name} » et ses échéances en attente ? Les dépenses déjà enregistrées sont conservées.'**
+  String recurringDeleteConfirm(String name);
+
+  /// No description provided for @occurrenceSkipConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauter l’échéance du {date} ? Aucune dépense ne sera enregistrée.'**
+  String occurrenceSkipConfirm(String date);
 }
 
 class _AppLocalizationsDelegate
