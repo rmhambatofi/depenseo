@@ -83,7 +83,7 @@ Couverture des exigences « M » : `docs/dev/TRACEABILITY.md` (à tenir à jour 
 
 - [x] P7-01 Vérification de `docs/dev/TRACEABILITY.md` : chaque test cité existe et passe ; aucune ligne vide. (§11.1)
 - [x] P7-02 Couverture ≥ 70 % sur la logique métier API (`domain/`, `services/`) et mobile, rapport et seuil en CI. (NF-QUA-01)
-- [ ] P7-03 Sécurité : auto-évaluation OWASP MASVS L2 dans `docs/dev/MASVS.md`, en-têtes (CSP, HSTS), limitation de débit sur `/auth`. Test : 429 après N tentatives. (NF-SEC-04, NF-SEC-01)
+- [x] P7-03 Sécurité : auto-évaluation OWASP MASVS L2 dans `docs/dev/MASVS.md`, en-têtes (CSP, HSTS), limitation de débit sur `/auth`. Test : 429 après N tentatives. (NF-SEC-04, NF-SEC-01)
 - [ ] P7-04 Accessibilité : labels sémantiques, contrastes, tailles dynamiques sur les parcours clés (tests `meetsGuideline` Flutter) ; check-list `docs/dev/A11Y.md`. (NF-QUA-04)
 - [ ] P7-05 Suivi des erreurs Sentry (région UE) sur l'API et le mobile, avec filtrage des montants et PII (`beforeSend`). Test : un événement contenant un montant est nettoyé. (NF-QUA-02, NF-SEC-06)
 - [ ] P7-06 Performance : banc autocannon sur les routes clés avec base de 10 000 dépenses (p95 < 300 ms, en CI) ; mesure du démarrage mobile jusqu'à l'accueil (`integration_test` + timeline, cible < 2 s) consignée dans `docs/dev/PERF.md`. (NF-PERF-01, 02)

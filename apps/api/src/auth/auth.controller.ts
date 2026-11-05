@@ -15,6 +15,7 @@ import {
 } from '@nestjs/swagger';
 import { IDENTITY_PROVIDERS, type IdentityProvider } from '../db/schema/index.js';
 import { parseBody } from '../http/parse-body.js';
+import { RateLimited } from '../rate-limit/rate-limit.guard.js';
 import { Public } from './access-token.guard.js';
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from './password.js';
 import { AuthService, LANGUAGES, registerSchema, verifyEmailSchema } from './auth.service.js';
@@ -136,6 +137,7 @@ export class AuthController {
 
   /** Réponse 202 identique que l'adresse soit nouvelle ou déjà inscrite (F-AUTH-01, ADR-017). */
   @Public()
+  @RateLimited()
   @Post('register')
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiAcceptedResponse({
@@ -147,6 +149,7 @@ export class AuthController {
   }
 
   @Public()
+  @RateLimited()
   @Post('verify-email')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({ description: 'Adresse vérifiée' })
@@ -158,6 +161,7 @@ export class AuthController {
 
   /** Ouvre une session (F-AUTH-01) : 401 identifiants invalides, 403 adresse non vérifiée. */
   @Public()
+  @RateLimited({ perAccount: true })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @Header('Cache-Control', 'no-store')
@@ -175,6 +179,7 @@ export class AuthController {
    * le rattachant à celui de même adresse si le fournisseur fait autorité sur elle.
    */
   @Public()
+  @RateLimited()
   @Post('social')
   @HttpCode(HttpStatus.OK)
   @Header('Cache-Control', 'no-store')
@@ -215,6 +220,7 @@ export class AuthController {
 
   /** Réponse 202 identique que l'adresse soit inscrite ou non (F-AUTH-03, ADR-019). */
   @Public()
+  @RateLimited()
   @Post('password-reset/request')
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiAcceptedResponse({
@@ -228,6 +234,7 @@ export class AuthController {
 
   /** Lien à usage unique de 30 min ; toutes les sessions du compte sont fermées (F-AUTH-03). */
   @Public()
+  @RateLimited()
   @Post('password-reset/confirm')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({ description: 'Mot de passe remplacé, sessions révoquées' })

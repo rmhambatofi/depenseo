@@ -41,6 +41,16 @@ const schema = z.object({
   DATABASE_URL: databaseUrl,
   /** Connexions simultanées par processus Passenger (ADR-014). */
   DB_POOL_SIZE: z.coerce.number().int().min(1).max(20).default(5),
+  /**
+   * Proxys de confiance devant l'API (Apache/Passenger chez o2switch) : nombre de sauts lus dans
+   * `X-Forwarded-For` pour l'adresse cliente (limitation de débit, ADR-062). 0 = adresse TCP.
+   * **Obligatoire en production** : mal réglé, tous les clients partageraient un seul compteur.
+   */
+  TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).optional(),
+  /** Tentatives sur les routes `/auth` par adresse IP et par 15 min (NF-SEC-04, ADR-062). */
+  AUTH_RATE_LIMIT_PER_IP: z.coerce.number().int().min(1).default(30),
+  /** Tentatives de connexion par compte (adresse e-mail) et par 15 min (ADR-062). */
+  AUTH_RATE_LIMIT_PER_ACCOUNT: z.coerce.number().int().min(1).default(10),
   /** Connexion Apple (ADR-020) : bundle ID iOS et Services ID web acceptés pour `aud`. */
   APPLE_CLIENT_IDS: clientIds,
   /** Connexion Google (ADR-020) : identifiants de client OAuth (Android, iOS, web) pour `aud`. */
@@ -169,6 +179,11 @@ export function loadMailConfig(env: Readonly<Record<string, string | undefined>>
 
 export function loadConfig(env: Readonly<Record<string, string | undefined>>): AppConfig {
   const config = assertComplete(parseEnv(schema, env));
+  if (config.NODE_ENV === 'production' && config.TRUST_PROXY_HOPS === undefined) {
+    throw new ConfigError(
+      'Configuration invalide, démarrage refusé — TRUST_PROXY_HOPS : absente (ADR-062)',
+    );
+  }
   if (config.ADMIN_SESSION_SECRET === config.JWT_ACCESS_SECRET) {
     throw new ConfigError(
       'Configuration invalide, démarrage refusé — ADMIN_SESSION_SECRET : identique à JWT_ACCESS_SECRET',

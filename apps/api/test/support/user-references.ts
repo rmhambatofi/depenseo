@@ -3,6 +3,7 @@
 // - colonnes BINARY(16) (UUID) : égalité avec un identifiant de l'ensemble ;
 // - colonnes texte (CHAR, VARCHAR, TEXT) : présence d'un identifiant ou d'un marqueur (e-mail…).
 import type mysql from 'mysql2/promise';
+import { UNLINKED_TABLES } from '../../src/account-export/personal-data.js';
 import { binaryToUuid, uuidToBinary } from '../../src/db/uuid.js';
 
 interface Column {
@@ -46,7 +47,11 @@ export async function allTables(connection: mysql.Connection): Promise<string[]>
       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE'
         AND TABLE_NAME <> '__drizzle_migrations' AND TABLE_NAME NOT LIKE 'zz\\_test\\_%'`,
   );
-  return rows.map((r) => String(r.name)).sort();
+  // Tables qu'aucune ligne ne rattache à un compte : ni exportées ni supprimées avec lui.
+  return rows
+    .map((r) => String(r.name))
+    .filter((name) => !(name in UNLINKED_TABLES))
+    .sort();
 }
 
 const quote = (identifier: string) => `\`${identifier.replaceAll('`', '``')}\``;

@@ -5,6 +5,12 @@ import type mysql from 'mysql2/promise';
 import type { RowDataPacket } from 'mysql2';
 
 export const EXPECTED_COLLATION = 'utf8mb4_unicode_520_ci';
+/**
+ * Tables à clé naturelle, sans identifiant UUID : `rate_limit` est adressée par l'empreinte de
+ * son seau, jamais synchronisée ni rattachée à un compte (ADR-062).
+ */
+const NATURAL_PRIMARY_KEYS: Readonly<Record<string, string>> = { rate_limit: 'bucket' };
+
 /** Types interdits : flottants (montants) et TIMESTAMP (converti selon le fuseau de session). */
 const FORBIDDEN_TYPES = new Set(['float', 'double', 'real', 'timestamp']);
 /** Table technique de drizzle (id SERIAL) et tables jetables des tests (`zz_test_*`). */
@@ -93,7 +99,10 @@ export async function schemaViolations(
         violations.push(`${t}.${c.name}: identifiant ${c.columnType} au lieu de binary(16)`);
       }
     }
-    if (byName.get('id')?.key !== 'PRI') violations.push(`${t}: clé primaire \`id\` absente`);
+    const primaryKey = NATURAL_PRIMARY_KEYS[t] ?? 'id';
+    if (byName.get(primaryKey)?.key !== 'PRI') {
+      violations.push(`${t}: clé primaire \`${primaryKey}\` absente`);
+    }
 
     // Table synchronisée = table rattachée à un carnet (CLAUDE.md invariant 6, ADR-015).
     if (byName.has('notebook_id')) {

@@ -14,3 +14,4 @@ export * from './device.js';
 export * from './export-file.js';
 export * from './account-export.js';
 export * from './subscription.js';
+export * from './rate-limit.js';

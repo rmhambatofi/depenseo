@@ -34,6 +34,15 @@ export const EXCLUDED_TABLES: Readonly<Record<string, string>> = {
 };
 
 /**
+ * Tables sans aucun lien direct vers un compte (ni identifiant, ni adresse en clair) : hors export
+ * et hors suppression. `rate_limit` (ADR-062) ne garde que des empreintes HMAC (pseudonymes, clé
+ * côté serveur), purgées par le cron après leur fenêtre de 15 min.
+ */
+export const UNLINKED_TABLES: Readonly<Record<string, string>> = {
+  rate_limit: 'compteurs anti-abus : empreintes HMAC d’adresse IP ou d’e-mail, éphémères',
+};
+
+/**
  * Propriétés jamais exportées : secrets, empreintes de jetons et d'identifiants externes, jeton
  * push (accréditation de l'appareil), clé d'achat des stores, identité de l'administrateur dans le journal d'audit.
  */

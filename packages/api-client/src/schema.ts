@@ -1615,6 +1615,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Trop de tentatives ; réessayer après Retry-After */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     AuthController_logout: {
@@ -1673,6 +1680,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Trop de tentatives ; réessayer après Retry-After */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     AuthController_requestPasswordReset: {
@@ -1697,6 +1711,13 @@ export interface operations {
             };
             /** @description Champs invalides */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Trop de tentatives ; réessayer après Retry-After */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1768,6 +1789,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Trop de tentatives ; réessayer après Retry-After */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     AuthController_social: {
@@ -1826,6 +1854,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Trop de tentatives ; réessayer après Retry-After */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Fournisseur non configuré */
             503: {
                 headers: {
@@ -1857,6 +1892,13 @@ export interface operations {
             };
             /** @description Jeton invalide, expiré ou déjà utilisé */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Trop de tentatives ; réessayer après Retry-After */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

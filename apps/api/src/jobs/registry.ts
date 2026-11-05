@@ -2,6 +2,7 @@
 // (e-mails P1-05 et P1-07, notifications push P4-04…) et, au besoin, ses tâches périodiques.
 import { passwordResetEmailHandler } from '../auth/password-reset-email.job.js';
 import { purgeExpiredRefreshTokens } from '../auth/refresh-token-purge.js';
+import { purgeExpiredRateLimits } from '../rate-limit/rate-limit-purge.js';
 import {
   type VerificationEmailDeps,
   verificationEmailHandler,
@@ -40,6 +41,7 @@ export function scheduledTasks(
   return [
     purgeFinishedJobs(),
     purgeExpiredRefreshTokens(),
+    purgeExpiredRateLimits(),
     purgeDeletedSyncRows(),
     generateDueOccurrences(),
     processDueOccurrences(),

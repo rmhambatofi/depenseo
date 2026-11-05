@@ -20,6 +20,12 @@ export const TEST_ENV = {
   /** Back-office (ADR-042). */
   ADMIN_SESSION_SECRET: 'test-admin-session-secret-0123456789abcdef',
   ADMIN_TOTP_KEY: 'YWRtaW4tdG90cC10ZXN0LWtleS0zMi1ieXRlcy0tLS0=',
+  /**
+   * Toutes les suites appellent `/auth` depuis 127.0.0.1 : seuils neutralisés ici, fixés par
+   * `test/security/rate-limit.spec.ts` (ADR-062).
+   */
+  AUTH_RATE_LIMIT_PER_IP: '1000000000',
+  AUTH_RATE_LIMIT_PER_ACCOUNT: '1000000000',
 } as const;
 
 export class LogCapture extends Writable {

@@ -11,6 +11,7 @@ import type { AppConfig } from './config/env.js';
 import type { StoreNotificationKeys } from './subscriptions/store-notifications.service.js';
 import type { StoreReceiptVerifier } from './subscriptions/store-receipt-verifier.js';
 import { ProblemDetailsFilter } from './errors/problem-details.filter.js';
+import { securityHeaders } from './http/security-headers.js';
 
 export const API_PREFIX = 'api/v1';
 
@@ -38,6 +39,9 @@ export async function createApp(
   );
   app.useLogger(app.get(Logger));
   app.disable('x-powered-by');
+  // Adresse cliente réelle derrière le proxy d'o2switch (limitation de débit, ADR-062).
+  app.set('trust proxy', config.TRUST_PROXY_HOPS ?? 0);
+  app.use(securityHeaders);
   // Le back-office et son API vivent sous /admin (cookie `Path=/admin`, §8.5, ADR-042).
   app.setGlobalPrefix(API_PREFIX, {
     exclude: [{ path: 'admin{/*rest}', method: RequestMethod.ALL }],
