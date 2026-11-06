@@ -6,6 +6,7 @@ import '../../core/limits/limit_models.dart';
 import '../../core/money/amount_format.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../ui/amount_text.dart';
+import '../../ui/limit_progress_bar.dart';
 import '../../ui/tokens.dart';
 
 /// Carte d'en-tête de l'accueil (F-TB-01, P8-04, ADR-069) : dépensé de la
@@ -248,13 +249,9 @@ class _LimitPanel extends StatelessWidget {
                 style: muted,
               ),
               if (s.consumedPercent case final consumed?)
-                LinearProgressIndicator(
-                  value: consumed.clamp(0, 100) / 100,
-                  minHeight: 8,
-                  borderRadius: BorderRadius.circular(4),
+                LimitProgressBar(
+                  consumedPercent: consumed,
                   semanticsLabel: l10n.limitGaugeLabel,
-                  color: consumed >= 100 ? t.danger : t.success,
-                  backgroundColor: t.surfaceHigh,
                 ),
               if (s.remaining case final remaining?)
                 Text(

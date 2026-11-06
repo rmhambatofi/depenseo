@@ -165,6 +165,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsTitle => 'Réglages';
 
   @override
+  String get settingsGeneral => 'Général';
+
+  @override
   String get settingsSecurity => 'Sécurité';
 
   @override

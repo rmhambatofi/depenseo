@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/categories/category_api.dart';
 import '../../core/db/app_database.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../ui/grouped_card.dart';
+import '../../ui/tokens.dart';
 import 'category_badge.dart';
 import 'category_providers.dart';
 
@@ -57,14 +59,26 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
           padding: const EdgeInsets.all(24),
           child: Text(l10n.categoriesUnavailable),
         ),
+        // Une carte par racine, ses sous-catégories juste en dessous.
         AsyncData(:final value) => ListView(
-          padding: const EdgeInsets.only(bottom: 88),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.sm,
+            AppSpacing.md,
+            AppSizes.fabClearance,
+          ),
           children: [
-            for (final node in value) ...[
-              _tile(node.category),
-              for (final child in node.children)
-                _tile(child, hiddenParent: node.category.hidden),
-            ],
+            for (final node in value)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                child: GroupedCard(
+                  children: [
+                    _tile(node.category),
+                    for (final child in node.children)
+                      _tile(child, hiddenParent: node.category.hidden),
+                  ],
+                ),
+              ),
           ],
         ),
         AsyncError() => Center(
@@ -82,13 +96,13 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   /// racine est-elle masquée (elle n'est alors pas proposée non plus) ?
   Widget _tile(Category c, {bool? hiddenParent}) {
     final l10n = AppLocalizations.of(context);
-    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    final muted = AppTokens.of(context).textMuted;
     final notOffered = c.hidden || (hiddenParent ?? false);
     return ListTile(
       key: Key('category-tile-${c.id}'),
       contentPadding: EdgeInsetsDirectional.only(
-        start: hiddenParent == null ? 16 : 56,
-        end: 8,
+        start: hiddenParent == null ? AppSpacing.md : AppSpacing.md * 2.5,
+        end: AppSpacing.xs,
       ),
       leading: CategoryBadge(category: c, faded: notOffered),
       title: Text(c.name, style: notOffered ? TextStyle(color: muted) : null),

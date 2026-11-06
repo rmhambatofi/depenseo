@@ -176,3 +176,17 @@ abstract final class AppSpacing {
   static const double md = 16;
   static const double lg = 24;
 }
+
+/// Tailles d'éléments répétés (UI.md) : tuile d'icône des lignes de réglages
+/// et de listes groupées (40, comme les badges de catégorie des listes ;
+/// 48–56 réservé aux tuiles mises en avant).
+abstract final class AppSizes {
+  static const double rowTile = 40;
+
+  /// Retrait du filet d'une carte groupée : aligné sur le texte après la
+  /// tuile (marge de `ListTile` + tuile + marge).
+  static const double rowTextInset = AppSpacing.md + rowTile + AppSpacing.md;
+
+  /// Espace libre en bas d'une liste pour le bouton flottant.
+  static const double fabClearance = 88;
+}

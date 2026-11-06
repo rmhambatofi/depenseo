@@ -48,6 +48,7 @@
   "storageErrorBody": "Depenseo ne peut pas lire son coffre sécurisé. Déverrouillez l’appareil puis réessayez.",
   "retry": "Réessayer",
   "settingsTitle": "Réglages",
+  "settingsGeneral": "Général",
   "settingsSecurity": "Sécurité",
   "settingsAppearance": "Apparence",
   "themeLight": "Clair",

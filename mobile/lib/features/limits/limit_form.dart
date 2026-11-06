@@ -7,6 +7,9 @@ import '../../core/limits/limit_api.dart';
 import '../../core/limits/limit_models.dart';
 import '../../core/money/amount_input.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../ui/app_card.dart';
+import '../../ui/section_header.dart';
+import '../../ui/tokens.dart';
 import '../expenses/expense_providers.dart';
 import 'limit_providers.dart';
 import 'limits_screen.dart' show limitMessage;
@@ -167,85 +170,101 @@ class _LimitFormState extends ConsumerState<LimitForm> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
-    final text = Theme.of(context).textTheme;
     final last = _overview.last;
     final hasLimit = _kind != _Kind.none;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 16,
       children: [
-        Text(l10n.limitSettingsTitle, style: text.titleMedium),
-        SegmentedButton<_Kind>(
-          key: const Key('limit-kind'),
-          segments: [
-            ButtonSegment(
-              value: _Kind.none,
-              label: Text(
-                l10n.limitKindNone,
-                key: const Key('limit-kind-none'),
-              ),
-            ),
-            ButtonSegment(
-              value: _Kind.month,
-              label: Text(
-                l10n.limitKindMonth,
-                key: const Key('limit-kind-month'),
-              ),
-            ),
-            ButtonSegment(
-              value: _Kind.week,
-              label: Text(
-                l10n.limitKindWeek,
-                key: const Key('limit-kind-week'),
-              ),
-            ),
-          ],
-          selected: {_kind},
-          onSelectionChanged: (s) => _setKind(s.single),
+        SectionHeader(
+          title: l10n.limitSettingsTitle,
+          icon: Icons.tune_rounded,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
         ),
-        if (hasLimit) ...[
-          TextField(
-            key: const Key('limit-amount'),
-            controller: _amount,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [AmountInputFormatter(_separator)],
-            decoration: InputDecoration(
-              labelText: l10n.limitAmountLabel,
-              suffixText: _currency,
-              errorText: _amountError,
-            ),
-          ),
-          DropdownButtonFormField<int>(
-            // Liste différente selon le type : nouvel état à chaque bascule.
-            key: Key('limit-start-day-${_kind.name}'),
-            initialValue: _startDay,
-            decoration: InputDecoration(
-              labelText: _kind == _Kind.week
-                  ? l10n.limitStartDayWeek
-                  : l10n.limitStartDayMonth,
-            ),
-            items: [
-              if (_kind == _Kind.week)
-                for (var d = 1; d <= 7; d++)
-                  DropdownMenuItem(value: d, child: Text(_weekday(locale, d)))
-              else
-                for (var d = 1; d <= 31; d++)
-                  DropdownMenuItem(
-                    value: d,
-                    child: Text(l10n.limitStartDayOption(d)),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpacing.md,
+            children: [
+              SegmentedButton<_Kind>(
+                key: const Key('limit-kind'),
+                segments: [
+                  ButtonSegment(
+                    value: _Kind.none,
+                    label: Text(
+                      l10n.limitKindNone,
+                      key: const Key('limit-kind-none'),
+                    ),
                   ),
+                  ButtonSegment(
+                    value: _Kind.month,
+                    label: Text(
+                      l10n.limitKindMonth,
+                      key: const Key('limit-kind-month'),
+                    ),
+                  ),
+                  ButtonSegment(
+                    value: _Kind.week,
+                    label: Text(
+                      l10n.limitKindWeek,
+                      key: const Key('limit-kind-week'),
+                    ),
+                  ),
+                ],
+                selected: {_kind},
+                onSelectionChanged: (s) => _setKind(s.single),
+              ),
+              if (hasLimit) ...[
+                TextField(
+                  key: const Key('limit-amount'),
+                  controller: _amount,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  inputFormatters: [AmountInputFormatter(_separator)],
+                  decoration: InputDecoration(
+                    labelText: l10n.limitAmountLabel,
+                    suffixText: _currency,
+                    errorText: _amountError,
+                  ),
+                ),
+                DropdownButtonFormField<int>(
+                  // Liste différente selon le type : nouvel état à chaque bascule.
+                  key: Key('limit-start-day-${_kind.name}'),
+                  initialValue: _startDay,
+                  decoration: InputDecoration(
+                    labelText: _kind == _Kind.week
+                        ? l10n.limitStartDayWeek
+                        : l10n.limitStartDayMonth,
+                  ),
+                  items: [
+                    if (_kind == _Kind.week)
+                      for (var d = 1; d <= 7; d++)
+                        DropdownMenuItem(
+                          value: d,
+                          child: Text(_weekday(locale, d)),
+                        )
+                    else
+                      for (var d = 1; d <= 31; d++)
+                        DropdownMenuItem(
+                          value: d,
+                          child: Text(l10n.limitStartDayOption(d)),
+                        ),
+                  ],
+                  onChanged: (d) => setState(() => _startDay = d ?? _startDay),
+                ),
+                SwitchListTile(
+                  key: const Key('limit-include-recurring'),
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.limitIncludeRecurring),
+                  subtitle: Text(l10n.limitIncludeRecurringHint),
+                  value: _includeRecurring,
+                  onChanged: (on) => setState(() => _includeRecurring = on),
+                ),
+              ],
             ],
-            onChanged: (d) => setState(() => _startDay = d ?? _startDay),
           ),
-          SwitchListTile(
-            key: const Key('limit-include-recurring'),
-            contentPadding: EdgeInsets.zero,
-            title: Text(l10n.limitIncludeRecurring),
-            subtitle: Text(l10n.limitIncludeRecurringHint),
-            value: _includeRecurring,
-            onChanged: (on) => setState(() => _includeRecurring = on),
-          ),
-        ],
+        ),
         // Règles enregistrées qui ne s'appliqueront qu'à la prochaine
         // période (F-LIM-09).
         if (last != null && last.appliesFrom.compareTo(_overview.today) > 0)

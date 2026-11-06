@@ -1,13 +1,42 @@
 // Écran des limites (P6-08, F-LIM-01/02/03/05/09, ADR-053) : jauge lue
 // depuis l'API, réglages écrits en ligne.
+import 'package:depenseo/ui/limit_progress_bar.dart';
+import 'package:depenseo/ui/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fake_api.dart';
 import '../support/settle.dart';
+import '../support/style_finders.dart';
 import 'limit_harness.dart';
 
 void main() {
+  for (final (limit, over) in [(50000, false), (20000, true)]) {
+    testWidgets(
+      'jauge en carte, barre arrondie ${over ? 'rouge au-delà' : 'verte sous'} '
+      'de la limite, réglages titrés',
+      (tester) async {
+        await openLimits(tester, current: summary(limit: limit));
+        expect(cardOf(byKey('limit-spent')), findsOneWidget);
+        final bar = find.descendant(
+          of: byKey('limit-summary'),
+          matching: find.byType(LimitProgressBar),
+        );
+        expect(bar, findsOneWidget);
+        final indicator = tester.widget<LinearProgressIndicator>(
+          find.descendant(
+            of: bar,
+            matching: find.byType(LinearProgressIndicator),
+          ),
+        );
+        final t = AppTokens.light;
+        expect(indicator.color, over ? t.danger : t.success);
+        expectSection('Réglages de la limite', Icons.tune_rounded);
+        expect(cardOf(byKey('limit-kind')), findsOneWidget);
+      },
+    );
+  }
+
   testWidgets('aucune limite : dépensé seul, puis limite mensuelle au 28 '
       'sans récurrences', (tester) async {
     final (app, server) = await openLimits(tester, current: summary());
@@ -141,7 +170,15 @@ void main() {
       textOf(tester, 'limit-upcoming'),
       "Ces réglages s'appliquent à partir du 1 déc. 2026.",
     );
-    // La jauge en cours garde la limite mensuelle.
+    // La jauge en cours garde la limite mensuelle (en haut de la liste
+    // paresseuse : y revenir).
+    await tester.scrollUntilVisible(
+      byKey('limit-pace'),
+      -200,
+      scrollable: find
+          .ancestor(of: byKey('save-limit'), matching: find.byType(Scrollable))
+          .first,
+    );
     expect(textOf(tester, 'limit-pace'), contains('du mois'));
   });
 

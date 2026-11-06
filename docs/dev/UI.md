@@ -49,6 +49,11 @@ Widgets communs (`mobile/lib/ui/`) : `AppCard` (surface, rayon 24, ombre en clai
 `list` 17 ; le texte arrive déjà formaté par `core/money`).
 
 Rayons : carte 24, tuile 16, bouton 16, champ 14, pastille de navigation 20. Espacements : 8 / 12 / 16 / 24.
+
+Lignes groupées (P8-06) : `GroupedCard` (lignes dans une seule `AppCard`, filet aligné sur le texte), tuile de ligne
+`AppSizes.rowTile` = **40** (comme les badges de catégorie des listes ; 48–56 pour les tuiles mises en avant),
+`SectionHeader(icon:)` pour les sections titrées des réglages, `LimitProgressBar` (barre arrondie, verte sous la
+limite, rouge dès 100 %) partagée par l'accueil et l'écran Limites.
 Ombre carte claire : `0 8 24 rgba(109, 93, 246, 0.08)` ; aucune en sombre.
 
 ## Typographie

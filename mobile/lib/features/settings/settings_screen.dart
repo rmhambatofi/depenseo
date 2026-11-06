@@ -5,6 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../core/lock/lock_settings.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers.dart';
+import '../../ui/grouped_card.dart';
+import '../../ui/icon_tile.dart';
+import '../../ui/section_header.dart';
+import '../../ui/tokens.dart';
 import '../lock/app_lock_controller.dart';
 import 'theme_mode_controller.dart';
 
@@ -20,120 +24,177 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          0,
+          AppSpacing.md,
+          AppSpacing.lg,
+        ),
         children: [
-          ListTile(
-            key: const Key('open-categories'),
-            leading: const Icon(Icons.category_rounded),
-            title: Text(l10n.categoriesTitle),
-            subtitle: Text(l10n.categoriesSettingsHint),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('/settings/categories'),
+          SectionHeader(title: l10n.settingsGeneral, icon: Icons.tune_rounded),
+          GroupedCard(
+            children: [
+              ListTile(
+                key: const Key('open-categories'),
+                leading: const IconTile(
+                  icon: Icons.category_rounded,
+                  size: AppSizes.rowTile,
+                ),
+                title: Text(l10n.categoriesTitle),
+                subtitle: Text(l10n.categoriesSettingsHint),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => context.push('/settings/categories'),
+              ),
+              ListTile(
+                key: const Key('open-notifications'),
+                leading: const IconTile(
+                  icon: Icons.notifications_rounded,
+                  size: AppSizes.rowTile,
+                ),
+                title: Text(l10n.notificationsTitle),
+                subtitle: Text(l10n.notificationsSettingsHint),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => context.push('/settings/notifications'),
+              ),
+            ],
           ),
-          ListTile(
-            key: const Key('open-notifications'),
-            leading: const Icon(Icons.notifications_rounded),
-            title: Text(l10n.notificationsTitle),
-            subtitle: Text(l10n.notificationsSettingsHint),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('/settings/notifications'),
+          SectionHeader(
+            title: l10n.settingsSecurity,
+            icon: Icons.shield_rounded,
           ),
-          ListTile(
-            title: Text(
-              l10n.settingsSecurity,
-              style: TextStyle(color: Theme.of(context).colorScheme.primary),
-            ),
-          ),
-          SwitchListTile(
-            key: const Key('lock-enabled'),
-            title: Text(l10n.lockEnable),
-            subtitle: Text(l10n.lockEnableHint),
-            value: settings.enabled,
-            onChanged: (on) =>
-                on ? context.push('/settings/pin') : controller.disable(),
-          ),
-          if (settings.enabled) ...[
-            ListTile(
-              title: Text(l10n.lockDelayLabel),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: SegmentedButton<LockDelay>(
-                  key: const Key('lock-delay'),
-                  segments: [
-                    ButtonSegment(
-                      value: LockDelay.immediate,
-                      label: Text(l10n.lockDelayImmediate),
+          GroupedCard(
+            children: [
+              SwitchListTile(
+                key: const Key('lock-enabled'),
+                secondary: const IconTile(
+                  icon: Icons.lock_rounded,
+                  size: AppSizes.rowTile,
+                ),
+                title: Text(l10n.lockEnable),
+                subtitle: Text(l10n.lockEnableHint),
+                value: settings.enabled,
+                onChanged: (on) =>
+                    on ? context.push('/settings/pin') : controller.disable(),
+              ),
+              if (settings.enabled) ...[
+                ListTile(
+                  leading: const IconTile(
+                    icon: Icons.timer_rounded,
+                    size: AppSizes.rowTile,
+                  ),
+                  title: Text(l10n.lockDelayLabel),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.xs),
+                    child: SegmentedButton<LockDelay>(
+                      key: const Key('lock-delay'),
+                      segments: [
+                        ButtonSegment(
+                          value: LockDelay.immediate,
+                          label: Text(l10n.lockDelayImmediate),
+                        ),
+                        ButtonSegment(
+                          value: LockDelay.oneMinute,
+                          label: Text(l10n.lockDelayOneMinute),
+                        ),
+                        ButtonSegment(
+                          value: LockDelay.fiveMinutes,
+                          label: Text(l10n.lockDelayFiveMinutes),
+                        ),
+                      ],
+                      selected: {settings.delay},
+                      onSelectionChanged: (s) => controller.setDelay(s.single),
                     ),
-                    ButtonSegment(
-                      value: LockDelay.oneMinute,
-                      label: Text(l10n.lockDelayOneMinute),
+                  ),
+                ),
+                if (lock.biometricsAvailable)
+                  SwitchListTile(
+                    key: const Key('lock-biometrics'),
+                    secondary: const IconTile(
+                      icon: Icons.fingerprint_rounded,
+                      size: AppSizes.rowTile,
                     ),
-                    ButtonSegment(
-                      value: LockDelay.fiveMinutes,
-                      label: Text(l10n.lockDelayFiveMinutes),
+                    title: Text(l10n.lockBiometrics),
+                    value: settings.biometrics,
+                    onChanged: (on) =>
+                        controller.setBiometrics(on, l10n.lockBiometricReason),
+                  ),
+              ],
+              if (ref.watch(screenSecurityProvider).supported)
+                SwitchListTile(
+                  key: const Key('lock-screenshots'),
+                  secondary: const IconTile(
+                    icon: Icons.screenshot_rounded,
+                    size: AppSizes.rowTile,
+                  ),
+                  title: Text(l10n.lockScreenshots),
+                  value: settings.blockScreenshots,
+                  onChanged: controller.setBlockScreenshots,
+                ),
+            ],
+          ),
+          SectionHeader(
+            title: l10n.settingsAppearance,
+            icon: Icons.palette_rounded,
+          ),
+          GroupedCard(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.xs,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: AppSpacing.xs,
+                  children: [
+                    SegmentedButton<ThemeMode>(
+                      key: const Key('theme-mode'),
+                      showSelectedIcon: false,
+                      segments: [
+                        ButtonSegment(
+                          value: ThemeMode.light,
+                          icon: const Icon(Icons.light_mode_rounded),
+                          label: Text(l10n.themeLight),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.system,
+                          icon: const Icon(Icons.brightness_auto_rounded),
+                          label: Text(l10n.themeAuto),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.dark,
+                          icon: const Icon(Icons.dark_mode_rounded),
+                          label: Text(l10n.themeDark),
+                        ),
+                      ],
+                      selected: {ref.watch(themeModeProvider)},
+                      onSelectionChanged: (s) =>
+                          ref.read(themeModeProvider.notifier).set(s.single),
+                    ),
+                    Text(
+                      l10n.themeHint,
+                      style: TextStyle(color: AppTokens.of(context).textMuted),
                     ),
                   ],
-                  selected: {settings.delay},
-                  onSelectionChanged: (s) => controller.setDelay(s.single),
                 ),
               ),
-            ),
-            if (lock.biometricsAvailable)
-              SwitchListTile(
-                key: const Key('lock-biometrics'),
-                title: Text(l10n.lockBiometrics),
-                value: settings.biometrics,
-                onChanged: (on) =>
-                    controller.setBiometrics(on, l10n.lockBiometricReason),
+            ],
+          ),
+          SectionHeader(title: l10n.accountTitle, icon: Icons.person_rounded),
+          GroupedCard(
+            children: [
+              ListTile(
+                key: const Key('open-account'),
+                leading: const IconTile(
+                  icon: Icons.person_rounded,
+                  size: AppSizes.rowTile,
+                ),
+                title: Text(l10n.accountTitle),
+                subtitle: Text(l10n.accountSettingsHint),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => context.push('/settings/account'),
               ),
-          ],
-          if (ref.watch(screenSecurityProvider).supported)
-            SwitchListTile(
-              key: const Key('lock-screenshots'),
-              title: Text(l10n.lockScreenshots),
-              value: settings.blockScreenshots,
-              onChanged: controller.setBlockScreenshots,
-            ),
-          ListTile(
-            title: Text(
-              l10n.settingsAppearance,
-              style: TextStyle(color: Theme.of(context).colorScheme.primary),
-            ),
-          ),
-          ListTile(
-            subtitle: Text(l10n.themeHint),
-            title: SegmentedButton<ThemeMode>(
-              key: const Key('theme-mode'),
-              showSelectedIcon: false,
-              segments: [
-                ButtonSegment(
-                  value: ThemeMode.light,
-                  icon: const Icon(Icons.light_mode_rounded),
-                  label: Text(l10n.themeLight),
-                ),
-                ButtonSegment(
-                  value: ThemeMode.system,
-                  icon: const Icon(Icons.brightness_auto_rounded),
-                  label: Text(l10n.themeAuto),
-                ),
-                ButtonSegment(
-                  value: ThemeMode.dark,
-                  icon: const Icon(Icons.dark_mode_rounded),
-                  label: Text(l10n.themeDark),
-                ),
-              ],
-              selected: {ref.watch(themeModeProvider)},
-              onSelectionChanged: (s) =>
-                  ref.read(themeModeProvider.notifier).set(s.single),
-            ),
-          ),
-          const Divider(),
-          ListTile(
-            key: const Key('open-account'),
-            leading: const Icon(Icons.person_outline_rounded),
-            title: Text(l10n.accountTitle),
-            subtitle: Text(l10n.accountSettingsHint),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('/settings/account'),
+            ],
           ),
         ],
       ),

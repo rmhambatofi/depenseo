@@ -48,6 +48,7 @@
   "storageErrorBody": "Depenseo cannot read its secure vault. Unlock the device and try again.",
   "retry": "Try again",
   "settingsTitle": "Settings",
+  "settingsGeneral": "General",
   "settingsSecurity": "Security",
   "settingsAppearance": "Appearance",
   "themeLight": "Light",

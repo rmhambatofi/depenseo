@@ -99,6 +99,8 @@ Future<void> tapUntil(
   bool Function() done,
 ) async {
   final finder = find.byKey(Key(key));
+  // Liste paresseuse : l'entrée peut ne pas encore être construite.
+  if (finder.evaluate().isEmpty) await reveal(tester, key);
   await tester.ensureVisible(finder);
   await tester.tap(finder);
   await settleUntil(tester, done);

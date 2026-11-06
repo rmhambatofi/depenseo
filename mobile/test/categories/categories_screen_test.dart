@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../expenses/quick_entry_harness.dart';
 import '../support/fake_api.dart';
 import '../support/settle.dart';
+import '../support/style_finders.dart';
 import '../support/test_app.dart';
 
 Finder byKey(String key) => find.byKey(Key(key));
@@ -114,6 +115,24 @@ void main() {
       tester.widget<Switch>(byKey('category-visible-$food')).value,
       isTrue,
     );
+  });
+
+  testWidgets('une carte par racine avec ses sous-catégories, tuile d’icône', (
+    tester,
+  ) async {
+    await openCategories(tester);
+    expectSameCard(
+      tester,
+      byKey('category-tile-$food'),
+      byKey('category-tile-$groceries'),
+    );
+    expectSameCard(
+      tester,
+      byKey('category-tile-$food'),
+      byKey('category-tile-$transport'),
+      same: false,
+    );
+    expect(iconTileIn(byKey('category-tile-$food')), findsOneWidget);
   });
 
   testWidgets('masquer puis réafficher : PATCH hidden, retirée puis rendue '

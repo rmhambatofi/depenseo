@@ -96,10 +96,19 @@ final journeys = <String, Future<void> Function(WidgetTester)>{
     await openLimits(tester, current: summary(limit: 60000));
   },
   'dépenses récurrentes (onglet)': (tester) async {
-    await openRecurring(tester, items: [recurring()]);
+    // Texte ×2 : l'heure des rappels, en bas de la liste paresseuse, n'est
+    // pas encore construite à l'ouverture.
+    await openRecurring(
+      tester,
+      items: [recurring()],
+      until: find.byKey(const Key('no-occurrence')),
+    );
   },
   'alertes et rappels': (tester) async {
     await openNotifications(tester);
+  },
+  'catégories (liste)': (tester) async {
+    await openCategories(tester);
   },
   'modification de catégorie (icônes)': (tester) async {
     await openCategories(tester);
@@ -136,6 +145,8 @@ const longScreens = {
   'alertes et rappels',
   'réglages et apparence',
   'modification de catégorie (icônes)',
+  'catégories (liste)',
+  'dépenses récurrentes (onglet)',
 };
 
 /// Laisse aboutir les requêtes Dio encore en vol (minuteur zéro avancé

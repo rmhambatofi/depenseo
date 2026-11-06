@@ -386,6 +386,12 @@ abstract class AppLocalizations {
   /// **'Réglages'**
   String get settingsTitle;
 
+  /// No description provided for @settingsGeneral.
+  ///
+  /// In fr, this message translates to:
+  /// **'Général'**
+  String get settingsGeneral;
+
   /// No description provided for @settingsSecurity.
   ///
   /// In fr, this message translates to:

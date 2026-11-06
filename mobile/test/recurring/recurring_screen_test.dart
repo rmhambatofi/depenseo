@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fake_api.dart';
 import '../support/settle.dart';
+import '../support/style_finders.dart';
 import 'recurring_harness.dart';
 
 void main() {
@@ -61,6 +62,37 @@ void main() {
     expect(byKey('recurring-$rentId'), findsOneWidget);
     expect(find.text('Chaque mois'), findsNWidgets(2));
     expect(find.text('09:00, heure locale'), findsOneWidget);
+  });
+
+  testWidgets('sections titrées, échéances et récurrences en cartes avec '
+      'tuile d’icône', (tester) async {
+    await openRecurring(
+      tester,
+      items: [phone, rent],
+      occurrences: twoPending(),
+    );
+    expectSection('Échéances en attente', Icons.event_rounded);
+    expectSameCard(
+      tester,
+      byKey('occurrence-$phoneOccId'),
+      byKey('occurrence-$rentOccId'),
+    );
+    expect(iconTileIn(byKey('occurrence-$phoneOccId')), findsOneWidget);
+    await tester.scrollUntilVisible(
+      byKey('reminder-time'),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pumpAndSettle();
+    expectSection('Récurrences', Icons.autorenew_rounded);
+    expectSameCard(
+      tester,
+      byKey('recurring-$rentId'),
+      byKey('reminder-time'),
+      same: false,
+    );
+    expect(iconTileIn(byKey('recurring-$rentId')), findsOneWidget);
+    expect(iconTileIn(byKey('reminder-time')), findsOneWidget);
   });
 
   testWidgets('payer : dépense créée côté API avec un identifiant client, '

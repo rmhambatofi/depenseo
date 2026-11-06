@@ -2,7 +2,9 @@
 
 import 'package:depenseo/ui/amount_text.dart';
 import 'package:depenseo/ui/app_card.dart';
+import 'package:depenseo/ui/grouped_card.dart';
 import 'package:depenseo/ui/icon_tile.dart';
+import 'package:depenseo/ui/limit_progress_bar.dart';
 import 'package:depenseo/ui/section_header.dart';
 import 'package:depenseo/ui/theme.dart';
 import 'package:depenseo/ui/tokens.dart';
@@ -158,6 +160,88 @@ void main() {
     await pumpIn(tester, const SectionHeader(title: 'Sécurité'));
     expect(find.byType(TextButton), findsNothing);
   });
+
+  testWidgets('SectionHeader avec icône : décorative, titre seul annoncé', (
+    tester,
+  ) async {
+    await pumpIn(
+      tester,
+      const SectionHeader(title: 'Sécurité', icon: Icons.lock_rounded),
+    );
+    final icon = tester.widget<Icon>(find.byIcon(Icons.lock_rounded));
+    expect(icon.color, AppTokens.light.primary);
+    final semantics = tester.ensureSemantics();
+    try {
+      expect(
+        tester.getSemantics(find.text('Sécurité')),
+        matchesSemantics(label: 'Sécurité', isHeader: true),
+      );
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets('GroupedCard : lignes dans une seule carte, séparées', (
+    tester,
+  ) async {
+    await pumpIn(
+      tester,
+      const GroupedCard(
+        children: [
+          ListTile(title: Text('a')),
+          ListTile(title: Text('b')),
+          ListTile(title: Text('c')),
+        ],
+      ),
+    );
+    expect(find.byType(AppCard), findsOneWidget);
+    for (final t in ['a', 'b', 'c']) {
+      expect(
+        find.descendant(of: find.byType(AppCard), matching: find.text(t)),
+        findsOneWidget,
+      );
+    }
+    expect(find.byType(Divider), findsNWidgets(2));
+  });
+
+  testWidgets('GroupedCard : une seule ligne, aucun séparateur', (
+    tester,
+  ) async {
+    await pumpIn(
+      tester,
+      const GroupedCard(children: [ListTile(title: Text('a'))]),
+    );
+    expect(find.byType(Divider), findsNothing);
+  });
+
+  for (final brightness in Brightness.values) {
+    testWidgets('LimitProgressBar : arrondie, verte sous la limite, rouge '
+        'au-delà ($brightness)', (tester) async {
+      final tokens = brightness == Brightness.light
+          ? AppTokens.light
+          : AppTokens.dark;
+      LinearProgressIndicator bar() => tester.widget<LinearProgressIndicator>(
+        find.byType(LinearProgressIndicator),
+      );
+      await pumpIn(
+        tester,
+        const LimitProgressBar(consumedPercent: 62, semanticsLabel: 'Part'),
+        brightness: brightness,
+      );
+      expect(bar().value, closeTo(0.62, 1e-9));
+      expect(bar().color, tokens.success);
+      expect(bar().backgroundColor, tokens.surfaceHigh);
+      expect(bar().borderRadius, isNot(BorderRadius.zero));
+      expect(bar().minHeight, 8);
+      await pumpIn(
+        tester,
+        const LimitProgressBar(consumedPercent: 130, semanticsLabel: 'Part'),
+        brightness: brightness,
+      );
+      expect(bar().value, 1);
+      expect(bar().color, tokens.danger);
+    });
+  }
 
   testWidgets('thème : police embarquée et composants de la charte', (
     tester,

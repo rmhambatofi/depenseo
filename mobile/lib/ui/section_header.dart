@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'tokens.dart';
 
-/// Titre de section hors des cartes, avec lien optionnel à droite
-/// (« Voir tout ») en couleur primaire.
+/// Titre de section hors des cartes, avec icône optionnelle avant le titre et
+/// lien optionnel à droite (« Voir tout ») en couleur primaire.
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
     super.key,
     required this.title,
+    this.icon,
     this.actionLabel,
     this.onAction,
     this.actionKey,
@@ -20,6 +21,9 @@ class SectionHeader extends StatelessWidget {
   });
 
   final String title;
+
+  /// Icône décorative en couleur primaire avant le titre (réglages).
+  final IconData? icon;
   final String? actionLabel;
   final VoidCallback? onAction;
   final Key? actionKey;
@@ -32,6 +36,10 @@ class SectionHeader extends StatelessWidget {
       padding: padding,
       child: Row(
         children: [
+          if (icon != null) ...[
+            ExcludeSemantics(child: Icon(icon, color: t.primary, size: 20)),
+            const SizedBox(width: AppSpacing.xs),
+          ],
           Expanded(
             child: Semantics(
               header: true,

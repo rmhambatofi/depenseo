@@ -10,6 +10,10 @@ import '../../core/dates/date_display.dart';
 import '../../core/dates/today.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers.dart';
+import '../../ui/grouped_card.dart';
+import '../../ui/icon_tile.dart';
+import '../../ui/section_header.dart';
+import '../../ui/tokens.dart';
 import '../auth/auth_controller.dart';
 import '../expenses/expense_providers.dart';
 import '../premium/premium_providers.dart';
@@ -203,19 +207,14 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
-    final theme = Theme.of(context);
+    final t = AppTokens.of(context);
+    final muted = TextStyle(color: t.textMuted);
     String date(String d) => formatCalendarDate(d, locale);
 
     final idle = _busy == _Busy.none;
     final subscription = ref.watch(subscriptionStatusProvider).value;
     final plan = subscription?.plan;
     final excelLocked = _excelLocked = subscription?.premiumActive == false;
-    Widget header(String text) => Semantics(
-      header: true,
-      child: ListTile(
-        title: Text(text, style: TextStyle(color: theme.colorScheme.primary)),
-      ),
-    );
     Widget progress(_Busy kind) => _busy == kind
         ? Padding(
             key: Key('progress-${kind.name}'),
@@ -232,45 +231,66 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
         : const SizedBox.shrink();
 
     return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        0,
+        AppSpacing.md,
+        AppSpacing.lg,
+      ),
       children: [
-        header(l10n.exportExpensesTitle),
-        ListTile(
-          key: const Key('export-from'),
-          title: Text(l10n.exportFrom),
-          trailing: Text(date(_from)),
-          enabled: idle,
-          onTap: () => _pick(_from, (d) => _from = d),
+        SectionHeader(
+          title: l10n.exportExpensesTitle,
+          icon: Icons.file_download_rounded,
         ),
-        ListTile(
-          key: const Key('export-to'),
-          title: Text(l10n.exportTo),
-          trailing: Text(date(_to)),
-          enabled: idle,
-          onTap: () => _pick(_to, (d) => _to = d),
+        GroupedCard(
+          children: [
+            ListTile(
+              key: const Key('export-from'),
+              leading: const IconTile(
+                icon: Icons.event_rounded,
+                size: AppSizes.rowTile,
+              ),
+              title: Text(l10n.exportFrom),
+              trailing: Text(date(_from)),
+              enabled: idle,
+              onTap: () => _pick(_from, (d) => _from = d),
+            ),
+            ListTile(
+              key: const Key('export-to'),
+              leading: const IconTile(
+                icon: Icons.event_available_rounded,
+                size: AppSizes.rowTile,
+              ),
+              title: Text(l10n.exportTo),
+              trailing: Text(date(_to)),
+              enabled: idle,
+              onTap: () => _pick(_to, (d) => _to = d),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: SegmentedButton<ExportFormat>(
+                key: const Key('export-format'),
+                segments: [
+                  ButtonSegment(
+                    value: ExportFormat.csv,
+                    label: Text(l10n.exportCsv),
+                  ),
+                  ButtonSegment(
+                    value: ExportFormat.xlsx,
+                    label: Text(l10n.exportExcel),
+                    enabled: !excelLocked,
+                  ),
+                ],
+                selected: {_format},
+                onSelectionChanged: idle
+                    ? (s) => setState(() => _chosen = s.single)
+                    : null,
+              ),
+            ),
+          ],
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SegmentedButton<ExportFormat>(
-            key: const Key('export-format'),
-            segments: [
-              ButtonSegment(
-                value: ExportFormat.csv,
-                label: Text(l10n.exportCsv),
-              ),
-              ButtonSegment(
-                value: ExportFormat.xlsx,
-                label: Text(l10n.exportExcel),
-                enabled: !excelLocked,
-              ),
-            ],
-            selected: {_format},
-            onSelectionChanged: idle
-                ? (s) => setState(() => _chosen = s.single)
-                : null,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
           child: FilledButton.icon(
             key: const Key('export-expenses'),
             icon: const Icon(Icons.file_download_rounded),
@@ -281,55 +301,76 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
         if (excelLocked)
           Padding(
             key: const Key('excel-locked'),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(l10n.exportExcelLocked),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+            child: Text(l10n.exportExcelLocked, style: muted),
           ),
         progress(_Busy.expenses),
-        header(l10n.subscriptionTitle),
-        ListTile(
-          key: const Key('open-subscription'),
-          leading: const Icon(Icons.workspace_premium_rounded),
-          title: Text(
-            plan == null ? l10n.subscriptionTitle : planLabel(l10n, plan),
-          ),
-          trailing: const Icon(Icons.chevron_right_rounded),
-          onTap: () => context.push('/settings/subscription'),
+        SectionHeader(
+          title: l10n.subscriptionTitle,
+          icon: Icons.workspace_premium_rounded,
         ),
-        header(l10n.accountDataTitle),
-        ListTile(
-          key: const Key('export-personal'),
-          leading: const Icon(Icons.archive_rounded),
-          title: Text(l10n.exportPersonalAction),
-          subtitle: Text(l10n.exportPersonalHint),
-          enabled: idle,
-          onTap: _exportPersonal,
+        GroupedCard(
+          children: [
+            ListTile(
+              key: const Key('open-subscription'),
+              leading: const IconTile(
+                icon: Icons.workspace_premium_rounded,
+                size: AppSizes.rowTile,
+              ),
+              title: Text(
+                plan == null ? l10n.subscriptionTitle : planLabel(l10n, plan),
+              ),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => context.push('/settings/subscription'),
+            ),
+          ],
         ),
-        progress(_Busy.personal),
-        ListTile(
-          key: const Key('open-legal'),
-          leading: const Icon(Icons.gavel_rounded),
-          title: Text(l10n.legalTitle),
-          trailing: const Icon(Icons.chevron_right_rounded),
-          onTap: () => context.push('/settings/legal'),
-        ),
-        ListTile(
-          key: const Key('delete-account'),
-          leading: Icon(
-            Icons.delete_forever_rounded,
-            color: theme.colorScheme.error,
-          ),
-          title: Text(
-            l10n.deleteAccountAction,
-            style: TextStyle(color: theme.colorScheme.error),
-          ),
-          subtitle: Text(l10n.deleteAccountHint),
-          enabled: idle,
-          onTap: _delete,
+        SectionHeader(title: l10n.accountDataTitle, icon: Icons.folder_rounded),
+        GroupedCard(
+          children: [
+            ListTile(
+              key: const Key('export-personal'),
+              leading: const IconTile(
+                icon: Icons.archive_rounded,
+                size: AppSizes.rowTile,
+              ),
+              title: Text(l10n.exportPersonalAction),
+              subtitle: Text(l10n.exportPersonalHint),
+              enabled: idle,
+              onTap: _exportPersonal,
+            ),
+            if (_busy == _Busy.personal) progress(_Busy.personal),
+            ListTile(
+              key: const Key('open-legal'),
+              leading: const IconTile(
+                icon: Icons.gavel_rounded,
+                size: AppSizes.rowTile,
+              ),
+              title: Text(l10n.legalTitle),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => context.push('/settings/legal'),
+            ),
+            ListTile(
+              key: const Key('delete-account'),
+              leading: IconTile(
+                icon: Icons.delete_forever_rounded,
+                color: t.danger,
+                size: AppSizes.rowTile,
+              ),
+              title: Text(
+                l10n.deleteAccountAction,
+                style: TextStyle(color: t.danger),
+              ),
+              subtitle: Text(l10n.deleteAccountHint),
+              enabled: idle,
+              onTap: _delete,
+            ),
+          ],
         ),
         if (_busy == _Busy.deleting)
           const Padding(
             key: Key('progress-deleting'),
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.all(AppSpacing.md),
             child: LinearProgressIndicator(),
           ),
       ],

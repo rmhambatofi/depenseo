@@ -6,6 +6,10 @@ import '../../core/dates/date_display.dart';
 import '../../core/money/amount_format.dart';
 import '../../core/recurring/recurring_api.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../ui/grouped_card.dart';
+import '../../ui/icon_tile.dart';
+import '../../ui/section_header.dart';
+import '../../ui/tokens.dart';
 import '../shell/account_avatar.dart';
 import 'occurrence_actions.dart';
 import 'recurring_providers.dart';
@@ -72,22 +76,28 @@ class _RecurringList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
-    final text = Theme.of(context).textTheme;
+    final t = AppTokens.of(context);
     final overview = data.overview;
-    Widget header(String title) => Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-      child: Text(title, style: text.titleMedium),
+    // Sans couleur imposée : le ListTile grise la ligne désactivée.
+    const amountStyle = TextStyle(
+      fontWeight: FontWeight.w600,
+      fontFeatures: [FontFeature.tabularFigures()],
     );
     return ListView(
-      padding: const EdgeInsets.only(bottom: 88),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        0,
+        AppSpacing.md,
+        AppSizes.fabClearance,
+      ),
       children: [
         if (stale) ...[
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: const EdgeInsets.only(top: AppSpacing.md),
             child: Text(
               l10n.recurringOffline,
               key: const Key('recurring-stale'),
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+              style: TextStyle(color: t.danger),
             ),
           ),
           Align(
@@ -98,74 +108,106 @@ class _RecurringList extends ConsumerWidget {
             ),
           ),
         ],
-        header(l10n.recurringUpcomingTitle),
-        if (overview.pending.isEmpty)
-          ListTile(
-            key: const Key('no-occurrence'),
-            title: Text(l10n.recurringUpcomingNone),
-          ),
-        for (final o in overview.pending)
-          ListTile(
-            key: Key('occurrence-${o.id}'),
-            leading: Icon(
-              o.awaitingConfirmation
-                  ? Icons.notification_important_rounded
-                  : Icons.event_rounded,
-            ),
-            title: Text(o.name),
-            subtitle: Text(
-              [
-                l10n.recurringDue(formatCalendarDate(o.dueDate, locale)),
-                if (o.awaitingConfirmation) l10n.recurringAwaiting,
-              ].join(' · '),
-            ),
-            trailing: Text(
-              occurrenceAmount(
-                l10n,
-                o.amount,
-                o.currency,
-                o.amountKind,
-                locale,
+        SectionHeader(
+          title: l10n.recurringUpcomingTitle,
+          icon: Icons.event_rounded,
+        ),
+        GroupedCard(
+          children: [
+            if (overview.pending.isEmpty)
+              ListTile(
+                key: const Key('no-occurrence'),
+                title: Text(l10n.recurringUpcomingNone),
               ),
-              key: Key('occurrence-amount-${o.id}'),
-            ),
-            enabled: !stale,
-            onTap: () => showOccurrenceActions(context, ref, data, o),
-          ),
-        const Divider(),
-        header(l10n.recurringListTitle),
-        if (overview.recurring.isEmpty)
-          ListTile(
-            key: const Key('no-recurring'),
-            title: Text(l10n.recurringNone),
-          ),
-        for (final r in overview.recurring)
-          ListTile(
-            key: Key('recurring-${r.id}'),
-            title: Text(r.name),
-            subtitle: Text(frequencyLabel(l10n, r.frequency)),
-            trailing: Text(
-              occurrenceAmount(
-                l10n,
-                r.amount,
-                r.currency,
-                r.amountKind,
-                locale,
+            for (final o in overview.pending)
+              ListTile(
+                key: Key('occurrence-${o.id}'),
+                leading: o.awaitingConfirmation
+                    ? IconTile(
+                        icon: Icons.notification_important_rounded,
+                        color: t.warning,
+                        size: AppSizes.rowTile,
+                      )
+                    : const IconTile(
+                        icon: Icons.event_rounded,
+                        size: AppSizes.rowTile,
+                      ),
+                title: Text(o.name),
+                subtitle: Text(
+                  [
+                    l10n.recurringDue(formatCalendarDate(o.dueDate, locale)),
+                    if (o.awaitingConfirmation) l10n.recurringAwaiting,
+                  ].join(' · '),
+                ),
+                trailing: Text(
+                  occurrenceAmount(
+                    l10n,
+                    o.amount,
+                    o.currency,
+                    o.amountKind,
+                    locale,
+                  ),
+                  key: Key('occurrence-amount-${o.id}'),
+                  style: amountStyle,
+                ),
+                enabled: !stale,
+                onTap: () => showOccurrenceActions(context, ref, data, o),
               ),
+          ],
+        ),
+        SectionHeader(
+          title: l10n.recurringListTitle,
+          icon: Icons.autorenew_rounded,
+        ),
+        GroupedCard(
+          children: [
+            if (overview.recurring.isEmpty)
+              ListTile(
+                key: const Key('no-recurring'),
+                title: Text(l10n.recurringNone),
+              ),
+            for (final r in overview.recurring)
+              ListTile(
+                key: Key('recurring-${r.id}'),
+                leading: const IconTile(
+                  icon: Icons.autorenew_rounded,
+                  size: AppSizes.rowTile,
+                ),
+                title: Text(r.name),
+                subtitle: Text(frequencyLabel(l10n, r.frequency)),
+                trailing: Text(
+                  occurrenceAmount(
+                    l10n,
+                    r.amount,
+                    r.currency,
+                    r.amountKind,
+                    locale,
+                  ),
+                  style: amountStyle,
+                ),
+                enabled: !stale,
+                onTap: () => context.push('/recurring/${r.id}'),
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.md),
+        GroupedCard(
+          children: [
+            ListTile(
+              key: const Key('reminder-time'),
+              leading: const IconTile(
+                icon: Icons.notifications_rounded,
+                size: AppSizes.rowTile,
+              ),
+              title: Text(l10n.recurringReminderTime),
+              subtitle: Text(
+                l10n.recurringReminderTimeValue(overview.reminderTime),
+              ),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              enabled: !stale,
+              onTap: () => _pickReminderTime(context, ref),
             ),
-            enabled: !stale,
-            onTap: () => context.push('/recurring/${r.id}'),
-          ),
-        const Divider(),
-        ListTile(
-          key: const Key('reminder-time'),
-          leading: const Icon(Icons.notifications_rounded),
-          title: Text(l10n.recurringReminderTime),
-          subtitle: Text(
-            l10n.recurringReminderTimeValue(overview.reminderTime),
-          ),
-          enabled: !stale,
-          onTap: () => _pickReminderTime(context, ref),
+          ],
         ),
       ],
     );

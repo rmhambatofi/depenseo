@@ -6,6 +6,9 @@ import '../../core/limits/limit_api.dart';
 import '../../core/limits/limit_models.dart';
 import '../../core/money/amount_format.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../ui/app_card.dart';
+import '../../ui/limit_progress_bar.dart';
+import '../../ui/tokens.dart';
 import '../shell/account_avatar.dart';
 import 'limit_form.dart';
 import 'limit_providers.dart';
@@ -27,7 +30,12 @@ class LimitsScreen extends ConsumerWidget {
       body: switch (overview) {
         // Contenu gardé pendant le rechargement qui suit un enregistrement.
         AsyncValue(:final value?) => ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.xs,
+            AppSpacing.md,
+            AppSpacing.lg,
+          ),
           children: [
             // Rechargement en échec : la jauge affichée n'est plus à jour.
             if (overview.hasError) ...[
@@ -86,69 +94,68 @@ class LimitSummaryCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
     final text = Theme.of(context).textTheme;
+    final t = AppTokens.of(context);
     String money(int minor) => formatAmount(minor, summary.currency, locale);
     final s = summary;
-    return Card(
+    return AppCard(
       key: const Key('limit-summary'),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 8,
-          children: [
-            Text(l10n.limitCurrentTitle, style: text.titleMedium),
-            Text(
-              l10n.limitPeriod(
-                formatCalendarDate(s.start, locale),
-                formatCalendarDate(s.end, locale),
-              ),
-              style: text.bodySmall,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          Text(l10n.limitCurrentTitle, style: text.titleMedium),
+          Text(
+            l10n.limitPeriod(
+              formatCalendarDate(s.start, locale),
+              formatCalendarDate(s.end, locale),
             ),
-            if (s.limit case final limit?) ...[
-              Text(
-                l10n.limitSpentOf(money(s.spent), money(limit)),
-                key: const Key('limit-spent'),
-                style: text.titleLarge,
+            style: text.bodySmall,
+          ),
+          if (s.limit case final limit?) ...[
+            Text(
+              l10n.limitSpentOf(money(s.spent), money(limit)),
+              key: const Key('limit-spent'),
+              style: text.titleLarge,
+            ),
+            if (s.consumedPercent case final consumed?)
+              // Libellé lu avec le pourcentage, plafonné à 100 % par
+              // Flutter : le dépassement vient du texte voisin, fusionné
+              // dans le même nœud sémantique (testé dans
+              // test/a11y/guidelines_test.dart ; ne pas isoler la jauge).
+              LimitProgressBar(
+                consumedPercent: consumed,
+                semanticsLabel: l10n.limitGaugeLabel,
               ),
-              if (s.consumedPercent case final consumed?)
-                LinearProgressIndicator(
-                  value: (consumed.clamp(0, 100)) / 100,
-                  // Libellé lu avec le pourcentage, plafonné à 100 % par
-                  // Flutter : le dépassement vient du texte voisin, fusionné
-                  // dans le même nœud sémantique (testé dans
-                  // test/a11y/guidelines_test.dart ; ne pas isoler la jauge).
-                  semanticsLabel: l10n.limitGaugeLabel,
-                  color: consumed >= 100
-                      ? Theme.of(context).colorScheme.error
-                      : null,
-                ),
-              if (s.remaining case final remaining?)
-                Text(
-                  remaining < 0
-                      ? l10n.limitExceeded(money(-remaining))
-                      : l10n.limitRemaining(money(remaining)),
-                  key: const Key('limit-remaining'),
-                ),
-              if (s.consumedPercent case final consumed?)
-                Text(switch (s.periodKind) {
-                  LimitPeriodKind.month => l10n.limitPaceMonth(
-                    consumed,
-                    s.elapsedPercent,
-                  ),
-                  LimitPeriodKind.week => l10n.limitPaceWeek(
-                    consumed,
-                    s.elapsedPercent,
-                  ),
-                }, key: const Key('limit-pace')),
-            ] else ...[
-              Text(l10n.limitNone, key: const Key('limit-none')),
+            if (s.remaining case final remaining?)
               Text(
-                l10n.limitSpentNoLimit(money(s.spent)),
-                key: const Key('limit-spent'),
+                remaining < 0
+                    ? l10n.limitExceeded(money(-remaining))
+                    : l10n.limitRemaining(money(remaining)),
+                key: const Key('limit-remaining'),
+                style: TextStyle(
+                  color: remaining < 0 ? t.danger : t.success,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ],
+            if (s.consumedPercent case final consumed?)
+              Text(switch (s.periodKind) {
+                LimitPeriodKind.month => l10n.limitPaceMonth(
+                  consumed,
+                  s.elapsedPercent,
+                ),
+                LimitPeriodKind.week => l10n.limitPaceWeek(
+                  consumed,
+                  s.elapsedPercent,
+                ),
+              }, key: const Key('limit-pace')),
+          ] else ...[
+            Text(l10n.limitNone, key: const Key('limit-none')),
+            Text(
+              l10n.limitSpentNoLimit(money(s.spent)),
+              key: const Key('limit-spent'),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }

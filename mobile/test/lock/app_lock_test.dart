@@ -285,6 +285,9 @@ void main() {
       100,
       scrollable: find.byType(Scrollable).last,
     );
+    // Ligne construite mais peut-être coupée par le bas de l'écran.
+    await tester.ensureVisible(find.byKey(const Key('lock-screenshots')));
+    await tester.pumpAndSettle();
     await tap(tester, find.byKey(const Key('lock-screenshots')));
     expect(app.screen.secure, isFalse);
     expect((await LockStore(app.store).load()).blockScreenshots, isFalse);

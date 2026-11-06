@@ -6,11 +6,11 @@
 
 **MVP terminé** (2026-11-05, session 53). **Phase 8 ouverte** (2026-11-06) : refonte visuelle de l'app mobile dans le style de BilliTime, demandée par le propriétaire du produit. Backlog V1/V2 **non démarré** (décision du propriétaire).
 
-- Tâche en cours : aucune. **P8-05 fait** (liste des dépenses : sélecteur de mois `features/expenses/expense_month_header.dart` — mois courant dans le fuseau du compte, une période des filtres le remplace (ADR-070) —, groupes par jour sans total, tuile partagée accueil/liste avec catégorie complète `LocalExpenseItem.category`, recherche + bouton de filtres restylés). **Prochaine tâche : P8-06** (réglages, catégories, limites, récurrentes). Lire `docs/dev/UI.md`.
+- Tâche en cours : aucune. **P8-06 fait** (réglages, compte, catégories, limites, récurrentes : `SectionHeader(icon:)`, `GroupedCard`, tuiles `AppSizes.rowTile` = 40, `LimitProgressBar` partagée accueil/limites, parcours a11y « catégories (liste) »). **Prochaine tâche : P8-07** (saisie et parcours d'entrée). Lire `docs/dev/UI.md`.
 - Rappels phase 8 : présentation seulement, aucune fonction de BilliTime absente du MVP (revenus, solde, virements, objectifs) ; garder toutes les `Key` des tests ; aucun calcul de total ou de pourcentage sur le téléphone (ajouter à `/dashboard` si besoin) ; `mobile/` ne doit jamais contenir la chaîne `/admin`.
-- Dernier commit : feat(mobile): expense list with month selector and day groups (F-DEP-09, F-DEP-10).
+- Dernier commit : feat(mobile): restyled settings, account, categories, limits and recurring screens (F-CAT-02, F-LIM-02, F-REC-02, NF-QUA-04).
 - Branche : main
-- Tests (2026-11-06, P8-05) : `pnpm -r typecheck`/`lint` verts, Flutter 557 + `flutter analyze` propre, `tool/test_tz.sh` vert (4 fuseaux) ; API non relancée (aucun fichier API touché).
+- Tests (2026-11-06, P8-06) : Flutter 572 + `flutter analyze` propre, `tool/test_tz.sh` vert (4 fuseaux), a11y vert ; API non relancée (aucun fichier API touché).
 - Restent en l'état, assumés : voir « Reliquats » de `pieges/api.md`, `pieges/mobile.md`, `pieges/admin.md`.
 
 ## Pièges transverses (toujours valables)
@@ -51,6 +51,7 @@
 
 ## Historique (plus récent en haut)
 
+- 2026-11-06 session 59 — P8-06 fait (réglages, compte, catégories, limites, récurrentes restylés ; `GroupedCard`, `LimitProgressBar`).
 - 2026-11-06 session 58 — P8-05 fait (liste des dépenses : mois, groupes par jour, tuile restylée, ADR-070). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 57 — P8-04 fait (accueil restylé, sélecteur de période sur `evolution`, conteneurs sémantiques des cartes). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 56 — P8-03 fait (barre du bas, « + » central, avatar, retour Android → Accueil, icônes rounded, parcours a11y « dépenses récurrentes (onglet) »). Handoff après 1 tâche (~20 fichiers lus).
