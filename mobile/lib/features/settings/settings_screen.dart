@@ -6,6 +6,7 @@ import '../../core/lock/lock_settings.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers.dart';
 import '../lock/app_lock_controller.dart';
+import 'theme_mode_controller.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -108,6 +109,39 @@ class SettingsScreen extends ConsumerWidget {
               value: settings.blockScreenshots,
               onChanged: controller.setBlockScreenshots,
             ),
+          ListTile(
+            title: Text(
+              l10n.settingsAppearance,
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
+          ),
+          ListTile(
+            subtitle: Text(l10n.themeHint),
+            title: SegmentedButton<ThemeMode>(
+              key: const Key('theme-mode'),
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(
+                  value: ThemeMode.light,
+                  icon: const Icon(Icons.light_mode_rounded),
+                  label: Text(l10n.themeLight),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.system,
+                  icon: const Icon(Icons.brightness_auto_rounded),
+                  label: Text(l10n.themeAuto),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.dark,
+                  icon: const Icon(Icons.dark_mode_rounded),
+                  label: Text(l10n.themeDark),
+                ),
+              ],
+              selected: {ref.watch(themeModeProvider)},
+              onSelectionChanged: (s) =>
+                  ref.read(themeModeProvider.notifier).set(s.single),
+            ),
+          ),
           const Divider(),
           ListTile(
             key: const Key('open-account'),

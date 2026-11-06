@@ -69,6 +69,8 @@ LegalText _fr(LegalDoc doc) {
         'L’application chiffre ses données locales avec SQLCipher '
             '(licence BSD, © Zetetic LLC), qui s’appuie sur OpenSSL '
             '(licence Apache 2.0, © The OpenSSL Project Authors). '
+            'Son interface utilise la police Plus Jakarta Sans (SIL Open '
+            'Font License 1.1, © The Plus Jakarta Sans Project Authors). '
             'Le texte complet de ces licences et de celles des autres '
             'composants figure dans « Licences des logiciels ».',
       ),
@@ -205,7 +207,9 @@ LegalText _en(LegalDoc doc) {
         'Third-party software',
         'The app encrypts its local data with SQLCipher (BSD licence, '
             '© Zetetic LLC), which relies on OpenSSL (Apache 2.0 licence, '
-            '© The OpenSSL Project Authors). The full text of these and other '
+            '© The OpenSSL Project Authors). Its interface uses the Plus '
+            'Jakarta Sans typeface (SIL Open Font License 1.1, © The Plus '
+            'Jakarta Sans Project Authors). The full text of these and other '
             'licences is available in “Software licences”.',
       ),
     ]),

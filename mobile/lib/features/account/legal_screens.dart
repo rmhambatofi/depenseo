@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../l10n/generated/app_localizations.dart';
@@ -17,7 +18,8 @@ String legalSlug(LegalDoc doc) => switch (doc) {
 LegalDoc? legalDocFromSlug(String? slug) =>
     LegalDoc.values.where((d) => legalSlug(d) == slug).firstOrNull;
 
-/// Licences des bibliothèques natives absentes du registre Flutter (ADR-046).
+/// Licences absentes du registre Flutter : bibliothèques natives (ADR-046)
+/// et police embarquée (ADR-069, texte lu depuis les assets).
 void registerNativeLicenses() {
   LicenseRegistry.addLicense(
     () => Stream.fromIterable(const [
@@ -25,6 +27,11 @@ void registerNativeLicenses() {
       LicenseEntryWithLineBreaks(['OpenSSL'], _opensslLicense),
     ]),
   );
+  LicenseRegistry.addLicense(() async* {
+    yield LicenseEntryWithLineBreaks([
+      'Plus Jakarta Sans',
+    ], await rootBundle.loadString('assets/fonts/OFL.txt'));
+  });
 }
 
 /// Liste des documents légaux et licences (§6).

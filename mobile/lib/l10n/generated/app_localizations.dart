@@ -392,6 +392,36 @@ abstract class AppLocalizations {
   /// **'Sécurité'**
   String get settingsSecurity;
 
+  /// No description provided for @settingsAppearance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apparence'**
+  String get settingsAppearance;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clair'**
+  String get themeLight;
+
+  /// No description provided for @themeAuto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Auto'**
+  String get themeAuto;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sombre'**
+  String get themeDark;
+
+  /// No description provided for @themeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Auto suit le réglage du téléphone.'**
+  String get themeHint;
+
   /// No description provided for @lockEnable.
   ///
   /// In fr, this message translates to:

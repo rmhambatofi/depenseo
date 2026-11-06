@@ -1,3 +1,4 @@
+import 'package:depenseo/ui/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -30,12 +31,16 @@ void main() {
     expect(find.text('Mes dépenses'), findsOneWidget);
   });
 
-  testWidgets('thèmes clair et sombre Material 3', (tester) async {
+  testWidgets('thèmes clair et sombre de la charte, Auto par défaut', (
+    tester,
+  ) async {
     final app = TestApp();
     await app.pump(tester);
     final material = tester.widget<MaterialApp>(find.byType(MaterialApp));
 
     expect(material.theme?.useMaterial3, isTrue);
+    expect(material.theme?.extension<AppTokens>(), AppTokens.light);
+    expect(material.darkTheme?.extension<AppTokens>(), AppTokens.dark);
     expect(material.darkTheme?.colorScheme.brightness, Brightness.dark);
     expect(material.themeMode, ThemeMode.system);
   });

@@ -168,6 +168,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsSecurity => 'Sécurité';
 
   @override
+  String get settingsAppearance => 'Apparence';
+
+  @override
+  String get themeLight => 'Clair';
+
+  @override
+  String get themeAuto => 'Auto';
+
+  @override
+  String get themeDark => 'Sombre';
+
+  @override
+  String get themeHint => 'Auto suit le réglage du téléphone.';
+
+  @override
   String get lockEnable => 'Verrouiller l’application';
 
   @override

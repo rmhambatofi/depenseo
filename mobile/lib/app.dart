@@ -5,9 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/lock/lock_gate.dart';
 import 'features/notifications/push_registration.dart';
 import 'features/premium/premium_providers.dart';
+import 'features/settings/theme_mode_controller.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'router.dart';
-import 'theme.dart';
+import 'ui/theme.dart';
 
 class DepenseoApp extends ConsumerWidget {
   /// [locale] force la langue (tests) ; par défaut, celle de l'appareil, repli fr.
@@ -37,7 +38,7 @@ class DepenseoApp extends ConsumerWidget {
       ),
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
-      themeMode: ThemeMode.system,
+      themeMode: ref.watch(themeModeProvider),
     );
   }
 }

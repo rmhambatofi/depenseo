@@ -82,6 +82,21 @@ void main() {
     final packages = await LicenseRegistry.licenses
         .expand((l) => l.packages)
         .toList();
-    expect(packages, containsAll(['SQLCipher', 'OpenSSL']));
+    expect(
+      packages,
+      containsAll(['SQLCipher', 'OpenSSL', 'Plus Jakarta Sans']),
+    );
+    final font = await LicenseRegistry.licenses.firstWhere(
+      (l) => l.packages.contains('Plus Jakarta Sans'),
+    );
+    final text = font.paragraphs.map((p) => p.text).join('\n');
+    expect(text, contains('SIL Open Font License, Version 1.1'));
+  });
+
+  test('police citée dans les mentions légales', () {
+    for (final language in ['fr', 'en']) {
+      final notice = legalText(LegalDoc.legalNotice, language).sections;
+      expect(notice.map((s) => s.body).join(), contains('Plus Jakarta Sans'));
+    }
   });
 }

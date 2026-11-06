@@ -21,21 +21,31 @@ ni textes. Palette, icônes et police sont les nôtres ou sous licence libre.
 
 ## Jetons (`mobile/lib/ui/tokens.dart`)
 
-Valeurs de départ ; tout couple texte/fond doit passer les tests de contraste (`test/a11y/guidelines_test.dart`).
-Si un couple échoue, foncer (clair) ou éclaircir (sombre) la couleur du texte, pas la surface.
+Valeurs retenues en P8-01 (entre parenthèses, la valeur de départ ajustée pour passer 4,5:1 sur `background`,
+`surface` et `surfaceHigh`). Tout couple texte/fond est vérifié par `test/ui/tokens_test.dart` (calcul) et
+`test/a11y/guidelines_test.dart` (rendu). Si un couple échoue, foncer (clair) ou éclaircir (sombre) la couleur du
+texte, pas la surface. Accès : `AppTokens.of(context)` (extension de thème), rayons `AppRadius`, espacements `AppSpacing`.
 
 | Jeton | Clair | Sombre |
 | --- | --- | --- |
-| `primary` | `#6D5DF6` | `#7C6CFF` |
-| `primaryGradient` | `#5B4BEA` → `#9A8CFF` (135°) | `#4F3FD8` → `#7C6CFF` |
+| `primary` | `#6355E0` (`#6D5DF6`) | `#8C7EFF` (`#7C6CFF`) |
+| `onPrimary` (texte sur `primary`) | `#FFFFFF` | `#0F1020` |
+| `primaryGradient` | `#5B4BEA` → `#7B6BF5` (`#9A8CFF`) (135°) | `#4F3FD8` → `#6E5EF0` (`#7C6CFF`) |
 | `background` | `#F5F4FB` | `#0F1020` |
 | `surface` (cartes) | `#FFFFFF` | `#1A1B2E` |
 | `surfaceHigh` (tuiles, champs) | `#EFEDFB` | `#23253B` |
 | `text` | `#17162A` | `#F2F1FA` |
-| `textMuted` | `#6E6B85` | `#A3A0BC` |
-| `success` (sous la limite) | `#0E9F74` | `#2FD3A0` |
-| `danger` (dépassement, texte) | `#D93F48` | `#FF7A80` |
-| `warning` (seuil d'alerte) | `#B7791F` | `#F5B547` |
+| `textMuted` | `#6B6881` (`#6E6B85`) | `#A3A0BC` |
+| `success` (sous la limite) | `#0B7A59` (`#0E9F74`) | `#2FD3A0` |
+| `danger` (dépassement, texte) | `#C13840` (`#D93F48`) | `#FF7A80` |
+| `warning` (seuil d'alerte) | `#926119` (`#B7791F`) | `#F5B547` |
+
+Dégradé : texte blanc ≥ 4,5:1 sur le départ, ≥ 3:1 sur l'arrivée (grands montants seulement de ce côté).
+
+Widgets communs (`mobile/lib/ui/`) : `AppCard` (surface, rayon 24, ombre en clair, `onTap` optionnel), `IconTile`
+(tuile teintée, `fallbackText` pour un emoji hors catalogue, décorative pour les lecteurs d'écran), `SectionHeader`
+(titre 18 annoncé comme en-tête + lien optionnel), `AmountText` (chiffres tabulaires, tailles `hero` 40 / `card` 28 /
+`list` 17 ; le texte arrive déjà formaté par `core/money`).
 
 Rayons : carte 24, tuile 16, bouton 16, champ 14, pastille de navigation 20. Espacements : 8 / 12 / 16 / 24.
 Ombre carte claire : `0 8 24 rgba(109, 93, 246, 0.08)` ; aucune en sombre.
@@ -57,6 +67,15 @@ Graisses : 400, 500, 600, 700. Chiffres tabulaires (`FontFeature.tabularFigures(
 ## Mode sombre
 
 Choix Clair / Auto / Sombre dans les réglages (préférence locale de l'appareil, pas synchronisée), Auto par défaut.
+Clé `ui.theme` du coffre (`ThemePreference`, `themeModeProvider`) : **jamais effacée** à la déconnexion (aucune donnée
+de compte).
+
+## Captures (recette visuelle)
+
+`flutter test test/screenshots --dart-define=CAPTURE=../design-ref/captures/<nom>` : chaque parcours de `journeys`
+(`test/a11y/guidelines_test.dart`) en clair/sombre × texte ×1/×2, rendu réel (polices chargées, vraies ombres) sur le
+faux serveur des tests, 390×844 points. Sans `CAPTURE`, le fichier ne déclare aucun test (rien d’ignoré dans la suite). Captures « avant » (thème MVP) :
+`design-ref/captures/avant/`, ignorées par git comme le reste de `design-ref/`.
 
 ## Hors périmètre de la phase 8
 

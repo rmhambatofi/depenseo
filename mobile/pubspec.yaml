@@ -50,6 +50,19 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  # Police embarquée (SIL OFL 1.1, ADR-069) : jamais téléchargée à l'exécution.
+  assets:
+    - assets/fonts/OFL.txt
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-Regular.ttf
+        - asset: assets/fonts/PlusJakartaSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/PlusJakartaSans-Bold.ttf
+          weight: 700
 
 # SQLCipher (NF-SEC-02, §8.1) : package:sqlite3 3.x embarque la build SQLCipher via ses hooks (ADR-046).
 hooks:

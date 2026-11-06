@@ -167,6 +167,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSecurity => 'Security';
 
   @override
+  String get settingsAppearance => 'Appearance';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeAuto => 'Auto';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get themeHint => 'Auto follows your phone setting.';
+
+  @override
   String get lockEnable => 'Lock the app';
 
   @override

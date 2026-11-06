@@ -94,6 +94,9 @@ Future<void> pickTime(WidgetTester tester, Finder row, String time) async {
     100,
     scrollable: find.byType(Scrollable).last,
   );
+  // Construite ne veut pas dire touchable (cache de la liste) : l'amener à l'écran.
+  await tester.ensureVisible(row);
+  await tester.pumpAndSettle();
   await tester.tap(row);
   await tester.pumpAndSettle();
   final fields = find.descendant(

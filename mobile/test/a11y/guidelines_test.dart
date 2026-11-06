@@ -96,6 +96,13 @@ final journeys = <String, Future<void> Function(WidgetTester)>{
   'alertes et rappels': (tester) async {
     await openNotifications(tester);
   },
+  'réglages et apparence': (tester) async {
+    final app = await startSignedIn(tester);
+    // Haut de l'écran : le test défile lui-même jusqu'au choix du thème.
+    app.router.go('/settings');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('open-categories')), findsOneWidget);
+  },
   'compte et export': (tester) async {
     await openAccount(tester);
   },
@@ -112,7 +119,12 @@ final journeys = <String, Future<void> Function(WidgetTester)>{
   },
 };
 
-const longScreens = {'accueil', 'compte et export', 'alertes et rappels'};
+const longScreens = {
+  'accueil',
+  'compte et export',
+  'alertes et rappels',
+  'réglages et apparence',
+};
 
 /// Laisse aboutir les requêtes Dio encore en vol (minuteur zéro avancé
 /// par une durée simulée, réponse par de vraies E/S) : sinon « Timer still
