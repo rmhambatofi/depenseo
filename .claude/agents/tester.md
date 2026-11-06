@@ -2,7 +2,7 @@
 name: tester
 description: Exécute la suite de tests complète (API contre MariaDB 10.6, multi-fuseaux, Flutter) et renvoie un résumé court des échecs. À utiliser pour ne pas polluer le contexte principal avec des sorties de tests longues.
 tools: Bash, Read, Grep
-model: inherit
+model: haiku
 ---
 Lance les vérifications dans l'ordre et arrête-toi au premier échec de catégorie :
 1. `docker compose up -d db && bash scripts/db-wait.sh` (si présents)

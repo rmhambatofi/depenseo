@@ -1,3 +1,6 @@
+---
+model: sonnet
+---
 Prends la prochaine tâche du MVP.
 
 1. Lis `docs/dev/PROGRESS.md` puis la première tâche `[ ]` de `docs/dev/PLAN.md` (hors backlog). Marque-la `[~]`.
