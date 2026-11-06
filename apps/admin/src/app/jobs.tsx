@@ -12,7 +12,7 @@ import {
 } from 'react-admin';
 import { Timestamp } from './fields';
 import { useState } from 'react';
-import type { AdminDataProvider } from './data-provider';
+import { type AdminDataProvider, SERVER_SORT } from './data-provider';
 
 function RetryButton() {
   const record = useRecordContext<{ id: string }>();
@@ -36,7 +36,7 @@ function RetryButton() {
 }
 
 export const JobList = () => (
-  <InfiniteList exporter={false} perPage={50}>
+  <InfiniteList exporter={false} sort={SERVER_SORT} perPage={50}>
     <Datagrid bulkActionButtons={false} rowClick={false}>
       <TextField source="type" label="Type" sortable={false} />
       <NumberField source="attempts" label="Essais" sortable={false} />

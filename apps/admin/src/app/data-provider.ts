@@ -1,7 +1,13 @@
 // Fournisseur de données React-admin sur l'API admin (F-ADM-01, ADR-043/044) : lecture seule,
 // listes paginées par curseur opaque `{ items, nextCursor }` traduites en pagination partielle
 // (page suivante / précédente), sans total. Aucun calcul métier ici (invariant 8).
-import type { DataProvider, GetListParams, GetListResult, RaRecord } from 'react-admin';
+import type {
+  DataProvider,
+  GetListParams,
+  GetListResult,
+  RaRecord,
+  SortPayload,
+} from 'react-admin';
 import type { AdminFetch } from './admin-api';
 
 /** Filtres acceptés par chaque liste (objets stricts côté API : rien d'autre n'est transmis). */
@@ -20,6 +26,15 @@ const DEFAULT_FILTERS: Partial<Record<AdminResource, Record<string, string>>> = 
 export type AdminResource = keyof typeof LIST_FILTERS;
 
 const MAX_PAGE_SIZE = 100;
+
+/**
+ * Ordre unique des listes de l'API admin (`created_at` puis `id` décroissants, imposé par la
+ * pagination par curseur) : les listes le déclarent, tout autre tri est refusé plutôt qu'ignoré.
+ */
+export const SERVER_SORT: SortPayload = { field: 'createdAt', order: 'DESC' };
+
+/** Nombre de listes (ressource + filtres + taille) dont les curseurs sont gardés. */
+export const MAX_CACHED_LISTS = 10;
 
 interface AdminPage {
   items: RaRecord[];
@@ -43,11 +58,18 @@ function readOnly(): Promise<never> {
 }
 
 export function createDataProvider(fetchJson: AdminFetch): AdminDataProvider {
-  /** Curseur de chaque page déjà atteinte, par liste (ressource + filtres + taille). */
+  /**
+   * Curseur de chaque page déjà atteinte, par liste (ressource + filtres + taille), dans l'ordre
+   * de dernière consultation. Repartir de la page 1 les oublie : ils décrivent l'ancien état.
+   */
   const cursors = new Map<string, Map<number, string>>();
 
   async function getList(resource: string, params: GetListParams): Promise<GetListResult> {
     const name = resourceOf(resource);
+    const { sort } = params;
+    if (sort && (sort.field !== SERVER_SORT.field || sort.order !== SERVER_SORT.order)) {
+      throw new Error(`Tri non pris en charge par l’API : ${sort.field} ${sort.order}`);
+    }
     const page = params.pagination?.page ?? 1;
     const limit = Math.min(params.pagination?.perPage ?? 50, MAX_PAGE_SIZE);
     const filter = { ...DEFAULT_FILTERS[name], ...(params.filter as Record<string, unknown>) };
@@ -58,8 +80,13 @@ export function createDataProvider(fetchJson: AdminFetch): AdminDataProvider {
     }
     query.set('limit', String(limit));
     const listKey = `${name}?${query.toString()}`;
-    const known = cursors.get(listKey) ?? new Map<number, string>();
+    const known = (page > 1 && cursors.get(listKey)) || new Map<number, string>();
+    cursors.delete(listKey);
     cursors.set(listKey, known);
+    for (const oldest of cursors.keys()) {
+      if (cursors.size <= MAX_CACHED_LISTS) break;
+      cursors.delete(oldest);
+    }
     if (page > 1) {
       const cursor = known.get(page);
       if (!cursor) throw new Error('Pagination expirée : revenir à la première page');

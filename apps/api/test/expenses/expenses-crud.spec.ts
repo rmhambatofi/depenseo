@@ -1,7 +1,7 @@
 // Dépenses (F-DEP-03, NF-OFF-01, NF-FMT-01/02, ADR-024) : création idempotente par UUID client,
 // lecture, modification, validation, étiquettes. Cycle de vie : `expenses-lifecycle.spec.ts`.
 import type { INestApplication } from '@nestjs/common';
-import { eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { expenseTag, tag, user } from '../../src/db/schema/index.js';
 import { newId, uuidToBinary } from '../../src/db/uuid.js';
@@ -208,6 +208,25 @@ describe('dépenses (F-DEP-03)', () => {
     expect(json(second).tags).toEqual(['Été']);
     const tags = await db.select().from(tag).where(eq(tag.notebookId, t.notebookId));
     expect(tags.map((row) => row.name).sort()).toEqual(['Travail', 'Été']);
+  });
+
+  it('étiquette supprimée puis réutilisée : restaurée, `updated_at` avance ; les autres intactes', async () => {
+    const { t, categoryId } = await tenant();
+    const expense = (tags: string[]) =>
+      create(t, { id: newId(), amount: 100, categoryId, date: '2026-04-08', tags });
+    await expense(['Été', 'Travail']);
+    const created = clock.now();
+    await db
+      .update(tag)
+      .set({ deletedAt: created })
+      .where(and(eq(tag.notebookId, t.notebookId), eq(tag.name, 'Été')));
+    clock.advance(60_000);
+    expect(json(await expense(['ete', 'Travail'])).tags).toEqual(['Été', 'Travail']);
+    const rows = await db.select().from(tag).where(eq(tag.notebookId, t.notebookId));
+    const byName = new Map(rows.map((row) => [row.name, row]));
+    expect(byName.get('Été')).toMatchObject({ deletedAt: null, updatedAt: clock.now() });
+    // Étiquette vivante réutilisée : aucune écriture, pas de renvoi inutile par la synchro.
+    expect(byName.get('Travail')).toMatchObject({ deletedAt: null, updatedAt: created });
   });
 
   it('modification partielle : champs, étiquettes remplacées, `updated_at` avance', async () => {

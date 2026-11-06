@@ -284,7 +284,8 @@ export class ExpensesService {
   /**
    * Remplace les étiquettes d'une dépense. Une étiquette est identifiée par son nom dans le
    * carnet, à la collation près (`Été` = `ete`) : l'index unique `(notebook_id, name)` dédoublonne,
-   * le premier nom enregistré fait foi.
+   * le premier nom enregistré fait foi. Une étiquette supprimée est restaurée, `updated_at` avancé
+   * pour que la synchronisation la renvoie ; une étiquette vivante n'est pas réécrite.
    */
   private async replaceTags(
     tx: Tx,
@@ -300,7 +301,14 @@ export class ExpensesService {
       .values(
         names.map((name) => ({ id: newId(), notebookId, name, createdAt: now, updatedAt: now })),
       )
-      .onDuplicateKeyUpdate({ set: { id: sql`${tag.id}` } });
+      // Drizzle émet les affectations dans l'ordre des colonnes : `updated_at` est évalué avant
+      // la remise à NULL de `deleted_at`, donc sur la valeur d'origine.
+      .onDuplicateKeyUpdate({
+        set: {
+          updatedAt: sql`IF(${tag.deletedAt} IS NULL, ${tag.updatedAt}, ${now})`,
+          deletedAt: null,
+        },
+      });
     const rows = await tx
       .select({ id: tag.id })
       .from(tag)

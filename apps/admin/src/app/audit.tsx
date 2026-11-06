@@ -1,5 +1,6 @@
 // Journal d'audit des accès admin (NF-SEC-06), filtrable par auteur, cible et action.
 import { Datagrid, InfiniteList, TextField, TextInput } from 'react-admin';
+import { SERVER_SORT } from './data-provider';
 import { Timestamp } from './fields';
 
 const filters = [
@@ -9,7 +10,7 @@ const filters = [
 ];
 
 export const AuditList = () => (
-  <InfiniteList exporter={false} filters={filters} perPage={50}>
+  <InfiniteList exporter={false} filters={filters} sort={SERVER_SORT} perPage={50}>
     <Datagrid bulkActionButtons={false} rowClick={false}>
       <Timestamp source="createdAt" label="Date" sortable={false} />
       <TextField source="actorUserId" label="Auteur" sortable={false} />

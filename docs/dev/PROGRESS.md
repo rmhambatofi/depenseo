@@ -8,10 +8,11 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 **MVP terminé** (2026-11-05, session 53) : toutes les tâches de `PLAN.md` hors backlog sont `[x]`, suites vertes.
 
 - Tâche en cours : aucune. Prochaine étape : actions humaines de mise en service (`docs/dev/DEPLOY.md` check-list, mesure NF-PERF-01 sur téléphone dans `PERF.md`, réglages serveur Sentry, signature release Android), puis backlog V1/V2 sur demande.
-- Dernier commit : fix(ci): expect depenseo_dev in database checks (NF-QUA-03) — CI rouge depuis P7-07 : `scripts/db.test.mjs` attendait encore la base `depenseo` (renommée `depenseo_dev`, ADR-066). Invisible en local avec un volume Docker ancien qui garde les deux bases : en cas de renommage de base, vérifier sur un volume neuf (`docker compose down -v`).
+- Dernier commit : fix(api,admin): final review minor fixes (F-ADM-01, F-DEP-03) — après fix(ci) depenseo_dev (CI rouge depuis P7-07 : volume Docker ancien = bases `depenseo` et `depenseo_dev`, l'erreur ne se voit qu'avec `docker compose down -v`).
 - Branche : main
 - Tests (P7-08) : `pnpm -r typecheck`/`lint`/`format:check` verts, API 857 (couverture lignes 97,2 %), `test:tz` vert (4 fuseaux × 91), scripts racine 34, Flutter 437 + `flutter analyze` propre (non touché).
-- Mineurs relevés par la relecture finale, laissés en l'état (aucun bloquant) : tri `createdAt` déclaré mais non transmis dans la liste admin (`apps/admin/src/app/users.tsx:22`) ; cache de curseurs admin jamais vidé ; `parseAmountInput` suppose 2 décimales (à revoir avec F-DEP-08 devises) ; synchro mobile « dernière écriture gagne » sensible à une horloge d'appareil très en avance (risque accepté, à formaliser en ADR) ; repli UTC de `today.dart` sur fuseau inconnu non testé ; seau « compte » de la limitation de débit commun à `/auth/login` et à la connexion admin (ADR-067) ; regroupement des statistiques admin par jour UTC ; upsert de `tag` ne restaurant pas une étiquette supprimée (aucun chemin de suppression aujourd'hui).
+- Mineurs de la relecture finale traités (2026-11-06) : listes admin sur `SERVER_SORT` (tout autre tri refusé par le fournisseur), curseurs oubliés en page 1 et bornés à 10 listes ; étiquette supprimée restaurée à la réutilisation ; risque d'horloge d'appareil en avance formalisé (ADR-068, à revoir avant le partage de carnet). Le repli UTC de `today.dart` était déjà testé (`today_test.dart`).
+- Restent en l'état, assumés : `parseAmountInput` suppose 2 décimales (à revoir avec F-DEP-08 devises) ; seau « compte » de la limitation de débit commun à `/auth/login` et à la connexion admin (ADR-067) ; regroupement des statistiques admin par jour UTC.
 
 ## Pièges connus (à lire avant de coder)
 

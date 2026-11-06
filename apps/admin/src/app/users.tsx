@@ -11,17 +11,13 @@ import {
   SimpleShowLayout,
   TextField,
 } from 'react-admin';
+import { SERVER_SORT } from './data-provider';
 import { Timestamp } from './fields';
 
 const filters = [<SearchInput key="q" source="q" alwaysOn placeholder="Adresse e-mail" />];
 
 export const UserList = () => (
-  <InfiniteList
-    exporter={false}
-    filters={filters}
-    sort={{ field: 'createdAt', order: 'DESC' }}
-    perPage={50}
-  >
+  <InfiniteList exporter={false} filters={filters} sort={SERVER_SORT} perPage={50}>
     <Datagrid rowClick="show" bulkActionButtons={false}>
       <TextField source="email" label="Adresse" sortable={false} />
       <BooleanField source="emailVerified" label="Vérifiée" sortable={false} />

@@ -1,5 +1,6 @@
 // Abonnements (F-ADM-01) : filtrables par compte, store et statut.
 import { Datagrid, InfiniteList, SelectInput, TextField, TextInput } from 'react-admin';
+import { SERVER_SORT } from './data-provider';
 import { Timestamp } from './fields';
 
 const STORES = [
@@ -15,7 +16,7 @@ const filters = [
 ];
 
 export const SubscriptionList = () => (
-  <InfiniteList exporter={false} filters={filters} perPage={50}>
+  <InfiniteList exporter={false} filters={filters} sort={SERVER_SORT} perPage={50}>
     <Datagrid bulkActionButtons={false} rowClick={false}>
       <TextField source="userId" label="Compte" sortable={false} />
       <TextField source="store" label="Store" sortable={false} />

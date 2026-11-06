@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { type AdminFetch, AdminHttpError } from './admin-api';
-import { createDataProvider } from './data-provider';
+import { createDataProvider, MAX_CACHED_LISTS, SERVER_SORT } from './data-provider';
 
 interface Call {
   path: string;
@@ -20,7 +20,7 @@ function fakeApi(responses: Record<string, unknown>) {
 
 const list = (perPage: number, page: number, filter: object = {}) => ({
   pagination: { page, perPage },
-  sort: { field: 'createdAt', order: 'DESC' as const },
+  sort: SERVER_SORT,
   filter,
 });
 
@@ -101,6 +101,55 @@ describe('getList', () => {
     await expect(provider.getList('users', list(5, 2, { q: 'a' }))).rejects.toThrow(
       /première page/,
     );
+  });
+
+  it('revenir en page 1 oublie les curseurs de la liste : pas de rejeu d’un curseur périmé', async () => {
+    const responses: Record<string, unknown> = {
+      '/users?limit=1': { items: [{ id: 'a' }], nextCursor: 'old' },
+      '/users?limit=1&cursor=old': { items: [{ id: 'b' }], nextCursor: null },
+    };
+    const { calls, fetchJson } = fakeApi(responses);
+    const provider = createDataProvider(fetchJson);
+    await provider.getList('users', list(1, 1));
+    await provider.getList('users', list(1, 2));
+    // Rechargement : la liste a changé côté serveur, plus de page suivante.
+    responses['/users?limit=1'] = { items: [{ id: 'z' }], nextCursor: null };
+    await provider.getList('users', list(1, 1));
+    await expect(provider.getList('users', list(1, 2))).rejects.toThrow(/première page/);
+    expect(calls.map((c) => c.path)).toEqual([
+      '/users?limit=1',
+      '/users?limit=1&cursor=old',
+      '/users?limit=1',
+    ]);
+  });
+
+  it('ne garde les curseurs que des dernières listes consultées', async () => {
+    const responses: Record<string, unknown> = {};
+    for (let i = 0; i <= MAX_CACHED_LISTS; i += 1) {
+      responses[`/users?q=${i}&limit=1`] = { items: [], nextCursor: `c${i}` };
+      responses[`/users?q=${i}&limit=1&cursor=c${i}`] = { items: [], nextCursor: null };
+    }
+    const { fetchJson } = fakeApi(responses);
+    const provider = createDataProvider(fetchJson);
+    // Recherche tapée lettre à lettre : une liste par saisie.
+    for (let i = 0; i <= MAX_CACHED_LISTS; i += 1) {
+      await provider.getList('users', list(1, 1, { q: String(i) }));
+    }
+    await expect(provider.getList('users', list(1, 2, { q: '0' }))).rejects.toThrow(
+      /première page/,
+    );
+    await provider.getList('users', list(1, 2, { q: String(MAX_CACHED_LISTS) }));
+  });
+
+  it('tri : seul l’ordre fixe de l’API (création décroissante) est accepté', async () => {
+    const { calls, fetchJson } = fakeApi({ '/users?limit=1': { items: [], nextCursor: null } });
+    const provider = createDataProvider(fetchJson);
+    await provider.getList('users', { ...list(1, 1), sort: SERVER_SORT });
+    await provider.getList('users', { pagination: { page: 1, perPage: 1 }, filter: {} });
+    await expect(
+      provider.getList('users', { ...list(1, 1), sort: { field: 'email', order: 'ASC' } }),
+    ).rejects.toThrow(/tri/i);
+    expect(calls).toHaveLength(2);
   });
 
   it('borne la taille de page à 100 (maximum de l’API)', async () => {
