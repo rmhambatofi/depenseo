@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../account/account_harness.dart' show openAccount, reveal;
 import '../account/legal_pages_test.dart' show openLegal;
+import '../categories/categories_screen_test.dart' show openCategories;
 import '../expenses/expense_list_test.dart' show seed, openList;
 import '../expenses/quick_entry_harness.dart';
 import '../home/dashboard_fixture.dart';
@@ -96,6 +97,12 @@ final journeys = <String, Future<void> Function(WidgetTester)>{
   'alertes et rappels': (tester) async {
     await openNotifications(tester);
   },
+  'modification de catégorie (icônes)': (tester) async {
+    await openCategories(tester);
+    // Emoji hors catalogue : tuile « Icône actuelle » en tête de grille.
+    await tester.tap(find.byKey(const Key('category-tile-$groceries')));
+    await pumpIo(tester, until: find.byKey(const Key('icon-custom')));
+  },
   'réglages et apparence': (tester) async {
     final app = await startSignedIn(tester);
     // Haut de l'écran : le test défile lui-même jusqu'au choix du thème.
@@ -124,6 +131,7 @@ const longScreens = {
   'compte et export',
   'alertes et rappels',
   'réglages et apparence',
+  'modification de catégorie (icônes)',
 };
 
 /// Laisse aboutir les requêtes Dio encore en vol (minuteur zéro avancé

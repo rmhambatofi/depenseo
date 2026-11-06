@@ -8,6 +8,7 @@ import '../../core/db/app_database.dart';
 import '../../core/db/expense_filter.dart';
 import '../../core/money/amount_input.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../categories/category_badge.dart';
 import 'expense_providers.dart';
 
 /// Ouvre la feuille des critères (période, montant, catégories) et applique
@@ -215,7 +216,15 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
               for (final c in categories)
                 FilterChip(
                   key: Key('filter-category-${c.id}'),
-                  label: Text('${c.icon} ${c.name}'),
+                  // Coche masquée : elle cacherait l'icône ; la couleur et
+                  // la sémantique signalent la sélection.
+                  showCheckmark: false,
+                  avatar: CategoryIconBadge(
+                    icon: c.icon,
+                    color: c.color,
+                    size: 24,
+                  ),
+                  label: Text(c.name),
                   selected: _categories.contains(c.id),
                   onSelected: (on) => setState(() {
                     _categories = on

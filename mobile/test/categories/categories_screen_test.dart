@@ -3,6 +3,7 @@ import 'package:depenseo/core/account/account_epoch.dart';
 import 'package:depenseo/core/db/app_database.dart';
 import 'package:depenseo/core/db/category_store.dart';
 import 'package:depenseo/features/categories/category_providers.dart';
+import 'package:depenseo/ui/category_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -12,6 +13,34 @@ import '../support/settle.dart';
 import '../support/test_app.dart';
 
 Finder byKey(String key) => find.byKey(Key(key));
+
+/// Le bouton suit la grille d'icônes : retirer une éventuelle SnackBar (qui
+/// le couvrirait en bas d'écran), le faire défiler à l'écran, le toucher.
+Future<void> tapSave(WidgetTester tester) async {
+  final button = byKey('save-category');
+  ScaffoldMessenger.of(tester.element(button)).removeCurrentSnackBar();
+  await tester.pump();
+  await tester.ensureVisible(button);
+  await tester.tap(button);
+}
+
+/// Clé de la tuile d'icône sélectionnée dans le formulaire de catégorie.
+String selectedIcon(WidgetTester tester) {
+  final selected = find.byWidgetPredicate(
+    (w) =>
+        w is Semantics &&
+        w.properties.selected == true &&
+        w.child is InkWell &&
+        ((w.child! as InkWell).key as ValueKey<String>?)?.value.startsWith(
+              'icon-',
+            ) ==
+            true,
+  );
+  expect(selected, findsOneWidget);
+  return ((tester.widget<Semantics>(selected).child! as InkWell).key!
+          as ValueKey<String>)
+      .value;
+}
 
 const base = '/notebooks/$notebookId/categories';
 const hiddenChild = '0190a000-0000-7000-8000-0000000000c1';
@@ -152,20 +181,24 @@ void main() {
     expect(byKey('category-parent'), findsNothing);
 
     await enter(tester, 'category-name', '  Marché  ');
-    await enter(tester, 'category-icon', '🥕');
+    // Icône actuelle hors catalogue (emoji) : proposée et sélectionnée.
+    expect(selectedIcon(tester), 'icon-custom');
+    expect(find.bySemanticsLabel('Icône actuelle : 🛒'), findsOneWidget);
+    await tap(tester, byKey('icon-pets'));
+    expect(selectedIcon(tester), 'icon-pets');
     await tap(tester, byKey('color-FB8C00'));
-    await tester.tap(byKey('save-category'));
+    await tapSave(tester);
     await settle(tester, byKey('add-category'));
 
     expect(app.api.calls('PATCH $base/$groceries').single.body, {
       'name': 'Marché',
-      'icon': '🥕',
+      'icon': 'pets',
       'color': '#FB8C00',
     });
     final c = await load(db, tester, groceries);
     expect(
       (c.name, c.icon, c.color, c.parentId),
-      ('Marché', '🥕', '#FB8C00', food),
+      ('Marché', 'pets', '#FB8C00', food),
     );
     expect(find.text('Marché'), findsOneWidget);
     expect(find.text('Courses'), findsNothing);
@@ -175,21 +208,64 @@ void main() {
     final (app, _) = await openCategories(tester);
     await tester.tap(byKey('category-tile-$transport'));
     await pumpIo(tester, until: byKey('category-name'));
-    await tester.tap(byKey('save-category'));
+    await tapSave(tester);
     await pumpIo(tester, until: byKey('add-category'));
     expect(app.api.requests.where((r) => r.method == 'PATCH'), isEmpty);
   });
 
-  testWidgets('nom vide ou icône vide : refusés sans requête', (tester) async {
+  testWidgets('nom vide : refusé sans requête', (tester) async {
     final (app, _) = await openCategories(tester);
     await tester.tap(byKey('category-tile-$transport'));
     await pumpIo(tester, until: byKey('category-name'));
     await enter(tester, 'category-name', '   ');
-    await enter(tester, 'category-icon', '');
     await tap(tester, byKey('save-category'));
     expect(find.text('Saisissez un nom.'), findsOneWidget);
-    expect(find.text('Choisissez une icône.'), findsOneWidget);
     expect(app.api.requests.where((r) => r.method == 'PATCH'), isEmpty);
+  });
+
+  testWidgets('emoji hors catalogue gardé tel quel si l’icône n’est pas '
+      'changée ; revenir à l’emoji après un autre choix', (tester) async {
+    final (app, db) = await openCategories(tester);
+    servePatch(app, db, tester, groceries);
+    await tester.tap(byKey('category-tile-$groceries'));
+    await pumpIo(tester, until: byKey('category-name'));
+    await tap(tester, byKey('icon-cart'));
+    await tap(tester, byKey('icon-custom'));
+    await enter(tester, 'category-name', 'Marché');
+    await tapSave(tester);
+    await settle(tester, byKey('add-category'));
+    expect(app.api.calls('PATCH $base/$groceries').single.body, {
+      'name': 'Marché',
+    });
+    expect((await load(db, tester, groceries)).icon, '🛒');
+  });
+
+  testWidgets('sélecteur d’icônes : grille du catalogue, noms lus par les '
+      'lecteurs d’écran, une seule sélectionnée', (tester) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      await openCategories(tester);
+      await tester.tap(byKey('add-category'));
+      await pumpIo(tester, until: byKey('category-name'));
+      // Nouvelle catégorie : étiquette par défaut, pas d'icône « actuelle ».
+      expect(selectedIcon(tester), 'icon-$defaultCategoryIcon');
+      expect(byKey('icon-custom'), findsNothing);
+      for (final key in categoryIconKeys) {
+        expect(byKey('icon-$key'), findsOneWidget, reason: key);
+      }
+      expect(
+        tester.getSemantics(byKey('icon-cart')),
+        isSemantics(label: 'Panier', isButton: true, isSelected: false),
+      );
+      await tap(tester, byKey('icon-cart'));
+      expect(selectedIcon(tester), 'icon-cart');
+      expect(
+        tester.getSemantics(byKey('icon-cart')),
+        isSemantics(label: 'Panier', isSelected: true),
+      );
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets('créer une sous-catégorie : POST idempotent (UUID v7), '
@@ -204,9 +280,9 @@ void main() {
     await pumpIo(tester, until: byKey('category-name'));
     await enter(tester, 'category-name', 'Bio');
     await tap(tester, byKey('category-parent'));
-    await tap(tester, find.text('🛒 Alimentation').last);
+    await tap(tester, find.text('Alimentation').last);
     await tap(tester, byKey('color-1E88E5'));
-    await tester.tap(byKey('save-category'));
+    await tapSave(tester);
     await settleUntil(tester, () => byKey('category-name').evaluate().isEmpty);
     expect(find.text('Bio'), findsOneWidget);
 
@@ -216,7 +292,7 @@ void main() {
     expect(body, {
       'id': body['id'],
       'name': 'Bio',
-      'icon': '🏷️',
+      'icon': defaultCategoryIcon,
       'color': '#1E88E5',
       'parentId': food,
     });
@@ -239,7 +315,7 @@ void main() {
     await tester.tap(byKey('add-category'));
     await pumpIo(tester, until: byKey('category-name'));
     await enter(tester, 'category-name', 'Bio');
-    await tester.tap(byKey('save-category'));
+    await tapSave(tester);
     await settle(tester, find.textContaining('Modification refusée'));
     expect(byKey('category-name'), findsOneWidget);
     final tree = await io(tester, () => db.categoryTree(notebookId));
@@ -294,9 +370,9 @@ void main() {
     await tester.tap(byKey('add-category'));
     await pumpIo(tester, until: byKey('category-name'));
     await enter(tester, 'category-name', 'Bio');
-    await tester.tap(byKey('save-category'));
+    await tapSave(tester);
     await settle(tester, find.textContaining('Connexion requise'));
-    await tester.tap(byKey('save-category'));
+    await tapSave(tester);
     await settleUntil(tester, () => byKey('category-name').evaluate().isEmpty);
 
     final ids = app.api

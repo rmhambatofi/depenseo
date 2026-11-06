@@ -62,7 +62,9 @@ Graisses : 400, 500, 600, 700. Chiffres tabulaires (`FontFeature.tabularFigures(
   et les tuiles, `*_outlined` arrondies évitées.
 - Catégories : catalogue fermé de clés (`cart`, `home`, `car`, `restaurant`…) → `IconData`, dans
   `mobile/lib/ui/category_icons.dart`. Une valeur hors catalogue (emoji d'une ancienne version) s'affiche en texte
-  dans la même tuile. Voir ADR-069.
+  dans la même tuile. Voir ADR-069. Affichage : `CategoryIconBadge(icon, color, size)` (`features/categories/`)
+  sur `IconTile` ; sélecteur en grille dans `category_edit_screen.dart` (clés `icon-<clé>`, `icon-custom`).
+  Ajouter une clé : `category_icons.dart` + `categoryIconName` dans les deux `.arb` (test de noms distincts).
 
 ## Mode sombre
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../core/db/app_database.dart';
+import '../../ui/category_icons.dart';
+import '../../ui/icon_tile.dart';
 
 /// Couleurs proposées pour une catégorie (`#RRGGBB`, ADR-023).
 const categoryPalette = [
@@ -27,7 +29,8 @@ Color parseCategoryColor(String hex) {
   return Color(0xFF000000 | value);
 }
 
-/// Pastille d'une catégorie : son icône (emoji) sur sa couleur.
+/// Pastille d'une catégorie : son icône (clé du catalogue, ou emoji en
+/// texte) dans une tuile teintée de sa couleur (ADR-069).
 class CategoryBadge extends StatelessWidget {
   const CategoryBadge({super.key, required this.category, this.faded});
 
@@ -50,20 +53,23 @@ class CategoryIconBadge extends StatelessWidget {
     required this.icon,
     required this.color,
     this.faded = false,
+    this.size = 40,
   });
 
+  /// Clé du catalogue (`category_icons.dart`) ou texte libre (emoji).
   final String icon;
   final String color;
   final bool faded;
+  final double size;
 
   @override
   Widget build(BuildContext context) => Opacity(
     opacity: faded ? 0.5 : 1,
-    child: CircleAvatar(
-      backgroundColor: parseCategoryColor(color).withValues(alpha: 0.25),
-      child: ExcludeSemantics(
-        child: Text(icon, style: const TextStyle(fontSize: 20)),
-      ),
+    child: IconTile(
+      icon: categoryIconFor(icon),
+      fallbackText: icon,
+      color: parseCategoryColor(color),
+      size: size,
     ),
   );
 }

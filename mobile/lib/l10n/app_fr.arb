@@ -144,9 +144,24 @@
   "categoryNameLabel": "Nom",
   "categoryNameRequired": "Saisissez un nom.",
   "categoryNameTooLong": "100 caractères au plus.",
-  "categoryIconLabel": "Icône (emoji)",
-  "categoryIconRequired": "Choisissez une icône.",
-  "categoryIconTooLong": "Icône trop longue.",
+  "categoryIconLabel": "Icône",
+  "categoryIconCurrent": "Icône actuelle : {icon}",
+  "@categoryIconCurrent": {
+    "placeholders": {
+      "icon": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryIconName": "{key, select, home{Maison} bolt{Énergie} cart{Panier} restaurant{Restaurant} car{Voiture} health{Santé} shield{Protection} bank{Administration} child{Enfant} theater{Spectacle} bag{Sac de shopping} repeat{Abonnement} gift{Cadeau} box{Carton} tag{Étiquette} pets{Animaux} sport{Sport} travel{Avion} train{Train} bus{Bus} bike{Vélo} fuel{Carburant} parking{Stationnement} school{École} phone{Téléphone} wifi{Internet} coffee{Café} bar{Bar} fastfood{Restauration rapide} pharmacy{Pharmacie} hospital{Hôpital} clothes{Vêtements} book{Livres} music{Musique} games{Jeux vidéo} movie{Cinéma} beauty{Bien-être} tools{Bricolage} water{Eau} light{Électricité} furniture{Mobilier} card{Carte bancaire} cash{Espèces} receipt{Facture} work{Travail} charity{Dons} party{Fête} nature{Nature} heart{Cœur} other{Icône}}",
+  "@categoryIconName": {
+    "description": "Nom d'une icône de catégorie (clé du catalogue), lu par les lecteurs d'écran.",
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
   "categoryColorLabel": "Couleur",
   "categoryColorOption": "Couleur {hex}",
   "@categoryColorOption": {

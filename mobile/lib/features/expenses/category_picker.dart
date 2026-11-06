@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/db/app_database.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../categories/category_badge.dart';
 
 /// Racines en puces ; les sous-catégories de la racine choisie apparaissent
 /// dessous (une racine reste un choix valide).
@@ -28,7 +29,11 @@ class CategoryPicker extends StatelessWidget {
     final children = categories.where((c) => c.parentId == rootId).toList();
     Widget chip(Category c) => ChoiceChip(
       key: Key('category-${c.id}'),
-      label: Text('${c.icon} ${c.name}'),
+      // Coche masquée : elle cacherait l'icône ; la couleur et la
+      // sémantique signalent la sélection.
+      showCheckmark: false,
+      avatar: CategoryIconBadge(icon: c.icon, color: c.color, size: 24),
+      label: Text(c.name),
       selected: c.id == selectedId,
       onSelected: (_) => onSelected(c.id),
     );

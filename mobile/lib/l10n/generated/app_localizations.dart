@@ -923,20 +923,20 @@ abstract class AppLocalizations {
   /// No description provided for @categoryIconLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Icône (emoji)'**
+  /// **'Icône'**
   String get categoryIconLabel;
 
-  /// No description provided for @categoryIconRequired.
+  /// No description provided for @categoryIconCurrent.
   ///
   /// In fr, this message translates to:
-  /// **'Choisissez une icône.'**
-  String get categoryIconRequired;
+  /// **'Icône actuelle : {icon}'**
+  String categoryIconCurrent(String icon);
 
-  /// No description provided for @categoryIconTooLong.
+  /// Nom d'une icône de catégorie (clé du catalogue), lu par les lecteurs d'écran.
   ///
   /// In fr, this message translates to:
-  /// **'Icône trop longue.'**
-  String get categoryIconTooLong;
+  /// **'{key, select, home{Maison} bolt{Énergie} cart{Panier} restaurant{Restaurant} car{Voiture} health{Santé} shield{Protection} bank{Administration} child{Enfant} theater{Spectacle} bag{Sac de shopping} repeat{Abonnement} gift{Cadeau} box{Carton} tag{Étiquette} pets{Animaux} sport{Sport} travel{Avion} train{Train} bus{Bus} bike{Vélo} fuel{Carburant} parking{Stationnement} school{École} phone{Téléphone} wifi{Internet} coffee{Café} bar{Bar} fastfood{Restauration rapide} pharmacy{Pharmacie} hospital{Hôpital} clothes{Vêtements} book{Livres} music{Musique} games{Jeux vidéo} movie{Cinéma} beauty{Bien-être} tools{Bricolage} water{Eau} light{Électricité} furniture{Mobilier} card{Carte bancaire} cash{Espèces} receipt{Facture} work{Travail} charity{Dons} party{Fête} nature{Nature} heart{Cœur} other{Icône}}'**
+  String categoryIconName(String key);
 
   /// No description provided for @categoryColorLabel.
   ///

@@ -447,13 +447,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryNameTooLong => '100 characters at most.';
 
   @override
-  String get categoryIconLabel => 'Icon (emoji)';
+  String get categoryIconLabel => 'Icon';
 
   @override
-  String get categoryIconRequired => 'Choose an icon.';
+  String categoryIconCurrent(String icon) {
+    return 'Current icon: $icon';
+  }
 
   @override
-  String get categoryIconTooLong => 'Icon too long.';
+  String categoryIconName(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'home': 'House',
+      'bolt': 'Energy',
+      'cart': 'Cart',
+      'restaurant': 'Restaurant',
+      'car': 'Car',
+      'health': 'Health',
+      'shield': 'Protection',
+      'bank': 'Public office',
+      'child': 'Child',
+      'theater': 'Show',
+      'bag': 'Shopping bag',
+      'repeat': 'Subscription',
+      'gift': 'Gift',
+      'box': 'Box',
+      'tag': 'Tag',
+      'pets': 'Pets',
+      'sport': 'Sport',
+      'travel': 'Plane',
+      'train': 'Train',
+      'bus': 'Bus',
+      'bike': 'Bike',
+      'fuel': 'Fuel',
+      'parking': 'Parking',
+      'school': 'School',
+      'phone': 'Phone',
+      'wifi': 'Internet',
+      'coffee': 'Coffee',
+      'bar': 'Bar',
+      'fastfood': 'Fast food',
+      'pharmacy': 'Pharmacy',
+      'hospital': 'Hospital',
+      'clothes': 'Clothes',
+      'book': 'Books',
+      'music': 'Music',
+      'games': 'Video games',
+      'movie': 'Cinema',
+      'beauty': 'Wellness',
+      'tools': 'DIY',
+      'water': 'Water',
+      'light': 'Electricity',
+      'furniture': 'Furniture',
+      'card': 'Bank card',
+      'cash': 'Cash',
+      'receipt': 'Bill',
+      'work': 'Work',
+      'charity': 'Donations',
+      'party': 'Party',
+      'nature': 'Nature',
+      'heart': 'Heart',
+      'other': 'Icon',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get categoryColorLabel => 'Colour';

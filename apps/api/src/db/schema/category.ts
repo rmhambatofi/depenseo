@@ -29,7 +29,7 @@ export const category = mysqlTable(
     /** Clé stable du plan par défaut (`housing.rent`), NULL pour une catégorie personnalisée. */
     systemKey: varchar('system_key', { length: 64 }),
     name: varchar('name', { length: 100 }).notNull(),
-    /** Emoji (ou court nom d'icône), utf8mb4 : stocké sans perte. */
+    /** Clé d'icône du catalogue mobile (ADR-069) ou emoji libre, utf8mb4 : stocké sans perte. */
     icon: varchar('icon', { length: 32 }).notNull(),
     /** `#RRGGBB`. */
     color: char('color', { length: 7 }).notNull(),

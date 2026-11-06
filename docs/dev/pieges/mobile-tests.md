@@ -36,3 +36,4 @@
 ## Accessibilité (ADR-063)
 
 - `test/a11y/guidelines_test.dart` = `journeys` × clair/sombre × texte ×1/×2, défilement par demi-écran (`meetsGuideline` ignore le hors-écran). **Nouvel écran de parcours clé → l'ajouter à `journeys`.** `ensureSemantics()` : `dispose` en `try/finally`, pas `addTearDown`. Barre de progression : `semanticsValue` > 100 % → assertion. Check-list manuelle : `docs/dev/A11Y.md`.
+- Bouton en fin de formulaire long : une SnackBar le couvre en bas d'écran (test 800×600) → `removeCurrentSnackBar` + `ensureVisible` avant le toucher (`tapSave` de `categories_screen_test.dart`). `Scrollable.ensureVisible(alignment: 0.5)` en bout de défilement donne un toucher manqué.

@@ -6,11 +6,11 @@
 
 **MVP terminé** (2026-11-05, session 53). **Phase 8 ouverte** (2026-11-06) : refonte visuelle de l'app mobile dans le style de BilliTime, demandée par le propriétaire du produit. Backlog V1/V2 **non démarré** (décision du propriétaire).
 
-- Tâche en cours : aucune. **P8-01 fait** (fondations : `lib/ui/` jetons + thème + widgets communs, police embarquée, choix Clair / Auto / Sombre). **Prochaine tâche : P8-02** (icônes de catégorie, API + mobile). Lire `docs/dev/UI.md` (jetons **ajustés** pour le contraste, widgets, captures) ; captures avant `design-ref/captures/avant/`, après P8-01 `design-ref/captures/p8-01/` (locales, ignorées par git).
+- Tâche en cours : aucune. **P8-02 fait** (icônes de catégorie par clé : catalogue `lib/ui/category_icons.dart`, `CategoryIconBadge` sur `IconTile`, grille dans l'écran de catégorie, plan API en clés, migration `0020_plan_icon_keys`). **Prochaine tâche : P8-03** (navigation à barre du bas). Lire `docs/dev/UI.md` ; captures avant `design-ref/captures/avant/`, après P8-01 `design-ref/captures/p8-01/` (locales, ignorées par git).
 - Rappels phase 8 : présentation seulement, aucune fonction de BilliTime absente du MVP (revenus, solde, virements, objectifs) ; garder toutes les `Key` des tests ; aucun calcul de total ou de pourcentage sur le téléphone (ajouter à `/dashboard` si besoin) ; `mobile/` ne doit jamais contenir la chaîne `/admin`.
-- Dernier commit : feat(mobile): design tokens, theme and appearance setting (NF-QUA-04, F-TB-01).
+- Dernier commit : feat(mobile,api): category icon keys and icon picker (F-CAT-01, F-CAT-02).
 - Branche : main
-- Tests (2026-11-06, P8-01) : `pnpm -r typecheck`/`lint` verts, API 858, admin 22 + Playwright 3, scripts racine 34, Flutter 512 + `flutter analyze` propre.
+- Tests (2026-11-06, P8-02) : `pnpm -r typecheck`/`lint` verts, API 862 (couverture 95 %), Flutter 519 (suite complète, avant le parcours a11y « modification de catégorie (icônes) » ajouté ensuite et vert) + `flutter analyze` propre ; `cross-tenant.spec` a expiré une fois sous charge (vert seul).
 - Restent en l'état, assumés : voir « Reliquats » de `pieges/api.md`, `pieges/mobile.md`, `pieges/admin.md`.
 
 ## Pièges transverses (toujours valables)
@@ -51,6 +51,7 @@
 
 ## Historique (plus récent en haut)
 
+- 2026-11-06 session 55 — P8-02 fait (49 clés d'icône, migration 0020 en comparaison binaire, sélecteur en grille, puces avec tuile).
 - 2026-11-06 — pièges déplacés de PROGRESS.md (71 Ko) vers `docs/dev/pieges/` par domaine ; hook SessionStart et `/next` allégés.
 - 2026-11-06 session 54 — P8-01 fait (thème, police Plus Jakarta Sans OFL, jetons ajustés 4,5:1, choix Clair/Auto/Sombre persistant, harnais de captures, parcours a11y « réglages et apparence »). Handoff après 1 tâche.
 - 2026-11-05 session 53 — P7-08 fait : relecture finale par 3 `reviewer` ; connexion admin limitée en débit (ADR-067) ; mineurs traités.

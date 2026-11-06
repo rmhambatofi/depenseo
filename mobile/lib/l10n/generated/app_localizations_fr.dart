@@ -449,13 +449,69 @@ class AppLocalizationsFr extends AppLocalizations {
   String get categoryNameTooLong => '100 caractères au plus.';
 
   @override
-  String get categoryIconLabel => 'Icône (emoji)';
+  String get categoryIconLabel => 'Icône';
 
   @override
-  String get categoryIconRequired => 'Choisissez une icône.';
+  String categoryIconCurrent(String icon) {
+    return 'Icône actuelle : $icon';
+  }
 
   @override
-  String get categoryIconTooLong => 'Icône trop longue.';
+  String categoryIconName(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'home': 'Maison',
+      'bolt': 'Énergie',
+      'cart': 'Panier',
+      'restaurant': 'Restaurant',
+      'car': 'Voiture',
+      'health': 'Santé',
+      'shield': 'Protection',
+      'bank': 'Administration',
+      'child': 'Enfant',
+      'theater': 'Spectacle',
+      'bag': 'Sac de shopping',
+      'repeat': 'Abonnement',
+      'gift': 'Cadeau',
+      'box': 'Carton',
+      'tag': 'Étiquette',
+      'pets': 'Animaux',
+      'sport': 'Sport',
+      'travel': 'Avion',
+      'train': 'Train',
+      'bus': 'Bus',
+      'bike': 'Vélo',
+      'fuel': 'Carburant',
+      'parking': 'Stationnement',
+      'school': 'École',
+      'phone': 'Téléphone',
+      'wifi': 'Internet',
+      'coffee': 'Café',
+      'bar': 'Bar',
+      'fastfood': 'Restauration rapide',
+      'pharmacy': 'Pharmacie',
+      'hospital': 'Hôpital',
+      'clothes': 'Vêtements',
+      'book': 'Livres',
+      'music': 'Musique',
+      'games': 'Jeux vidéo',
+      'movie': 'Cinéma',
+      'beauty': 'Bien-être',
+      'tools': 'Bricolage',
+      'water': 'Eau',
+      'light': 'Électricité',
+      'furniture': 'Mobilier',
+      'card': 'Carte bancaire',
+      'cash': 'Espèces',
+      'receipt': 'Facture',
+      'work': 'Travail',
+      'charity': 'Dons',
+      'party': 'Fête',
+      'nature': 'Nature',
+      'heart': 'Cœur',
+      'other': 'Icône',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get categoryColorLabel => 'Couleur';

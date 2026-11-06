@@ -1,5 +1,7 @@
 // Plan de catégories par défaut adapté à la France (F-CAT-01, ADR-023) : 14 racines, chacune avec
-// ses sous-catégories, icône (emoji) et couleur. Copié dans chaque carnet à sa création, dans la
+// ses sous-catégories, clé d'icône et couleur. L'icône est une clé du catalogue de l'app mobile
+// (`mobile/lib/ui/category_icons.dart`, ADR-069) ; les emojis du MVP sont convertis par la
+// migration 0020. Copié dans chaque carnet à sa création, dans la
 // langue du compte ; ensuite modifiable par l'utilisateur comme une catégorie personnalisée (sauf
 // suppression : une catégorie du plan se masque). `key` est stable et sert à reconnaître une
 // catégorie du plan (`category.system_key`), jamais à l'afficher.
@@ -21,7 +23,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'housing',
     fr: 'Logement',
     en: 'Housing',
-    icon: '🏠',
+    icon: 'home',
     color: '#8D6E63',
     children: [
       { key: 'housing.rent', fr: 'Loyer', en: 'Rent' },
@@ -34,7 +36,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'energy',
     fr: 'Énergie',
     en: 'Energy',
-    icon: '⚡',
+    icon: 'bolt',
     color: '#FBC02D',
     children: [
       { key: 'energy.electricity', fr: 'Électricité', en: 'Electricity' },
@@ -47,7 +49,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'groceries',
     fr: 'Courses',
     en: 'Groceries',
-    icon: '🛒',
+    icon: 'cart',
     color: '#43A047',
     children: [
       { key: 'groceries.supermarket', fr: 'Supermarché', en: 'Supermarket' },
@@ -58,7 +60,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'restaurants',
     fr: 'Restaurants',
     en: 'Restaurants',
-    icon: '🍽️',
+    icon: 'restaurant',
     color: '#E53935',
     children: [
       { key: 'restaurants.restaurant', fr: 'Restaurant', en: 'Restaurant' },
@@ -71,7 +73,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'transport',
     fr: 'Transports',
     en: 'Transport',
-    icon: '🚗',
+    icon: 'car',
     color: '#1E88E5',
     children: [
       { key: 'transport.fuel', fr: 'Carburant', en: 'Fuel' },
@@ -85,7 +87,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'health',
     fr: 'Santé',
     en: 'Health',
-    icon: '🩺',
+    icon: 'health',
     color: '#00ACC1',
     children: [
       { key: 'health.doctor', fr: 'Médecin', en: 'Doctor' },
@@ -97,7 +99,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'insurance',
     fr: 'Assurances',
     en: 'Insurance',
-    icon: '🛡️',
+    icon: 'shield',
     color: '#5E35B1',
     children: [
       { key: 'insurance.home', fr: 'Habitation', en: 'Home' },
@@ -110,7 +112,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'taxes',
     fr: 'Impôts et taxes',
     en: 'Taxes',
-    icon: '🏛️',
+    icon: 'bank',
     color: '#546E7A',
     children: [
       { key: 'taxes.income', fr: 'Impôt sur le revenu', en: 'Income tax' },
@@ -123,7 +125,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'children',
     fr: 'Enfants',
     en: 'Children',
-    icon: '🧸',
+    icon: 'child',
     color: '#F06292',
     children: [
       { key: 'children.childcare', fr: 'Garde d’enfants', en: 'Childcare' },
@@ -136,7 +138,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'leisure',
     fr: 'Loisirs',
     en: 'Leisure',
-    icon: '🎭',
+    icon: 'theater',
     color: '#FB8C00',
     children: [
       { key: 'leisure.outings', fr: 'Sorties', en: 'Outings' },
@@ -149,7 +151,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'shopping',
     fr: 'Shopping',
     en: 'Shopping',
-    icon: '🛍️',
+    icon: 'bag',
     color: '#D81B60',
     children: [
       { key: 'shopping.clothing', fr: 'Vêtements', en: 'Clothing' },
@@ -161,7 +163,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'subscriptions',
     fr: 'Abonnements',
     en: 'Subscriptions',
-    icon: '🔁',
+    icon: 'repeat',
     color: '#3949AB',
     children: [
       {
@@ -178,7 +180,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'gifts',
     fr: 'Cadeaux',
     en: 'Gifts',
-    icon: '🎁',
+    icon: 'gift',
     color: '#8E24AA',
     children: [
       { key: 'gifts.given', fr: 'Cadeaux offerts', en: 'Gifts given' },
@@ -189,7 +191,7 @@ export const DEFAULT_CATEGORY_PLAN: readonly DefaultRootCategory[] = [
     key: 'misc',
     fr: 'Divers',
     en: 'Miscellaneous',
-    icon: '📦',
+    icon: 'box',
     color: '#757575',
     children: [
       { key: 'misc.bank_fees', fr: 'Frais bancaires', en: 'Bank fees' },

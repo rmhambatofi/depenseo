@@ -94,7 +94,8 @@ describe('catégories (F-CAT-01, F-CAT-02)', () => {
     expect(roots.map((c) => c.name)).toEqual(ROOTS_FR);
     for (const root of roots) {
       expect(root.systemKey).not.toBeNull();
-      expect(root.icon).not.toBe('');
+      // Clé d'icône du catalogue mobile (ADR-069), plus d'emoji.
+      expect(root.icon).toMatch(/^[a-z][a-z_]*$/);
       expect(root.color).toMatch(/^#[0-9A-F]{6}$/);
       expect(root.hidden).toBe(false);
       const children = all.filter((c) => c.parentId === root.id);
@@ -120,6 +121,21 @@ describe('catégories (F-CAT-01, F-CAT-02)', () => {
       .innerJoin(user, eq(user.id, notebook.ownerId))
       .where(and(eq(user.email, email), isNull(category.parentId)));
     expect(rows.map((r) => r.name).sort()).toEqual(DEFAULT_CATEGORY_PLAN.map((r) => r.en).sort());
+  });
+
+  it('icônes du plan par défaut : clés du plan, toutes distinctes (ADR-069)', async () => {
+    const alice = await createTenant(app, db, clock.now());
+    const roots = (await list(alice)).filter((c) => c.parentId === null);
+    expect(roots.map((c) => c.icon)).toEqual(DEFAULT_CATEGORY_PLAN.map((r) => r.icon));
+    expect(new Set(roots.map((c) => c.icon)).size).toBe(roots.length);
+  });
+
+  it('catégorie personnalisée avec une clé d’icône (ADR-069)', async () => {
+    const alice = await createTenant(app, db, clock.now());
+    const body = custom({ icon: 'pets' });
+    expect((await create(alice, body).expect(201)).body).toMatchObject({ icon: 'pets' });
+    const res = await patch(alice, body.id, { icon: 'cart' }).expect(200);
+    expect(res.body).toMatchObject({ icon: 'cart' });
   });
 
   it('catégorie personnalisée : emoji stockés sans perte, couleur normalisée', async () => {
