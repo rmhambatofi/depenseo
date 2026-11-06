@@ -60,5 +60,4 @@
 - 2026-11-05 session 52 — P7-07 fait : `DEPLOY.md`, protocole NF-PERF dans `PERF.md`, `seed:fake` (ADR-066).
 - 2026-11-05 session 51 — P7-06 fait : banc p95 autocannon, `integration_test` de démarrage, `PERF.md` (ADR-065).
 - 2026-11-05 session 50 — P7-05 fait : Sentry UE API + mobile, listes blanches (ADR-064).
-- 2026-11-05 session 49 — P7-04 fait : tests `meetsGuideline` sur 11 écrans, `A11Y.md` (ADR-063).
-- Sessions ≤ 48 (2026-11-04/05) : P0 à P6, P7-01 à P7-03 (détail dans `git log` et ADR-001…062).
+- Sessions ≤ 49 (2026-11-04/05) : P0 à P6, P7-01 à P7-04 (détail dans `git log` et ADR-001…063).
