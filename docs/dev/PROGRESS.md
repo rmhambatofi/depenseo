@@ -16,7 +16,7 @@
 ## Pièges transverses (toujours valables)
 
 1. **Jamais deux suites API en parallèle** (`tester` et `reviewer`, banc, e2e admin) : le `globalSetup` vide `depenseo_test` → faux échecs. Tester d'abord, puis reviewer ; `pgrep -fl vitest` vide avant de lancer.
-2. Lancer `tester`/`reviewer` **au premier plan** (`run_in_background: false`) : en arrière-plan, le hook Stop rebondit tant que le diff n'est pas committé. Si l'outil Agent les lance quand même en asynchrone (vu en session 55), ne pas finir le tour : bloquer par une boucle Bash (`while kill -0 <pid>` sur le `dartvm` de `flutter test`, `pgrep -f vitest`) — `pgrep -f 'flutter test'` ne trouve pas le processus. Ne jamais `git stash` pendant qu'un sous-agent tourne.
+2. Lancer `tester`/`reviewer` **au premier plan** (`run_in_background: false`) : en arrière-plan, le hook Stop rebondit tant que le diff n'est pas committé. Si l'outil Agent les lance quand même en asynchrone (vu en session 55), ne pas finir le tour : bloquer par une boucle Bash (`while kill -0 <pid>` sur le `dartvm` de `flutter test`, `pgrep -f vitest`) — `pgrep -f 'flutter test'` ne trouve pas le processus. Attente fiable (session 56) : boucle sur l'heure de modification du fichier de sortie de l'agent (`stat -f %m`, immobile > 45 s = fini) ; une boucle `pgrep` a tourné jusqu'au délai de Bash. Ne jamais `git stash` pendant qu'un sous-agent tourne.
 3. `pnpm test` exige Docker et la base : `open -a Docker`, `docker compose up -d db && scripts/db-wait.sh`. Un seul fichier : `pnpm --filter api exec vitest run <fichier>` (sinon échec du seuil de couverture).
 4. Remplacement par script après Prettier/`dart format` : échec silencieux → `assert old in s` en Python puis `grep -c`. Pas de `perl -pi` avec des `|` dans le motif.
 5. Après une modif de contrat API : `pnpm --filter api openapi` et committer `openapi.json` + `packages/api-client/src/schema.ts`. Nouvelle route : la classer dans le harnais cross-tenant (et la liste des routes publiques si `@Public()`).
@@ -51,7 +51,7 @@
 
 ## Historique (plus récent en haut)
 
-- 2026-11-06 session 56 — P8-03 fait (barre du bas, « + » central, avatar, retour Android → Accueil, icônes rounded, parcours a11y « dépenses récurrentes (onglet) »).
+- 2026-11-06 session 56 — P8-03 fait (barre du bas, « + » central, avatar, retour Android → Accueil, icônes rounded, parcours a11y « dépenses récurrentes (onglet) »). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 55 — P8-02 fait (49 clés d'icône, migration 0020 en comparaison binaire, sélecteur en grille, puces avec tuile, parcours a11y). Handoff après 1 tâche (~15 fichiers lus).
 - 2026-11-06 — pièges déplacés de PROGRESS.md (71 Ko) vers `docs/dev/pieges/` par domaine ; hook SessionStart et `/next` allégés.
 - 2026-11-06 session 54 — P8-01 fait (thème, police Plus Jakarta Sans OFL, jetons ajustés 4,5:1, choix Clair/Auto/Sombre persistant, harnais de captures, parcours a11y « réglages et apparence »). Handoff après 1 tâche.
