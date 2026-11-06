@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/generated/app_localizations.dart';
+import '../../ui/app_card.dart';
+import '../../ui/brand_tile.dart';
+import '../../ui/tokens.dart';
 import 'app_lock_controller.dart';
 import 'pin_pad.dart';
 
@@ -98,10 +101,18 @@ class _LockScreenState extends ConsumerState<LockScreen> {
   Widget _unlock(AppLocalizations l10n) => Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      const Icon(Icons.lock_outline_rounded, size: 40),
-      const SizedBox(height: 8),
-      Text(l10n.lockTitle, style: Theme.of(context).textTheme.headlineSmall),
-      const SizedBox(height: 24),
+      const BrandTile(icon: Icons.lock_rounded),
+      const SizedBox(height: AppSpacing.md),
+      Semantics(
+        header: true,
+        child: Text(
+          l10n.lockTitle,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.headlineSmall
+              ?.copyWith(fontWeight: FontWeight.w700),
+        ),
+      ),
+      const SizedBox(height: AppSpacing.lg),
       PinPad(prompt: l10n.lockPrompt, error: _error, onCompleted: _submit),
       if (_biometricsOffered)
         TextButton.icon(
@@ -121,10 +132,23 @@ class _LockScreenState extends ConsumerState<LockScreen> {
   Widget _forgot(AppLocalizations l10n) => Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Text(l10n.lockForgot, style: Theme.of(context).textTheme.headlineSmall),
-      const SizedBox(height: 16),
-      Text(l10n.lockForgotBody, textAlign: TextAlign.center),
-      const SizedBox(height: 24),
+      const BrandTile(icon: Icons.lock_reset_rounded),
+      const SizedBox(height: AppSpacing.md),
+      Semantics(
+        header: true,
+        child: Text(
+          l10n.lockForgot,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.headlineSmall
+              ?.copyWith(fontWeight: FontWeight.w700),
+        ),
+      ),
+      const SizedBox(height: AppSpacing.md),
+      AppCard(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Text(l10n.lockForgotBody, textAlign: TextAlign.center),
+      ),
+      const SizedBox(height: AppSpacing.lg),
       FilledButton(
         key: const Key('lock-forgot-confirm'),
         onPressed: () => ref.read(appLockProvider.notifier).forgetAndSignOut(),

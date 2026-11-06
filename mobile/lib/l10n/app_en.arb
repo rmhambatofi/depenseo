@@ -89,6 +89,7 @@
   "amountTooManyDecimals": "Too many decimals for this currency.",
   "amountTooLarge": "Amount too large.",
   "amountNotPositive": "The amount must be greater than zero.",
+  "expenseDetailsTitle": "Details",
   "categoryLabel": "Category",
   "categoryRequired": "Choose a category.",
   "categoriesUnavailable": "Categories are not available yet. Go online to sync them.",

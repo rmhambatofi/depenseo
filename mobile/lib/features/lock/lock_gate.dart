@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../ui/brand_tile.dart';
 import '../auth/auth_controller.dart';
 import 'app_lock_controller.dart';
 import 'lock_screen.dart';
@@ -82,6 +83,6 @@ class _Cover extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ColoredBox(
     color: Theme.of(context).colorScheme.surface,
-    child: const Center(child: Icon(Icons.lock_outline_rounded, size: 40)),
+    child: const Center(child: BrandTile(icon: Icons.lock_rounded)),
   );
 }

@@ -73,6 +73,7 @@ final journeys = <String, Future<void> Function(WidgetTester)>{
   'inscription': (tester) async {
     final app = TestApp();
     await app.pump(tester);
+    await revealLink(tester, find.text('Créer un compte'));
     await tap(tester, find.text('Créer un compte'));
     // `context.push` : `location` garde l'URI de base, viser l'écran.
     expect(find.byKey(const Key('acceptTerms')), findsOneWidget);

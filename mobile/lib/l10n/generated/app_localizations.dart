@@ -632,6 +632,12 @@ abstract class AppLocalizations {
   /// **'Le montant doit être supérieur à zéro.'**
   String get amountNotPositive;
 
+  /// No description provided for @expenseDetailsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détails'**
+  String get expenseDetailsTitle;
+
   /// No description provided for @categoryLabel.
   ///
   /// In fr, this message translates to:

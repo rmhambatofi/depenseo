@@ -105,11 +105,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       key: _form,
       child: AuthScaffold(
         title: l10n.loginTitle,
-        children: [
-          EmailField(controller: _email),
-          PasswordField(controller: _password, label: l10n.passwordLabel),
-          if (_error != null) FormMessage(_error!),
-          SubmitButton(label: l10n.loginSubmit, busy: _busy, onPressed: _login),
+        footer: [
           if (social.isAvailable(SocialProvider.apple))
             OutlinedButton.icon(
               icon: const Icon(Icons.apple),
@@ -122,12 +118,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: Text(l10n.loginWithGoogle),
             ),
           TextButton(
-            onPressed: () => context.push('/forgot-password'),
-            child: Text(l10n.goToForgotPassword),
-          ),
-          TextButton(
             onPressed: () => context.push('/register'),
             child: Text(l10n.goToRegister),
+          ),
+        ],
+        children: [
+          EmailField(controller: _email),
+          PasswordField(controller: _password, label: l10n.passwordLabel),
+          if (_error != null) FormMessage(_error!),
+          SubmitButton(label: l10n.loginSubmit, busy: _busy, onPressed: _login),
+          TextButton(
+            onPressed: () => context.push('/forgot-password'),
+            child: Text(l10n.goToForgotPassword),
           ),
         ],
       ),

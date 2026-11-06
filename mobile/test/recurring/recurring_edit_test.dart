@@ -26,6 +26,7 @@ Future<void> reveal(WidgetTester tester, String key) async {
 
 Future<void> tapField(WidgetTester tester, String key) async {
   await reveal(tester, key);
+  await tester.ensureVisible(byKey(key));
   await tester.tap(byKey(key));
   await tester.pumpAndSettle();
 }

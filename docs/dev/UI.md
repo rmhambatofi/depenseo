@@ -54,6 +54,9 @@ Lignes groupées (P8-06) : `GroupedCard` (lignes dans une seule `AppCard`, filet
 `AppSizes.rowTile` = **40** (comme les badges de catégorie des listes ; 48–56 pour les tuiles mises en avant),
 `SectionHeader(icon:)` pour les sections titrées des réglages, `LimitProgressBar` (barre arrondie, verte sous la
 limite, rouge dès 100 %) partagée par l'accueil et l'écran Limites.
+Entrée (P8-07) : `BrandTile` (`lib/ui/`, carré en dégradé primaire, icône blanche, décoratif) en tête de la connexion,
+de l'inscription et du verrouillage ; montant de saisie en `AmountSize.hero` centré ; catégories de saisie en tuiles
+(`CategoryChoiceTile`, 88 px de large suivant le texte jusqu'à ×1,8, sélection = fond `surfaceHigh` + bord primaire).
 Ombre carte claire : `0 8 24 rgba(109, 93, 246, 0.08)` ; aucune en sombre.
 
 ## Typographie

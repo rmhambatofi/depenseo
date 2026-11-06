@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../core/auth/auth_api.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../ui/app_card.dart';
+import '../../ui/brand_tile.dart';
+import '../../ui/tokens.dart';
 
 String failureMessage(AppLocalizations l10n, AuthFailure failure) =>
     switch (failure) {
@@ -36,26 +39,77 @@ String? validateNewPassword(AppLocalizations l10n, String? value) {
 String accountLanguage(BuildContext context) =>
     Localizations.localeOf(context).languageCode == 'en' ? 'en' : 'fr';
 
-/// Gabarit commun des écrans d'authentification : titre, formulaire défilant.
+/// Gabarit commun des écrans d'authentification (P8-07) : tuile de marque,
+/// titre annoncé comme en-tête, formulaire dans une carte, puis [footer]
+/// (liens, autres méthodes) hors de la carte.
 class AuthScaffold extends StatelessWidget {
-  const AuthScaffold({super.key, required this.title, required this.children});
+  const AuthScaffold({
+    super.key,
+    required this.title,
+    required this.children,
+    this.footer = const [],
+  });
 
   final String title;
   final List<Widget> children;
+  final List<Widget> footer;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(title)),
-    body: SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          for (final child in children)
-            Padding(padding: const EdgeInsets.only(bottom: 16), child: child),
-        ],
+  Widget build(BuildContext context) {
+    final t = AppTokens.of(context);
+    List<Widget> spaced(List<Widget> items) => [
+      for (final (i, item) in items.indexed) ...[
+        if (i > 0) const SizedBox(height: AppSpacing.md),
+        item,
+      ],
+    ];
+    return Scaffold(
+      appBar: AppBar(),
+      body: SafeArea(
+        top: false,
+        // Un seul enfant : tous les champs construits d'emblée (validation,
+        // liens du pied) ; vue en tranches, comme les autres écrans (a11y).
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            0,
+            AppSpacing.lg,
+            AppSpacing.lg,
+          ),
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Center(child: BrandTile()),
+                const SizedBox(height: AppSpacing.md),
+                Semantics(
+                  header: true,
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.w700, color: t.text),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                AppCard(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: spaced(children),
+                  ),
+                ),
+                if (footer.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  ...spaced(footer),
+                ],
+              ],
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class EmailField extends StatelessWidget {
@@ -115,10 +169,10 @@ class FormMessage extends StatelessWidget {
   final bool error;
 
   @override
-  Widget build(BuildContext context) => Text(
-    text,
-    style: TextStyle(color: error ? Theme.of(context).colorScheme.error : null),
-  );
+  Widget build(BuildContext context) {
+    final t = AppTokens.of(context);
+    return Text(text, style: TextStyle(color: error ? t.danger : t.textMuted));
+  }
 }
 
 /// Bouton principal avec indicateur pendant l'appel.

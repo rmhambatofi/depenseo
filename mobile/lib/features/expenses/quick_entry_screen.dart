@@ -13,6 +13,11 @@ import '../../core/db/expense_store.dart';
 import '../../core/money/amount_input.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers.dart';
+import '../../ui/app_card.dart';
+import '../../ui/icon_tile.dart';
+import '../../ui/section_header.dart';
+import '../../ui/tokens.dart';
+import 'amount_entry_card.dart';
 import 'category_picker.dart';
 import 'expense_conflict_banner.dart';
 import 'expense_providers.dart';
@@ -242,6 +247,7 @@ class _QuickEntryFormState extends ConsumerState<_QuickEntryForm> {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
     final separator = NumberFormat.decimalPattern(locale).symbols.DECIMAL_SEP;
+    final t = AppTokens.of(context);
     final dateText = _date == _today
         ? l10n.today
         : formatCalendarDate(_date, locale, long: true);
@@ -268,84 +274,93 @@ class _QuickEntryFormState extends ConsumerState<_QuickEntryForm> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.md),
         children: [
           if (_editing case final e? when e.syncError == 'conflict')
             ExpenseConflictBanner(
               account: widget.data.account,
               expenseId: e.id,
             ),
-          TextField(
-            key: const Key('expense-amount'),
+          AmountEntryCard(
             controller: _amount,
             autofocus: _editing == null,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [AmountInputFormatter(separator)],
-            textInputAction: TextInputAction.done,
-            style: Theme.of(context).textTheme.headlineMedium,
-            decoration: InputDecoration(
-              labelText: l10n.amountLabel,
-              suffixText: _currency,
-              errorText: _amountError,
+            separator: separator,
+            currency: _currency,
+            errorText: _amountError,
+          ),
+          SectionHeader(title: l10n.categoryLabel),
+          AppCard(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CategoryPicker(
+                  categories: widget.data.categories,
+                  selectedId: _categoryId,
+                  onSelected: (id) => setState(() {
+                    _categoryId = id;
+                    _categoryError = null;
+                  }),
+                ),
+                if (_categoryError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.xs),
+                    child: Text(
+                      _categoryError!,
+                      style: TextStyle(color: t.danger),
+                    ),
+                  ),
+              ],
             ),
           ),
-          const SizedBox(height: 16),
-          Text(
-            l10n.categoryLabel,
-            style: Theme.of(context).textTheme.labelLarge,
-          ),
-          const SizedBox(height: 8),
-          CategoryPicker(
-            categories: widget.data.categories,
-            selectedId: _categoryId,
-            onSelected: (id) => setState(() {
-              _categoryId = id;
-              _categoryError = null;
-            }),
-          ),
-          if (_categoryError != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                _categoryError!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            ),
-          const SizedBox(height: 8),
-          ListTile(
-            key: const Key('expense-date'),
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.event_rounded),
-            title: Text(l10n.dateLabel),
-            trailing: Text(dateText),
-            onTap: _pickDate,
-          ),
-          TextField(
-            key: const Key('expense-merchant'),
-            controller: _merchant,
-            maxLength: merchantMaxLength,
-            decoration: InputDecoration(
-              labelText: l10n.merchantLabel,
-              errorText: _merchantError,
-            ),
-          ),
-          TextField(
-            key: const Key('expense-note'),
-            controller: _note,
-            maxLength: noteMaxLength,
-            maxLines: null,
-            decoration: InputDecoration(
-              labelText: l10n.noteLabel,
-              errorText: _noteError,
-            ),
-          ),
-          TextField(
-            key: const Key('expense-tags'),
-            controller: _tags,
-            decoration: InputDecoration(
-              labelText: l10n.tagsLabel,
-              helperText: l10n.tagsHint,
-              errorText: _tagsError,
+          SectionHeader(title: l10n.expenseDetailsTitle),
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ListTile(
+                  key: const Key('expense-date'),
+                  contentPadding: EdgeInsets.zero,
+                  leading: const IconTile(
+                    icon: Icons.event_rounded,
+                    size: AppSizes.rowTile,
+                  ),
+                  title: Text(l10n.dateLabel),
+                  trailing: Text(dateText),
+                  onTap: _pickDate,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                TextField(
+                  key: const Key('expense-merchant'),
+                  controller: _merchant,
+                  maxLength: merchantMaxLength,
+                  decoration: InputDecoration(
+                    labelText: l10n.merchantLabel,
+                    errorText: _merchantError,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                TextField(
+                  key: const Key('expense-note'),
+                  controller: _note,
+                  maxLength: noteMaxLength,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    labelText: l10n.noteLabel,
+                    errorText: _noteError,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                TextField(
+                  key: const Key('expense-tags'),
+                  controller: _tags,
+                  decoration: InputDecoration(
+                    labelText: l10n.tagsLabel,
+                    helperText: l10n.tagsHint,
+                    errorText: _tagsError,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

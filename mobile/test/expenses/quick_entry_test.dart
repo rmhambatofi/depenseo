@@ -165,6 +165,8 @@ void main() {
     await tester.enterText(find.byKey(const Key('expense-amount')), '1');
     await tester.tap(find.byKey(const Key('category-$food')));
     await tester.pump();
+    await tester.ensureVisible(find.byKey(const Key('expense-date')));
+    await tester.pump();
     await tester.tap(find.byKey(const Key('expense-date')));
     await tester.pumpAndSettle();
     await tester.tap(

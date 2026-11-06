@@ -43,6 +43,8 @@ void main() {
       );
       await app.pump(tester);
 
+      await revealLink(tester, find.text('Continuer avec Google'));
+
       await tapAndPump(tester, find.text('Continuer avec Google'));
       expect(find.text('Nouveau compte'), findsOneWidget);
       await tapAndPump(tester, find.text('Accepter et créer'));
@@ -65,6 +67,8 @@ void main() {
       (_) => FakeResponse.problem(422, 'Unprocessable'),
     );
     await app.pump(tester);
+
+    await revealLink(tester, find.text('Continuer avec Google'));
 
     await tapAndPump(tester, find.text('Continuer avec Google'));
     await tap(tester, find.text('Annuler'));
@@ -96,6 +100,8 @@ void main() {
       (_) => FakeResponse.problem(409, 'Conflict'),
     );
     await app.pump(tester);
+
+    await revealLink(tester, find.text('Continuer avec Google'));
 
     await tap(tester, find.text('Continuer avec Google'));
 

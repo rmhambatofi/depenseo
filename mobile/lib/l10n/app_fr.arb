@@ -96,6 +96,7 @@
   "amountTooManyDecimals": "Trop de décimales pour cette devise.",
   "amountTooLarge": "Montant trop élevé.",
   "amountNotPositive": "Le montant doit être supérieur à zéro.",
+  "expenseDetailsTitle": "Détails",
   "categoryLabel": "Catégorie",
   "categoryRequired": "Choisissez une catégorie.",
   "categoriesUnavailable": "Les catégories ne sont pas encore disponibles. Connectez-vous à Internet pour les synchroniser.",

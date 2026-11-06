@@ -239,3 +239,10 @@ Future<void> tapAndPump(WidgetTester tester, Finder finder) async {
     await tester.pump(const Duration(milliseconds: 100));
   }
 }
+
+/// Lien sous la carte de connexion (P8-07) : hors écran en 800×600 ; le
+/// défilement de `ensureVisible` n'est appliqué qu'à la frame suivante.
+Future<void> revealLink(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pump();
+}

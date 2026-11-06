@@ -13,6 +13,7 @@ void main() {
       final app = TestApp();
       app.api.on('POST /auth/register', (_) => const FakeResponse(202));
       await app.pump(tester, locale: const Locale('en'));
+      await revealLink(tester, find.text('Create an account'));
       await tap(tester, find.text('Create an account'));
 
       await enter(tester, 'email', 'ana@example.org');
@@ -35,6 +36,7 @@ void main() {
     ) async {
       final app = TestApp();
       await app.pump(tester);
+      await revealLink(tester, find.text('Créer un compte'));
       await tap(tester, find.text('Créer un compte'));
 
       await enter(tester, 'email', 'ana@example.org');

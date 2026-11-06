@@ -296,6 +296,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get amountNotPositive => 'The amount must be greater than zero.';
 
   @override
+  String get expenseDetailsTitle => 'Details';
+
+  @override
   String get categoryLabel => 'Category';
 
   @override

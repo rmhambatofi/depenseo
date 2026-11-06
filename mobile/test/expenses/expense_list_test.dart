@@ -164,6 +164,7 @@ void main() {
 
     await tester.enterText(byKey('expense-amount'), '13,75');
     await tester.enterText(byKey('expense-tags'), 'pain, matin');
+    await tester.ensureVisible(byKey('category-$transport'));
     await tester.tap(byKey('category-$transport'));
     await tester.tap(byKey('save-expense'));
     await pumpIo(tester, until: find.text('Dépense enregistrée.'));

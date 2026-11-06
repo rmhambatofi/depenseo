@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/lock/lock_store.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../ui/tokens.dart';
 
 /// Pavé numérique de saisie du code (sans clavier système ni champ de texte copiable).
 class PinPad extends StatefulWidget {
@@ -21,6 +22,10 @@ class PinPad extends StatefulWidget {
   @override
   State<PinPad> createState() => _PinPadState();
 }
+
+/// Touche ronde du pavé et espace autour (cible ≥ 48, NF-QUA-04).
+const double _keySize = 68;
+const double _keyGap = 6;
 
 class _PinPadState extends State<PinPad> {
   String _pin = '';
@@ -48,31 +53,61 @@ class _PinPadState extends State<PinPad> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    Widget key(String digit) => SizedBox(
-      width: 72,
-      height: 72,
-      child: TextButton(
-        key: Key('pin-key-$digit'),
-        onPressed: () => _press(digit),
-        child: Text(digit, style: theme.textTheme.headlineMedium),
+    final t = AppTokens.of(context);
+    final round = TextButton.styleFrom(
+      shape: const CircleBorder(),
+      backgroundColor: t.surfaceHigh,
+      foregroundColor: t.text,
+      padding: EdgeInsets.zero,
+      minimumSize: const Size.square(_keySize),
+    );
+    Widget key(String digit) => Padding(
+      padding: const EdgeInsets.all(_keyGap),
+      child: SizedBox.square(
+        dimension: _keySize,
+        child: TextButton(
+          key: Key('pin-key-$digit'),
+          style: round,
+          onPressed: () => _press(digit),
+          child: Text(
+            digit,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: t.text,
+            ),
+          ),
+        ),
       ),
     );
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(widget.prompt, style: theme.textTheme.titleMedium),
-        const SizedBox(height: 16),
+        Text(
+          widget.prompt,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.titleMedium?.copyWith(color: t.textMuted),
+        ),
+        const SizedBox(height: AppSpacing.md),
         Semantics(
           label: '${_pin.length}/${LockStore.pinLength}',
           child: Row(
+            key: const Key('pin-dots'),
             mainAxisSize: MainAxisSize.min,
             children: [
               for (var i = 0; i < LockStore.pinLength; i++)
                 Padding(
                   padding: const EdgeInsets.all(6),
-                  child: Icon(
-                    i < _pin.length ? Icons.circle : Icons.circle_outlined,
-                    size: 14,
+                  child: Container(
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: i < _pin.length ? t.primary : t.surfaceHigh,
+                      border: Border.all(
+                        color: i < _pin.length ? t.primary : t.textMuted,
+                        width: 1.5,
+                      ),
+                    ),
                   ),
                 ),
             ],
@@ -97,18 +132,21 @@ class _PinPadState extends State<PinPad> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(width: 72),
+            const SizedBox.square(dimension: _keySize + 2 * _keyGap),
             key('0'),
-            SizedBox(
-              width: 72,
-              height: 72,
-              // Pas d'infobulle : l'écran de verrouillage est hors de tout Overlay.
-              child: IconButton(
-                key: const Key('pin-delete'),
-                onPressed: _delete,
-                icon: Icon(
-                  Icons.backspace_rounded,
-                  semanticLabel: l10n.pinDelete,
+            Padding(
+              padding: const EdgeInsets.all(_keyGap),
+              child: SizedBox.square(
+                dimension: _keySize,
+                // Pas d'infobulle : l'écran de verrouillage est hors de tout Overlay.
+                child: IconButton(
+                  key: const Key('pin-delete'),
+                  onPressed: _delete,
+                  color: t.textMuted,
+                  icon: Icon(
+                    Icons.backspace_rounded,
+                    semanticLabel: l10n.pinDelete,
+                  ),
                 ),
               ),
             ),
