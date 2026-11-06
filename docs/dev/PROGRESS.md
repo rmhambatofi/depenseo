@@ -51,7 +51,7 @@
 
 ## Historique (plus récent en haut)
 
-- 2026-11-06 session 58 — P8-05 fait (liste des dépenses : mois, groupes par jour, tuile restylée, ADR-070).
+- 2026-11-06 session 58 — P8-05 fait (liste des dépenses : mois, groupes par jour, tuile restylée, ADR-070). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 57 — P8-04 fait (accueil restylé, sélecteur de période sur `evolution`, conteneurs sémantiques des cartes). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 56 — P8-03 fait (barre du bas, « + » central, avatar, retour Android → Accueil, icônes rounded, parcours a11y « dépenses récurrentes (onglet) »). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 55 — P8-02 fait (49 clés d'icône, migration 0020 en comparaison binaire, sélecteur en grille, puces avec tuile, parcours a11y). Handoff après 1 tâche (~15 fichiers lus).
@@ -60,5 +60,4 @@
 - 2026-11-05 session 53 — P7-08 fait : relecture finale par 3 `reviewer` ; connexion admin limitée en débit (ADR-067) ; mineurs traités.
 - 2026-11-05 session 52 — P7-07 fait : `DEPLOY.md`, protocole NF-PERF dans `PERF.md`, `seed:fake` (ADR-066).
 - 2026-11-05 session 51 — P7-06 fait : banc p95 autocannon, `integration_test` de démarrage, `PERF.md` (ADR-065).
-- 2026-11-05 session 50 — P7-05 fait : Sentry UE API + mobile, listes blanches (ADR-064).
 - Sessions ≤ 49 (2026-11-04/05) : P0 à P6, P7-01 à P7-04 (détail dans `git log` et ADR-001…063).
