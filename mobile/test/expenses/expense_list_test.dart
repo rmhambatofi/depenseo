@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fake_api.dart';
+import '../support/settle.dart';
 import '../support/test_app.dart';
 import 'quick_entry_harness.dart';
 
@@ -323,7 +324,8 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(byKey('confirm-discard'));
       await pumpIo(tester, until: find.text('Dépense abandonnée.'));
-      expect(byKey('expense-$e1'), findsNothing);
+      // La liste est relue après le message : attendre sa nouvelle version.
+      await settleUntil(tester, () => byKey('expense-$e1').evaluate().isEmpty);
       final rows = await io(
         tester,
         () => (db.select(db.expenses)..where((e) => e.id.equals(e1))).get(),

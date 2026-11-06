@@ -204,7 +204,9 @@ describe('GET /admin/api/users/:userId', () => {
     }
     const res = await get(`/admin/api/users/${account.id}`);
     expect((res.body as { expenses: number }).expenses).toBe(2);
-    expect(JSON.stringify(res.body)).not.toContain('987');
+    // Montant entier ou formaté ; pas « 987 » seul, présent par hasard dans
+    // les UUID aléatoires de la réponse (échec CI du 2026-11-06).
+    expect(JSON.stringify(res.body)).not.toMatch(/987654|9876[.,]54/);
   });
 });
 

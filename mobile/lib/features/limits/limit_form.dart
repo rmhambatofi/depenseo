@@ -186,27 +186,14 @@ class _LimitFormState extends ConsumerState<LimitForm> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: AppSpacing.md,
             children: [
-              SegmentedButton<_Kind>(
-                key: const Key('limit-kind'),
-                segments: [
-                  ButtonSegment(
-                    value: _Kind.none,
-                    label: _segmentLabel(l10n.limitKindNone, 'limit-kind-none'),
-                  ),
-                  ButtonSegment(
-                    value: _Kind.month,
-                    label: _segmentLabel(
-                      l10n.limitKindMonth,
-                      'limit-kind-month',
-                    ),
-                  ),
-                  ButtonSegment(
-                    value: _Kind.week,
-                    label: _segmentLabel(l10n.limitKindWeek, 'limit-kind-week'),
-                  ),
-                ],
-                selected: {_kind},
-                onSelectionChanged: (s) => _setKind(s.single),
+              _KindSelector(
+                kind: _kind,
+                labels: {
+                  _Kind.none: l10n.limitKindNone,
+                  _Kind.month: l10n.limitKindMonth,
+                  _Kind.week: l10n.limitKindWeek,
+                },
+                onChanged: _setKind,
               ),
               if (hasLimit) ...[
                 TextField(
@@ -287,9 +274,68 @@ String _weekday(String locale, int day) {
   return name.isEmpty ? name : name[0].toUpperCase() + name.substring(1);
 }
 
-/// Libellé d'un mot (« Hebdomadaire ») : réduit plutôt que coupé au milieu
-/// dans un segment étroit (dès le texte ×1 sur 390 points).
-Widget _segmentLabel(String text, String key) => FittedBox(
-  fit: BoxFit.scaleDown,
-  child: Text(text, key: Key(key), maxLines: 1),
-);
+/// Type de limite. Les libellés sont des mots seuls (« Hebdomadaire ») : s'ils
+/// ne tiennent pas côte à côte sans forte réduction (téléphone étroit, texte
+/// agrandi), les segments s'empilent en pleine largeur au lieu de couper le
+/// mot ou de le rendre minuscule (P8-08 ; un texte trop réduit fausse aussi
+/// la mesure du contraste).
+class _KindSelector extends StatelessWidget {
+  const _KindSelector({
+    required this.kind,
+    required this.labels,
+    required this.onChanged,
+  });
+
+  final _Kind kind;
+  final Map<_Kind, String> labels;
+  final ValueChanged<_Kind> onChanged;
+
+  /// Marges, bordure et coche du segment choisi, autour du libellé.
+  static const _segmentChrome = 52.0;
+
+  /// Réduction tolérée avant d'empiler.
+  static const _minScale = 0.8;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.labelLarge;
+    final scaler = MediaQuery.textScalerOf(context);
+    var widest = 0.0;
+    for (final label in labels.values) {
+      final painter = TextPainter(
+        text: TextSpan(text: label, style: style),
+        textScaler: scaler,
+        textDirection: Directionality.of(context),
+        maxLines: 1,
+      )..layout();
+      if (painter.width > widest) widest = painter.width;
+      painter.dispose();
+    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final needed = labels.length * (widest + _segmentChrome);
+        final vertical = constraints.maxWidth < needed * _minScale;
+        return SegmentedButton<_Kind>(
+          key: const Key('limit-kind'),
+          direction: vertical ? Axis.vertical : Axis.horizontal,
+          segments: [
+            for (final MapEntry(key: k, value: label) in labels.entries)
+              ButtonSegment(
+                value: k,
+                label: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    key: Key('limit-kind-${k.name}'),
+                    maxLines: 1,
+                  ),
+                ),
+              ),
+          ],
+          selected: {kind},
+          onSelectionChanged: (s) => onChanged(s.single),
+        );
+      },
+    );
+  }
+}

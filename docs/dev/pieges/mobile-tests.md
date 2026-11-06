@@ -2,6 +2,8 @@
 
 ## Lancer
 
+- **CI Linux ≠ macOS** pour `textContrastGuideline` : un texte réduit (`FittedBox`, police Ahem très large → ×0,5 dès ×1) passe en local et échoue en CI (4,34:1). Garder les libellés à ≥ 80 % de leur taille (test `limits_screen_test` « presque à taille réelle »).
+- `io()` (`quick_entry_harness.dart`) : budget de **20 s réelles** (2,5 s ne suffisaient pas en CI avec couverture). Après un message (SnackBar) suivi d'une relecture de liste, attendre la disparition par `settleUntil`, pas `findsNothing` direct.
 - `flutter test --timeout` ne coupe pas un `testWidgets` bloqué : lancer en arrière-plan avec garde (`grep "All tests|Some tests"`).
 - Dates : tout nouveau test de date → étiquette `tz` ; `mobile/tool/test_tz.sh` (aussi en CI) rejoue sous 4 `TZ` d'hôte (~1 min par fuseau). `group` n'accepte **pas** `tags:` : étiqueter chaque `testWidgets(…, tags: 'tz')` ou le fichier (`@Tags(['tz'])` + `library;`).
 - Instables connus sous charge (suite complète), verts au relancement : `test/sync/sync_flow_test.dart` « demande reçue pendant un passage », `home_dashboard_test` « relu après une synchro réussie ». À surveiller, ne pas désactiver.

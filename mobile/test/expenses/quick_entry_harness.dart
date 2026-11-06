@@ -76,7 +76,10 @@ Future<T> io<T>(WidgetTester tester, Future<T> Function() action) async {
       done = true;
     },
   );
-  for (var i = 0; i < 500 && !done; i++) {
+  // Budget en temps réel, pas en tours : la CI (couverture) est bien plus
+  // lente que la machine locale (2,5 s ne suffisaient pas).
+  final clock = Stopwatch()..start();
+  while (!done && clock.elapsed < const Duration(seconds: 20)) {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 5)),
     );

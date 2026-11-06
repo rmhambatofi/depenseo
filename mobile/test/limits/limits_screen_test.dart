@@ -54,6 +54,29 @@ void main() {
     );
   });
 
+  for (final scale in [1.0, 2.0]) {
+    testWidgets('type de limite, texte ×$scale sur 390 points : libellés '
+        'presque à taille réelle (sinon contraste faussé en CI)', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.view.reset);
+      addTearDown(tester.platformDispatcher.clearAllTestValues);
+      await openLimits(tester, current: summary());
+      for (final k in ['none', 'month', 'week']) {
+        final label = byKey('limit-kind-$k');
+        final shown = tester.getRect(label).width;
+        expect(
+          shown / tester.getSize(label).width,
+          greaterThan(0.79),
+          reason: k,
+        );
+      }
+    });
+  }
+
   testWidgets('aucune limite : dépensé seul, puis limite mensuelle au 28 '
       'sans récurrences', (tester) async {
     final (app, server) = await openLimits(tester, current: summary());

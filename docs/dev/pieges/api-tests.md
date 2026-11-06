@@ -39,3 +39,4 @@
 - Supertest, corps binaire : `.buffer(true).parse(binary)` (voir `test/exports/exports.spec.ts`).
 - Limitation de débit : `TEST_ENV` neutralise les seuils ; adresses distinctes → `TRUST_PROXY_HOPS: '1'` + `X-Forwarded-For`.
 - CryptoKey WebCrypto (jose `generateKeyPair`) liée à son hash : pour plusieurs `alg` avec une même clé RSA, `generateKeyPairSync('rsa')`.
+- Absence d'un montant dans une réponse : chercher la valeur **entière ou formatée** (`/987654|9876[.,]54/`), jamais un fragment court (« 987 » apparaît au hasard dans les UUID : CI rouge du 2026-11-06).
