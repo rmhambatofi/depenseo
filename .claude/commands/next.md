@@ -1,6 +1,3 @@
----
-model: sonnet
----
 Prends la prochaine tâche du MVP.
 
 1. `docs/dev/PROGRESS.md` est déjà injecté par le hook SessionStart : ne le relis pas. Prends la première tâche `[ ]` de `docs/dev/PLAN.md` (hors backlog), marque-la `[~]`, puis lis **seulement** les fichiers de `docs/dev/pieges/` du domaine de la tâche (index dans PROGRESS.md ; ex. API → `api.md` + `api-tests.md`, + `api-db.md` si schéma ; mobile → `mobile.md` + `mobile-tests.md`).
