@@ -51,7 +51,7 @@
 
 ## Historique (plus récent en haut)
 
-- 2026-11-06 session 60 — P8-07 fait (saisie rapide, connexion, inscription, verrouillage restylés ; `BrandTile`, `CategoryChoiceTile`, `AmountEntryCard`).
+- 2026-11-06 session 60 — P8-07 fait (saisie rapide, connexion, inscription, verrouillage restylés ; `BrandTile`, `CategoryChoiceTile`, `AmountEntryCard`). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 59 — P8-06 fait (réglages, compte, catégories, limites, récurrentes restylés ; `GroupedCard`, `LimitProgressBar`). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 58 — P8-05 fait (liste des dépenses : mois, groupes par jour, tuile restylée, ADR-070). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 57 — P8-04 fait (accueil restylé, sélecteur de période sur `evolution`, conteneurs sémantiques des cartes). Handoff après 1 tâche (~20 fichiers lus).
@@ -60,5 +60,4 @@
 - 2026-11-06 — pièges déplacés de PROGRESS.md (71 Ko) vers `docs/dev/pieges/` par domaine ; hook SessionStart et `/next` allégés.
 - 2026-11-06 session 54 — P8-01 fait (thème, police Plus Jakarta Sans OFL, jetons ajustés 4,5:1, choix Clair/Auto/Sombre persistant, harnais de captures, parcours a11y « réglages et apparence »). Handoff après 1 tâche.
 - 2026-11-05 session 53 — P7-08 fait : relecture finale par 3 `reviewer` ; connexion admin limitée en débit (ADR-067) ; mineurs traités.
-- 2026-11-05 session 52 — P7-07 fait : `DEPLOY.md`, protocole NF-PERF dans `PERF.md`, `seed:fake` (ADR-066).
 - Sessions ≤ 51 (2026-11-04/05) : P0 à P6, P7-01 à P7-06 (détail dans `git log` et ADR-001…065).
