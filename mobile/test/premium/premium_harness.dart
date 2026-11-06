@@ -92,7 +92,10 @@ Future<(TestApp, SubscriptionServer)> openSubscription(
     },
   );
   final open = find.byKey(const Key('open-subscription'));
+  // Liste paresseuse : à texte ×2, la ligne n'est pas encore construite.
+  await reveal(tester, 'open-subscription');
   await tester.ensureVisible(open);
+  await tester.pump();
   await tester.tap(open);
   await settle(tester, until ?? find.byKey(const Key('plan-status')));
   return (app, server);

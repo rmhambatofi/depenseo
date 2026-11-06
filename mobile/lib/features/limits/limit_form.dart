@@ -191,24 +191,18 @@ class _LimitFormState extends ConsumerState<LimitForm> {
                 segments: [
                   ButtonSegment(
                     value: _Kind.none,
-                    label: Text(
-                      l10n.limitKindNone,
-                      key: const Key('limit-kind-none'),
-                    ),
+                    label: _segmentLabel(l10n.limitKindNone, 'limit-kind-none'),
                   ),
                   ButtonSegment(
                     value: _Kind.month,
-                    label: Text(
+                    label: _segmentLabel(
                       l10n.limitKindMonth,
-                      key: const Key('limit-kind-month'),
+                      'limit-kind-month',
                     ),
                   ),
                   ButtonSegment(
                     value: _Kind.week,
-                    label: Text(
-                      l10n.limitKindWeek,
-                      key: const Key('limit-kind-week'),
-                    ),
+                    label: _segmentLabel(l10n.limitKindWeek, 'limit-kind-week'),
                   ),
                 ],
                 selected: {_kind},
@@ -292,3 +286,10 @@ String _weekday(String locale, int day) {
   final name = DateFormat.EEEE(locale).dateSymbols.STANDALONEWEEKDAYS[day % 7];
   return name.isEmpty ? name : name[0].toUpperCase() + name.substring(1);
 }
+
+/// Libellé d'un mot (« Hebdomadaire ») : réduit plutôt que coupé au milieu
+/// dans un segment étroit (dès le texte ×1 sur 390 points).
+Widget _segmentLabel(String text, String key) => FittedBox(
+  fit: BoxFit.scaleDown,
+  child: Text(text, key: Key(key), maxLines: 1),
+);

@@ -35,6 +35,8 @@
 - Accueil (`ListView` paresseux, clé `recent-expenses`) : `scrollable: find.descendant(of: find.byKey(...('recent-expenses')), matching: find.byType(Scrollable)).first`.
 - `textOf` (`limit_harness.dart`) lit le premier `Text` sous la clé : marche pour `AmountText`. Sémantique : vérifier aussi qu'un nœud **ne contient pas** le texte d'une section voisine (fusion silencieuse si aucun conteneur sémantique).
 - Vérification visuelle rapide d'un écran : `flutter test test/screenshots --dart-define=CAPTURE=../design-ref/captures/<dossier> --plain-name <parcours>` puis lire les PNG (texte ×2 révèle les montants coupés : `FittedBox(scaleDown)`).
+- Recette P8-08 : un parcours ouvert à texte ×2 attend souvent un élément de liste paresseuse **non construit** (`openRecurring` sans `until`, `openSubscription` avec `ensureVisible` seul, `openList` sur `expense-$e1`) → attendre un élément présent en haut (`until:`, `find.byType(ExpenseTile)`) ou `reveal` d'abord. Planche-contact des 84 captures : PIL (`python3 -I`), pas d'ImageMagick ici.
+- Test « petit téléphone clavier ouvert » : `tester.view.viewInsets = FakeViewPadding(bottom: …)` **après** l'ouverture, puis `pump()` (`test/expenses/quick_entry_layout_test.dart`).
 - `find.text` trouve aussi le texte d'un `TextField` : viser la ligne (`find.widgetWithText(ListTile, …)`).
 - `tester.pageBack()` ne trouve pas le bouton retour de go_router : `Navigator.of(tester.element(…)).pop()`.
 - Limites : `saveLimit` retire la SnackBar qui couvre le bouton.

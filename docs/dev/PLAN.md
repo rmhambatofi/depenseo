@@ -101,7 +101,7 @@ Style demandé : celui de BilliTime, décrit dans `docs/dev/UI.md` (charte, jeto
 - [x] P8-05 Liste des dépenses : en-tête avec sélecteur de mois, groupes par jour (date seule, pas de total du jour), tuile de dépense (tuile de catégorie, catégorie, marchand · note, montant, date), recherche et filtres restylés, annulation de suppression conservée. Tests widget. (F-DEP-09, F-DEP-10)
 - [x] P8-06 Réglages et compte : sections titrées avec icône, cartes groupées, lignes à tuile d'icône et interrupteurs ; écrans Catégories, Limites (barres de progression arrondies vert / rouge), Récurrentes restylés. Tests widget. (F-CAT-02, F-LIM-02, F-REC-02, NF-QUA-04)
 - [x] P8-07 Saisie et parcours d'entrée : saisie rapide (clavier, sélecteur de catégorie en tuiles), connexion, inscription, verrouillage et code restylés. Tests : saisie ≤ 3 interactions, « 12.5 » → 1250 centimes inchangés. (F-DEP-01, F-DEP-02, F-AUTH-01, F-AUTH-04)
-- [ ] P8-08 Recette visuelle : captures après sur tous les écrans (clair, sombre, texte ×2), `docs/dev/A11Y.md` mis à jour, relecture `reviewer`, `PROGRESS.md` à jour. (NF-QUA-04)
+- [x] P8-08 Recette visuelle : captures après sur tous les écrans (clair, sombre, texte ×2), `docs/dev/A11Y.md` mis à jour, relecture `reviewer`, `PROGRESS.md` à jour. (NF-QUA-04)
 
 <!-- backlog -->
 ## Backlog V1/V2 (hors boucle autonome)

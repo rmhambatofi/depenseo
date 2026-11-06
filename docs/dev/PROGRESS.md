@@ -4,13 +4,13 @@
 
 ## État courant
 
-**MVP terminé** (2026-11-05, session 53). **Phase 8 ouverte** (2026-11-06) : refonte visuelle de l'app mobile dans le style de BilliTime, demandée par le propriétaire du produit. Backlog V1/V2 **non démarré** (décision du propriétaire).
+**MVP terminé** (2026-11-05, session 53). **Phase 8 terminée** (2026-11-06, session 61) : refonte visuelle de l'app mobile dans le style de BilliTime. Backlog V1/V2 **non démarré** (décision du propriétaire) : plus aucune tâche `[ ]` hors backlog, attendre une consigne humaine.
 
-- Tâche en cours : aucune. **P8-07 fait** (saisie : `AmountEntryCard` + catégories en tuiles `CategoryChoiceTile` ; connexion/inscription/verrouillage sous `BrandTile`, formulaire en carte, pavé du code rond). **Prochaine tâche : P8-08** (recette visuelle). À y vérifier (relecteur P8-07) : sur petit téléphone clavier ouvert, au moins une rangée de tuiles de catégorie visible ; noter dans `A11Y.md` que les noms d'un seul mot sont réduits (`FittedBox`) en texte ×2.
+- Tâche en cours : aucune. **P8-08 fait** (recette visuelle : 21 parcours × clair/sombre × texte ×1/×2 dans `design-ref/captures/apres/`, locales ; 6 parcours a11y ajoutés ; défauts corrigés : menu fréquence de récurrente débordant à ×2, « Hebdomadaire » coupé dès ×1, tuile de dépense tronquée à ×2 ; limites assumées dans `A11Y.md`).
 - Rappels phase 8 : présentation seulement, aucune fonction de BilliTime absente du MVP (revenus, solde, virements, objectifs) ; garder toutes les `Key` des tests ; aucun calcul de total ou de pourcentage sur le téléphone (ajouter à `/dashboard` si besoin) ; `mobile/` ne doit jamais contenir la chaîne `/admin`.
-- Dernier commit : feat(mobile): restyled quick entry, sign-in, sign-up and lock screens (F-DEP-01, F-DEP-02, F-AUTH-01, F-AUTH-04).
+- Dernier commit : fix(mobile): visual acceptance of the redesign (NF-QUA-04).
 - Branche : main
-- Tests (2026-11-06, P8-07) : Flutter 577 + `flutter analyze` et `dart format` propres, `tool/test_tz.sh` vert (4 fuseaux), a11y vert ; API non relancée (aucun fichier API touché).
+- Tests (2026-11-06, P8-08) : Flutter 605 (604 au passage du `tester`, + 1 test de relecture vérifié seul), `flutter analyze` et `dart format` propres, `tool/test_tz.sh` vert (4 fuseaux) ; API non relancée (aucun fichier API touché).
 - Restent en l'état, assumés : voir « Reliquats » de `pieges/api.md`, `pieges/mobile.md`, `pieges/admin.md`.
 
 ## Pièges transverses (toujours valables)
@@ -51,6 +51,7 @@
 
 ## Historique (plus récent en haut)
 
+- 2026-11-06 session 61 — P8-08 fait (recette visuelle, 3 défauts de mise en page corrigés, 6 parcours a11y ajoutés). Phase 8 terminée.
 - 2026-11-06 session 60 — P8-07 fait (saisie rapide, connexion, inscription, verrouillage restylés ; `BrandTile`, `CategoryChoiceTile`, `AmountEntryCard`). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 59 — P8-06 fait (réglages, compte, catégories, limites, récurrentes restylés ; `GroupedCard`, `LimitProgressBar`). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 58 — P8-05 fait (liste des dépenses : mois, groupes par jour, tuile restylée, ADR-070). Handoff après 1 tâche (~20 fichiers lus).

@@ -260,6 +260,8 @@ class _RecurringFormState extends ConsumerState<RecurringForm> {
           DropdownButtonFormField<RecurrenceFrequency>(
             key: const Key('recurring-frequency'),
             initialValue: _frequency,
+            // Texte ×2 : sans `isExpanded`, la valeur choisie déborde à droite.
+            isExpanded: true,
             decoration: InputDecoration(
               labelText: l10n.recurringFrequencyLabel,
             ),

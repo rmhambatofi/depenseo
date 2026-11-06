@@ -41,6 +41,31 @@ class ExpenseTile extends ConsumerWidget {
       if (e.note != null && e.note!.trim().isNotEmpty) e.note!,
     ].join(' · ');
     final muted = TextStyle(color: t.textMuted, fontSize: 13);
+    // Texte très agrandi : montant et date passent sous le nom, sinon le nom
+    // de catégorie et la date seraient coupés (« Transp… », « 3 nov. 2… »).
+    final stacked = MediaQuery.textScalerOf(context).scale(16) > 16 * 1.5;
+    final amount = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (status != null)
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 4),
+            child: Icon(
+              status.$1,
+              size: 16,
+              color: t.textMuted,
+              semanticLabel: status.$2,
+            ),
+          ),
+        AmountText(formatAmount(e.amount, e.currency, locale)),
+      ],
+    );
+    final date = Text(
+      formatCalendarDate(e.date, locale),
+      maxLines: stacked ? null : 1,
+      overflow: stacked ? null : TextOverflow.ellipsis,
+      style: muted,
+    );
     return MergeSemantics(
       key: Key('expense-${e.id}'),
       // Annoncée comme bouton, comme l'ancienne `ListTile`.
@@ -71,8 +96,8 @@ class ExpenseTile extends ConsumerWidget {
                     children: [
                       Text(
                         category?.name ?? l10n.categoryNotSynced,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        maxLines: stacked ? null : 1,
+                        overflow: stacked ? null : TextOverflow.ellipsis,
                         style: TextStyle(
                           color: t.text,
                           fontSize: 16,
@@ -82,52 +107,31 @@ class ExpenseTile extends ConsumerWidget {
                       if (details.isNotEmpty)
                         Text(
                           details,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          maxLines: stacked ? null : 1,
+                          overflow: stacked ? null : TextOverflow.ellipsis,
                           style: muted,
                         ),
+                      if (stacked) ...[
+                        FittedBox(fit: BoxFit.scaleDown, child: amount),
+                        date,
+                      ],
                     ],
                   ),
                 ),
-                const SizedBox(width: AppSpacing.xs),
-                // Flexible : en texte agrandi, le montant se réduit au lieu de
-                // déborder (FittedBox) et la date se coupe.
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (status != null)
-                              Padding(
-                                padding: const EdgeInsetsDirectional.only(
-                                  end: 4,
-                                ),
-                                child: Icon(
-                                  status.$1,
-                                  size: 16,
-                                  color: t.textMuted,
-                                  semanticLabel: status.$2,
-                                ),
-                              ),
-                            AmountText(
-                              formatAmount(e.amount, e.currency, locale),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text(
-                        formatCalendarDate(e.date, locale),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: muted,
-                      ),
-                    ],
+                if (!stacked) ...[
+                  const SizedBox(width: AppSpacing.xs),
+                  // Flexible : le montant se réduit au lieu de déborder
+                  // (FittedBox) et la date se coupe.
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        FittedBox(fit: BoxFit.scaleDown, child: amount),
+                        date,
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

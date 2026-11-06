@@ -3,6 +3,7 @@
 import 'package:depenseo/ui/limit_progress_bar.dart';
 import 'package:depenseo/ui/tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fake_api.dart';
@@ -36,6 +37,22 @@ void main() {
       },
     );
   }
+
+  testWidgets('type de limite sur 390 points : « Hebdomadaire » sur une '
+      'ligne, pas coupé au milieu (P8-08)', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await openLimits(tester, current: summary());
+    final label = byKey('limit-kind-week');
+    await tester.ensureVisible(label);
+    await tester.pump();
+    // Ni coupé en deux lignes, ni rogné : la case le réduit en entier.
+    expect(
+      tester.renderObject<RenderParagraph>(label).didExceedMaxLines,
+      isFalse,
+    );
+  });
 
   testWidgets('aucune limite : dépensé seul, puis limite mensuelle au 28 '
       'sans récurrences', (tester) async {

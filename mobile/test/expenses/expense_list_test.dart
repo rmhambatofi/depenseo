@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:depenseo/core/db/app_database.dart';
 import 'package:depenseo/features/auth/auth_controller.dart';
 import 'package:depenseo/features/auth/login_screen.dart';
+import 'package:depenseo/features/expenses/expense_tile.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -76,7 +77,9 @@ Future<void> openFilters(WidgetTester tester) async {
 
 Future<void> openList(WidgetTester tester) async {
   await tester.tap(byKey('open-expenses'));
-  await pumpIo(tester, until: byKey('expense-$e1'));
+  // Une tuile quelconque : à texte ×2, celle de `e1` n'est pas encore
+  // construite (liste paresseuse, tuiles plus hautes).
+  await pumpIo(tester, until: find.byType(ExpenseTile));
 }
 
 /// Requête Dio puis écriture en base : le minuteur zéro de Dio n'avance

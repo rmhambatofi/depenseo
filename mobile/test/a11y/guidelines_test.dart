@@ -14,7 +14,10 @@ import '../home/home_dashboard_test.dart' show openHome;
 import '../limits/limit_harness.dart' show openLimits, summary;
 import '../lock/app_lock_test.dart' show lockedApp, lockScreen;
 import '../notifications/notification_harness.dart' show openNotifications;
-import '../recurring/recurring_harness.dart' show openRecurring, recurring;
+import '../premium/premium_harness.dart' show openSubscription, statusJson;
+import '../recurring/recurring_harness.dart'
+    show openRecurring, recurring, rentId;
+import '../support/fake_api.dart' show FakeResponse;
 import '../support/test_app.dart';
 
 Future<void> expectGuidelines(WidgetTester tester) async {
@@ -104,6 +107,50 @@ final journeys = <String, Future<void> Function(WidgetTester)>{
       items: [recurring()],
       until: find.byKey(const Key('no-occurrence')),
     );
+  },
+  'dépense récurrente (formulaire)': (tester) async {
+    const tile = Key('recurring-$rentId');
+    await openRecurring(tester, items: [recurring()], until: find.byKey(tile));
+    await tester.ensureVisible(find.byKey(tile));
+    await tester.pump();
+    await tester.tap(find.byKey(tile));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('recurring-amount')), findsOneWidget);
+  },
+  'abonnement': (tester) async {
+    await openSubscription(
+      tester,
+      status: statusJson('free', trialAvailable: true),
+    );
+  },
+  'code de verrouillage (création)': (tester) async {
+    final app = await startSignedIn(tester);
+    app.router.go('/settings/pin');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('pin-dots')), findsOneWidget);
+  },
+  'mot de passe oublié': (tester) async {
+    final app = TestApp();
+    await app.pump(tester);
+    app.router.go('/forgot-password');
+    await tester.pumpAndSettle();
+    expect(find.text('Recevoir un lien'), findsOneWidget);
+  },
+  'vérification de l’adresse': (tester) async {
+    final app = TestApp();
+    app.api.on('POST /auth/verify-email', (_) => const FakeResponse(204));
+    await app.pump(tester);
+    app.router.go('/verify-email#token=abc_DEF-123');
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Adresse vérifiée. Vous pouvez vous connecter.'),
+      findsOneWidget,
+    );
+  },
+  'stockage inaccessible': (tester) async {
+    final app = TestApp(store: FlakySecureStore());
+    await app.pump(tester);
+    expect(app.location, '/storage-error');
   },
   'alertes et rappels': (tester) async {
     await openNotifications(tester);

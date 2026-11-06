@@ -4,7 +4,7 @@ import 'package:depenseo/core/db/expense_filter.dart';
 import 'package:depenseo/features/categories/category_badge.dart';
 import 'package:depenseo/features/expenses/expense_providers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -53,9 +53,10 @@ Future<TestApp> _start(
   String timeZone = 'Europe/Paris',
   DateTime? now,
   String until = 'expense-$_nov1',
+  Size size = const Size(800, 1400),
 }) async {
   // Écran haut : les trois jours de novembre tiennent sans défilement.
-  tester.view.physicalSize = const Size(800, 1400);
+  tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final app = await startSignedIn(
@@ -196,6 +197,46 @@ void main() {
     expect(node.label, isNot(contains('Métro')));
     expect(node.flagsCollection.isButton, isTrue);
     expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+  });
+
+  testWidgets('texte ×1 sur 390 points : montant à droite, sur la ligne du '
+      'nom (P8-08)', (tester) async {
+    await _start(tester, size: const Size(390, 3000));
+    Finder inTile(Finder f) =>
+        find.descendant(of: byKey('expense-$_nov3b'), matching: f);
+    final name = tester.getRect(inTile(find.text('Alimentation')));
+    final amount = tester.getRect(
+      inTile(find.textContaining(RegExp(r'^8,20.€$'))),
+    );
+    expect(amount.left, greaterThan(name.right));
+    expect(amount.top, lessThan(name.bottom));
+  });
+
+  testWidgets('texte ×2 sur 390 points : nom et date entiers, montant et '
+      'date sous le nom (P8-08)', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearAllTestValues);
+    await _start(tester, size: const Size(390, 3000));
+    Finder inTile(Finder f) =>
+        find.descendant(of: byKey('expense-$_nov3b'), matching: f);
+
+    final name = inTile(find.text('Alimentation'));
+    final date = inTile(find.text('3 nov. 2026'));
+    final amount = inTile(find.textContaining(RegExp(r'^8,20.€$')));
+    for (final f in [name, date]) {
+      expect(
+        tester.renderObject<RenderParagraph>(f).didExceedMaxLines,
+        isFalse,
+      );
+    }
+    expect(
+      tester.getTopLeft(amount).dy,
+      greaterThan(tester.getTopLeft(name).dy),
+    );
+    expect(
+      tester.getTopLeft(date).dy,
+      greaterThan(tester.getTopLeft(amount).dy),
+    );
   });
 
   testWidgets('période des filtres : remplace le mois jusqu\'à effacement', (
