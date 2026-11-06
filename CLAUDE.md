@@ -55,7 +55,7 @@ Vérifie `package.json` racine si une commande manque : ne devine pas, lis.
 
 1. Lis `docs/dev/PROGRESS.md` (état, tâche courante, blocages) puis la section ouverte de `docs/dev/PLAN.md`. Ne relis pas le cahier des charges en entier : lis uniquement les sections citées par la tâche.
 2. Prends **une** tâche `[ ]` de `PLAN.md`, marque-la `[~]`, travaille, teste, committe, marque `[x]`.
-3. Après chaque tâche : mets à jour `PROGRESS.md` (3 à 10 lignes : fait, en cours, prochaine étape, pièges rencontrés).
+3. Après chaque tâche : mets à jour `PROGRESS.md` (3 à 10 lignes : fait, en cours, prochaine étape ; < 10 Ko) et range les pièges rencontrés dans `docs/dev/pieges/<domaine>.md`.
 4. Si le contexte devient lourd (plus de ~15 fichiers lus, ou après 3 tâches) : finis la tâche en cours, écris le handoff dans `PROGRESS.md`, crée le fichier `.claude/HANDOFF` et termine la session. La boucle externe relance une session fraîche.
 5. Ne termine **jamais** une session avec une tâche `[~]` et un état non committé.
 6. Blocage réel (décision humaine irréversible, secret manquant, outil absent) : décris-le dans `PROGRESS.md` sous `## BLOQUÉ`, crée `.claude/BLOCKED` et termine.
