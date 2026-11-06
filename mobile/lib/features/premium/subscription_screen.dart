@@ -153,7 +153,7 @@ class _SubscriptionBodyState extends ConsumerState<_SubscriptionBody> {
       if (manage != null)
         ListTile(
           key: const Key('restore-purchases'),
-          leading: const Icon(Icons.restore),
+          leading: const Icon(Icons.restore_rounded),
           title: Text(l10n.restorePurchases),
           enabled: !_busy,
           onTap: _restore,
@@ -162,7 +162,7 @@ class _SubscriptionBodyState extends ConsumerState<_SubscriptionBody> {
       if (manage != null)
         ListTile(
           key: const Key('manage-subscription'),
-          leading: const Icon(Icons.open_in_new),
+          leading: const Icon(Icons.open_in_new_rounded),
           title: Text(l10n.manageSubscription),
           subtitle: Text(l10n.manageSubscriptionHint),
           onTap: () => ref.read(urlOpenerProvider)(manage),
@@ -173,7 +173,7 @@ class _SubscriptionBodyState extends ConsumerState<_SubscriptionBody> {
         children: [
           ListTile(
             key: const Key('subscription-offline'),
-            leading: const Icon(Icons.cloud_off),
+            leading: const Icon(Icons.cloud_off_rounded),
             title: Text(l10n.subscriptionOffline),
           ),
           ...storeTiles,
@@ -200,10 +200,12 @@ class _SubscriptionBodyState extends ConsumerState<_SubscriptionBody> {
     return ListView(
       children: [
         ListTile(
+          // État dit par le texte ; icône pleine si l'offre est active.
           leading: Icon(
-            status.premiumActive
-                ? Icons.workspace_premium
-                : Icons.workspace_premium_outlined,
+            Icons.workspace_premium_rounded,
+            color: status.premiumActive
+                ? Theme.of(context).colorScheme.primary
+                : null,
           ),
           title: Text(summary, key: const Key('plan-status')),
           subtitle: Text(

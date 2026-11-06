@@ -211,7 +211,7 @@ class _Legend extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     spacing: 4,
     children: [
-      Icon(Icons.horizontal_rule, color: color),
+      Icon(Icons.horizontal_rule_rounded, color: color),
       Flexible(child: Text(label)),
     ],
   );

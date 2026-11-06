@@ -25,6 +25,8 @@
 
 ## Défilement et listes paresseuses
 
+- Barre du bas (P8-03) : la zone visible des onglets perd ~80 px ; un élément de tête de liste peut sortir de l'écran après `ensureVisible` d'un bouton du bas → `find.byKey(k, skipOffstage: false)`. Onglets : `open-home`, `open-expenses`, `open-limits`, `open-recurring` (`add-expense` = « + »). Pour tester une **première** lecture en échec d'un onglet, modifier la route avant d'ouvrir (`openRecurring(beforeOpen:, until:)`) : un retour sur l'onglet garde la valeur précédente.
+
 - `scrollUntilVisible` ne garantit pas une cible touchable : ajouter `ensureVisible`. Sur une liste paresseuse, `ensureVisible` seul échoue (« Bad state: No element ») : `scrollUntilVisible` d'abord, ou `reveal(tester, key)` sur l'écran Compte.
 - Réglages `/settings` (et Compte, dernière entrée) : `scrollUntilVisible(…, scrollable: find.byType(Scrollable).last)`. Menu déroulant de 31 jours : idem.
 - Accueil (`ListView` paresseux, clé `recent-expenses`) : `scrollable: find.descendant(of: find.byKey(...('recent-expenses')), matching: find.byType(Scrollable)).first`.

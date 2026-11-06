@@ -22,11 +22,11 @@ class ExpenseTile extends ConsumerWidget {
     final locale = Localizations.localeOf(context).toLanguageTag();
     final e = item.expense;
     final status = e.syncError == 'conflict'
-        ? (Icons.sync_problem_outlined, l10n.expenseSyncConflict)
+        ? (Icons.sync_problem_rounded, l10n.expenseSyncConflict)
         : e.syncError != null
-        ? (Icons.error_outline, l10n.expenseSyncRejected)
+        ? (Icons.error_outline_rounded, l10n.expenseSyncRejected)
         : e.pendingSync
-        ? (Icons.cloud_upload_outlined, l10n.expensePendingSync)
+        ? (Icons.cloud_upload_rounded, l10n.expensePendingSync)
         : null;
     return ListTile(
       key: Key('expense-${e.id}'),

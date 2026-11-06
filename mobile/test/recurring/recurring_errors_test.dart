@@ -40,16 +40,18 @@ void main() {
   testWidgets('autre session pendant la lecture : rien affiché', (
     tester,
   ) async {
-    final (app, _) = await openRecurring(tester, items: [recurring()]);
-    final list = app.api.routes['GET $base/recurring-expenses']!;
-    app.api.on('GET $base/recurring-expenses', (r) async {
-      await app.store.write(AccountEpoch.key, 'autre-session');
-      return list(r);
-    });
-    Navigator.of(tester.element(byKey('reminder-time'))).pop();
-    await tester.pumpAndSettle();
-    await tester.tap(byKey('open-recurring'));
-    await settle(tester, byKey('recurring-offline'));
+    await openRecurring(
+      tester,
+      items: [recurring()],
+      until: byKey('recurring-offline'),
+      beforeOpen: (app) {
+        final list = app.api.routes['GET $base/recurring-expenses']!;
+        app.api.on('GET $base/recurring-expenses', (r) async {
+          await app.store.write(AccountEpoch.key, 'autre-session');
+          return list(r);
+        });
+      },
+    );
     expect(byKey('recurring-$rentId'), findsNothing);
   });
 
@@ -80,7 +82,7 @@ void main() {
 
     // Formulaire ouvert sur des données peut-être périmées : lecture seule.
     GoRouter.of(tester.element(byKey('reminder-time')))
-        .push('/settings/recurring/$rentId')
+        .push('/recurring/$rentId')
         .ignore();
     await tester.pumpAndSettle();
     expect(

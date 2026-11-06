@@ -154,7 +154,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
           ListTile(
             key: const Key('filter-period'),
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.date_range_outlined),
+            leading: const Icon(Icons.date_range_rounded),
             title: Text(l10n.periodLabel),
             subtitle: Text(period),
             trailing: _from == null && _to == null
@@ -162,7 +162,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                 : IconButton(
                     key: const Key('filter-period-clear'),
                     tooltip: l10n.filtersReset,
-                    icon: const Icon(Icons.clear),
+                    icon: const Icon(Icons.clear_rounded),
                     onPressed: () => setState(() => _from = _to = null),
                   ),
             onTap: _pickPeriod,

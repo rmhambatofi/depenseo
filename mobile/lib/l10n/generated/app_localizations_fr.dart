@@ -252,6 +252,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pinDelete => 'Effacer';
 
   @override
+  String get navHome => 'Accueil';
+
+  @override
+  String get navExpenses => 'Dépenses';
+
+  @override
+  String get navLimits => 'Limites';
+
+  @override
+  String get navRecurring => 'Récurrentes';
+
+  @override
+  String get accountMenu => 'Réglages et compte';
+
+  @override
   String get addExpense => 'Ajouter une dépense';
 
   @override
@@ -554,9 +569,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get limitsTitle => 'Limite de dépenses';
 
   @override
-  String get limitsSettingsHint => 'Plafond mensuel ou hebdomadaire';
-
-  @override
   String get limitCurrentTitle => 'Période en cours';
 
   @override
@@ -654,9 +666,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get recurringTitle => 'Dépenses récurrentes';
-
-  @override
-  String get recurringSettingsHint => 'Loyer, abonnements, échéances à payer';
 
   @override
   String get recurringUpcomingTitle => 'Échéances en attente';

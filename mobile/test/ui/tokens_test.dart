@@ -67,12 +67,12 @@ void main() {
 
       test('texte blanc sur le départ du dégradé ≥ 4,5:1', () {
         expect(
-          contrast(Colors.white, tokens.primaryGradient.colors.first),
+          contrast(tokens.onGradient, tokens.primaryGradient.colors.first),
           greaterThanOrEqualTo(4.5),
         );
         // Grands montants (≥ 24 px) sur l'arrivée : 3:1 suffit (WCAG 1.4.3).
         expect(
-          contrast(Colors.white, tokens.primaryGradient.colors.last),
+          contrast(tokens.onGradient, tokens.primaryGradient.colors.last),
           greaterThanOrEqualTo(3),
         );
       });

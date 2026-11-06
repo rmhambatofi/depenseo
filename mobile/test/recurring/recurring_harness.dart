@@ -165,6 +165,8 @@ Future<(TestApp, RecurringServer)> openRecurring(
   List<Map<String, dynamic>>? items,
   Map<String, List<Map<String, dynamic>>>? occurrences,
   Locale locale = const Locale('fr'),
+  void Function(TestApp app)? beforeOpen,
+  Finder? until,
 }) async {
   final app = await startSignedIn(tester, locale: locale);
   final server = RecurringServer(
@@ -172,10 +174,10 @@ Future<(TestApp, RecurringServer)> openRecurring(
     items: items ?? [],
     occurrences: occurrences ?? {},
   );
-  await tester.tap(byKey('open-settings'));
-  await tester.pumpAndSettle();
+  // Routes à modifier avant la première lecture (onglet chargé une fois).
+  beforeOpen?.call(app);
   await tester.tap(byKey('open-recurring'));
-  await settle(tester, byKey('reminder-time'));
+  await settle(tester, until ?? byKey('reminder-time'));
   return (app, server);
 }
 

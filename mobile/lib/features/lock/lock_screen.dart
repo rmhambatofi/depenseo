@@ -98,7 +98,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
   Widget _unlock(AppLocalizations l10n) => Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      const Icon(Icons.lock_outline, size: 40),
+      const Icon(Icons.lock_outline_rounded, size: 40),
       const SizedBox(height: 8),
       Text(l10n.lockTitle, style: Theme.of(context).textTheme.headlineSmall),
       const SizedBox(height: 24),
@@ -107,7 +107,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
         TextButton.icon(
           key: const Key('lock-biometrics-retry'),
           onPressed: _biometrics,
-          icon: const Icon(Icons.fingerprint),
+          icon: const Icon(Icons.fingerprint_rounded),
           label: Text(l10n.lockUseBiometrics),
         ),
       TextButton(

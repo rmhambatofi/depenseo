@@ -50,7 +50,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
         key: const Key('add-category'),
         tooltip: l10n.categoryAdd,
         onPressed: () => context.push('/settings/categories/new'),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add_rounded),
       ),
       body: switch (tree) {
         AsyncData(:final value) when value.isEmpty => Padding(

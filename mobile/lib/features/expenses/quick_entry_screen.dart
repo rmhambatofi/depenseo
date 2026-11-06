@@ -255,7 +255,7 @@ class _QuickEntryFormState extends ConsumerState<_QuickEntryForm> {
             IconButton(
               key: const Key('delete-expense'),
               tooltip: l10n.deleteExpense,
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Icons.delete_outline_rounded),
               onPressed: _saving
                   ? null
                   : () => context.pop(ExpenseEditOutcome.deleted),
@@ -315,7 +315,7 @@ class _QuickEntryFormState extends ConsumerState<_QuickEntryForm> {
           ListTile(
             key: const Key('expense-date'),
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.event_outlined),
+            leading: const Icon(Icons.event_rounded),
             title: Text(l10n.dateLabel),
             trailing: Text(dateText),
             onTap: _pickDate,

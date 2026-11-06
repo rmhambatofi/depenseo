@@ -5,11 +5,12 @@ import 'dart:convert';
 import 'package:depenseo/features/expenses/expense_providers.dart';
 import 'package:depenseo/features/home/dashboard_providers.dart';
 import 'package:depenseo/providers.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../expenses/quick_entry_harness.dart';
 import '../limits/limit_harness.dart' show byKey, textOf;
+import '../recurring/recurring_harness.dart' show RecurringServer;
 import '../support/fake_api.dart';
 import '../support/fake_sync_server.dart';
 import '../support/settle.dart';
@@ -282,5 +283,22 @@ void main() {
     final syncs = started.api.calls('GET /notebooks/$notebookId/sync');
     expect(syncs, isNotEmpty);
     expect(started.api.calls('GET $dashboardPath').length, greaterThan(1));
+  });
+
+  testWidgets('échéance touchée : onglet Récurrentes ouvert (P8-03)', (
+    tester,
+  ) async {
+    final app = await openHome(tester, body: dashboard());
+    // Après le démarrage : `startSignedIn` remplace `GET /me`.
+    RecurringServer(app, items: [], occurrences: {});
+    final upcoming = byKey('upcoming-0190a000-0000-7000-8000-000000000e01');
+    await tester.ensureVisible(upcoming);
+    await tester.pumpAndSettle();
+    await tester.tap(upcoming);
+    await settle(tester, byKey('reminder-time'));
+    expect(
+      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+      4,
+    );
   });
 }

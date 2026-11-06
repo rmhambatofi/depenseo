@@ -279,7 +279,7 @@ class _RecurringFormState extends ConsumerState<RecurringForm> {
             contentPadding: EdgeInsets.zero,
             title: Text(l10n.recurringStartDateLabel),
             subtitle: Text(formatCalendarDate(_startDate, locale)),
-            trailing: const Icon(Icons.calendar_today_outlined),
+            trailing: const Icon(Icons.calendar_today_rounded),
             enabled: !scheduleLocked,
             onTap: _pickStartDate,
           ),

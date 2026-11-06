@@ -327,7 +327,7 @@ class _CategoryFormState extends ConsumerState<_CategoryForm> {
               ),
               child: selected
                   ? Icon(
-                      Icons.check,
+                      Icons.check_rounded,
                       size: 20,
                       // Coche lisible sur les teintes claires (jaune, citron).
                       color: fill.computeLuminance() > 0.4

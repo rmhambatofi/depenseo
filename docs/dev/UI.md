@@ -14,8 +14,9 @@ ni textes. Palette, icônes et police sont les nôtres ou sous licence libre.
   fond sombre, icône pleine arrondie dans la couleur saturée.
 - Titres de section hors des cartes (texte 18, gras moyen), lien « Voir tout » en couleur primaire à droite.
 - Montants en gros (accueil 40, cartes 28, listes 17) ; libellés secondaires en gris atténué.
-- Navigation : barre du bas (Accueil, Dépenses, **« + » central rond** surélevé en dégradé, Limites, Récurrentes),
-  onglet actif = icône pleine sur pastille primaire pâle + libellé primaire.
+- Navigation : barre du bas (Accueil, Dépenses, **« + » central rond** en dégradé, Limites, Récurrentes),
+  onglet actif = icône sur pastille primaire pâle + libellé primaire. Avatar d'en-tête à droite de chaque onglet
+  (réglages et compte). Fait en P8-03 (`features/shell/`, voir ADR-069).
 - Depenseo n'a ni revenus, ni solde, ni virements, ni objectifs : **ne pas** reproduire ces blocs. La carte d'en-tête
   affiche dépensé / limite / reste de la période (ou total sans limite), lus depuis `/dashboard`.
 

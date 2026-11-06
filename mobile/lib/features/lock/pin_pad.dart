@@ -107,7 +107,7 @@ class _PinPadState extends State<PinPad> {
                 key: const Key('pin-delete'),
                 onPressed: _delete,
                 icon: Icon(
-                  Icons.backspace_outlined,
+                  Icons.backspace_rounded,
                   semanticLabel: l10n.pinDelete,
                 ),
               ),

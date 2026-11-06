@@ -251,6 +251,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pinDelete => 'Delete';
 
   @override
+  String get navHome => 'Home';
+
+  @override
+  String get navExpenses => 'Expenses';
+
+  @override
+  String get navLimits => 'Limits';
+
+  @override
+  String get navRecurring => 'Recurring';
+
+  @override
+  String get accountMenu => 'Settings and account';
+
+  @override
   String get addExpense => 'Add an expense';
 
   @override
@@ -551,9 +566,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get limitsTitle => 'Spending limit';
 
   @override
-  String get limitsSettingsHint => 'Monthly or weekly cap';
-
-  @override
   String get limitCurrentTitle => 'Current period';
 
   @override
@@ -650,9 +662,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recurringTitle => 'Recurring expenses';
-
-  @override
-  String get recurringSettingsHint => 'Rent, subscriptions, bills to pay';
 
   @override
   String get recurringUpcomingTitle => 'Pending payments';

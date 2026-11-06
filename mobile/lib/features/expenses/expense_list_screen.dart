@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/db/expense_filter.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../shell/account_avatar.dart';
 import 'expense_filter_sheet.dart';
 import 'expense_providers.dart';
 import 'expense_tile.dart';
@@ -26,10 +27,11 @@ class ExpenseListScreen extends ConsumerWidget {
             key: const Key('open-filters'),
             tooltip: l10n.filtersTitle,
             isSelected: filter.hasCriteria,
-            icon: const Icon(Icons.filter_list),
-            selectedIcon: const Icon(Icons.filter_list_alt),
+            icon: const Icon(Icons.filter_list_rounded),
+            selectedIcon: const Icon(Icons.filter_alt_rounded),
             onPressed: () => showExpenseFilterSheet(context, ref),
           ),
+          const AccountAvatarButton(),
         ],
       ),
       body: Column(
@@ -39,7 +41,7 @@ class ExpenseListScreen extends ConsumerWidget {
             child: TextField(
               key: const Key('expense-search'),
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search_rounded),
                 labelText: l10n.searchLabel,
                 helperText: l10n.searchHint,
               ),

@@ -82,6 +82,6 @@ class _Cover extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ColoredBox(
     color: Theme.of(context).colorScheme.surface,
-    child: const Center(child: Icon(Icons.lock_outline, size: 40)),
+    child: const Center(child: Icon(Icons.lock_outline_rounded, size: 40)),
   );
 }

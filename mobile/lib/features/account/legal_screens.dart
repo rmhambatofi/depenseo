@@ -50,13 +50,13 @@ class LegalScreen extends StatelessWidget {
             ListTile(
               key: Key('legal-${legalSlug(doc)}'),
               title: Text(legalText(doc, language).title),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => context.push('/settings/legal/${legalSlug(doc)}'),
             ),
           ListTile(
             key: const Key('legal-licenses'),
             title: Text(l10n.legalLicenses),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () =>
                 showLicensePage(context: context, applicationName: 'Depenseo'),
           ),

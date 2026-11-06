@@ -68,8 +68,9 @@ Future<void> writeLimit(
     }
     if (!await sameSession()) throw const LimitError(LimitFailure.offline);
   } finally {
-    // Succès comme conflit : l'état du serveur a pu changer. Écran fermé :
-    // la jauge (autoDispose) n'est plus lue.
+    // Succès comme conflit : l'état du serveur a pu changer. Écran démonté
+    // (sortie de la coquille, déconnexion) : la jauge (autoDispose) n'est
+    // plus lue.
     if (ref.context.mounted) ref.invalidate(limitOverviewProvider);
   }
 }

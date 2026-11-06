@@ -219,9 +219,9 @@ void main() {
     expect(e.pendingSync, isTrue);
     expect(e.baseUpdatedAt, '2026-11-04T08:00:00.000Z');
 
-    // De retour à l'accueil, la dépense n'y figure pas non plus.
-    Navigator.of(tester.element(byKey('expense-search'))).pop();
-    await pumpIo(tester, until: byKey('add-expense'));
+    // Sur l'onglet Accueil, la dépense n'y figure pas non plus.
+    await tester.tap(byKey('open-home'));
+    await pumpIo(tester, until: byKey('recent-expenses'));
     expect(byKey('expense-$e1'), findsNothing);
     expect(byKey('expense-$e2'), findsOneWidget);
   });

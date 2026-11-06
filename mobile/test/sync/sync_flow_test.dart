@@ -72,7 +72,7 @@ void main() {
     await save(tester);
   }
 
-  Finder pendingIcon() => find.byIcon(Icons.cloud_upload_outlined);
+  Finder pendingIcon() => find.byIcon(Icons.cloud_upload_rounded);
 
   testWidgets('les dépenses du serveur sont listées à l’accueil, saisie hors '
       'ligne visible puis envoyée au retour au premier plan', (tester) async {

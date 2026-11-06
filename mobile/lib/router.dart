@@ -22,6 +22,7 @@ import 'features/recurring/recurring_edit_screen.dart';
 import 'features/recurring/recurring_screen.dart';
 import 'features/settings/pin_setup_screen.dart';
 import 'features/settings/settings_screen.dart';
+import 'features/shell/app_shell.dart';
 
 /// Écrans réservés aux visiteurs non connectés.
 const _signedOutOnly = {
@@ -54,17 +55,70 @@ String? authRedirect(AsyncValue<AuthStatus> auth, String path) {
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier(ref.read(authControllerProvider));
   ref.listen(authControllerProvider, (_, next) => refresh.value = next);
+  final rootKey = GlobalKey<NavigatorState>();
   final router = GoRouter(
+    navigatorKey: rootKey,
     initialLocation: '/splash',
     refreshListenable: refresh,
     redirect: (context, state) => authRedirect(refresh.value, state.uri.path),
     routes: [
-      GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
-      // Routes à plat (pas de liste sous l'écran poussé) ; `new` avant `:id`.
-      GoRoute(
-        path: '/expenses',
-        builder: (context, state) => const ExpenseListScreen(),
+      // Onglets (barre du bas) ; l'état de chaque branche est conservé.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, shell) => AppShell(navigationShell: shell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/',
+                builder: (context, state) => const HomeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/expenses',
+                builder: (context, state) => const ExpenseListScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/limits',
+                builder: (context, state) => const LimitsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/recurring',
+                builder: (context, state) => const RecurringScreen(),
+                routes: [
+                  // Formulaires plein écran, au-dessus de la barre ;
+                  // `new` avant `:recurringId`.
+                  GoRoute(
+                    parentNavigatorKey: rootKey,
+                    path: 'new',
+                    builder: (context, state) => const RecurringEditScreen(),
+                  ),
+                  GoRoute(
+                    parentNavigatorKey: rootKey,
+                    path: ':recurringId',
+                    builder: (context, state) => RecurringEditScreen(
+                      key: ValueKey(state.pathParameters['recurringId']),
+                      recurringId: state.pathParameters['recurringId'],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
+      // Saisie plein écran, au-dessus de la barre, à plat (pas de liste
+      // sous l'écran poussé) ; `new` avant `:id`.
       GoRoute(
         path: '/expenses/new',
         builder: (context, state) => const QuickEntryScreen(),
@@ -111,28 +165,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'notifications',
             builder: (context, state) => const NotificationSettingsScreen(),
-          ),
-          GoRoute(
-            path: 'limits',
-            builder: (context, state) => const LimitsScreen(),
-          ),
-          GoRoute(
-            path: 'recurring',
-            builder: (context, state) => const RecurringScreen(),
-            routes: [
-              // `new` avant `:recurringId`.
-              GoRoute(
-                path: 'new',
-                builder: (context, state) => const RecurringEditScreen(),
-              ),
-              GoRoute(
-                path: ':recurringId',
-                builder: (context, state) => RecurringEditScreen(
-                  key: ValueKey(state.pathParameters['recurringId']),
-                  recurringId: state.pathParameters['recurringId'],
-                ),
-              ),
-            ],
           ),
           GoRoute(
             path: 'categories',

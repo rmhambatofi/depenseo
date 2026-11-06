@@ -542,6 +542,36 @@ abstract class AppLocalizations {
   /// **'Effacer'**
   String get pinDelete;
 
+  /// No description provided for @navHome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accueil'**
+  String get navHome;
+
+  /// No description provided for @navExpenses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenses'**
+  String get navExpenses;
+
+  /// No description provided for @navLimits.
+  ///
+  /// In fr, this message translates to:
+  /// **'Limites'**
+  String get navLimits;
+
+  /// No description provided for @navRecurring.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récurrentes'**
+  String get navRecurring;
+
+  /// No description provided for @accountMenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglages et compte'**
+  String get accountMenu;
+
   /// No description provided for @addExpense.
   ///
   /// In fr, this message translates to:
@@ -1004,12 +1034,6 @@ abstract class AppLocalizations {
   /// **'Limite de dépenses'**
   String get limitsTitle;
 
-  /// No description provided for @limitsSettingsHint.
-  ///
-  /// In fr, this message translates to:
-  /// **'Plafond mensuel ou hebdomadaire'**
-  String get limitsSettingsHint;
-
   /// No description provided for @limitCurrentTitle.
   ///
   /// In fr, this message translates to:
@@ -1165,12 +1189,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Dépenses récurrentes'**
   String get recurringTitle;
-
-  /// No description provided for @recurringSettingsHint.
-  ///
-  /// In fr, this message translates to:
-  /// **'Loyer, abonnements, échéances à payer'**
-  String get recurringSettingsHint;
 
   /// No description provided for @recurringUpcomingTitle.
   ///

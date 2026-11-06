@@ -273,7 +273,7 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
           padding: const EdgeInsets.all(16),
           child: FilledButton.icon(
             key: const Key('export-expenses'),
-            icon: const Icon(Icons.file_download_outlined),
+            icon: const Icon(Icons.file_download_rounded),
             label: Text(l10n.exportExpensesAction),
             onPressed: idle ? _exportExpenses : null,
           ),
@@ -288,17 +288,17 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
         header(l10n.subscriptionTitle),
         ListTile(
           key: const Key('open-subscription'),
-          leading: const Icon(Icons.workspace_premium_outlined),
+          leading: const Icon(Icons.workspace_premium_rounded),
           title: Text(
             plan == null ? l10n.subscriptionTitle : planLabel(l10n, plan),
           ),
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Icons.chevron_right_rounded),
           onTap: () => context.push('/settings/subscription'),
         ),
         header(l10n.accountDataTitle),
         ListTile(
           key: const Key('export-personal'),
-          leading: const Icon(Icons.archive_outlined),
+          leading: const Icon(Icons.archive_rounded),
           title: Text(l10n.exportPersonalAction),
           subtitle: Text(l10n.exportPersonalHint),
           enabled: idle,
@@ -307,15 +307,15 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
         progress(_Busy.personal),
         ListTile(
           key: const Key('open-legal'),
-          leading: const Icon(Icons.gavel_outlined),
+          leading: const Icon(Icons.gavel_rounded),
           title: Text(l10n.legalTitle),
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Icons.chevron_right_rounded),
           onTap: () => context.push('/settings/legal'),
         ),
         ListTile(
           key: const Key('delete-account'),
           leading: Icon(
-            Icons.delete_forever_outlined,
+            Icons.delete_forever_rounded,
             color: theme.colorScheme.error,
           ),
           title: Text(

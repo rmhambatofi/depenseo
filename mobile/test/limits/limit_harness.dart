@@ -100,8 +100,6 @@ Future<(TestApp, LimitServer)> openLimits(
 }) async {
   final app = await startSignedIn(tester, locale: locale);
   final server = LimitServer(app, current: current, versions: versions ?? []);
-  await tester.tap(byKey('open-settings'));
-  await tester.pumpAndSettle();
   await tester.tap(byKey('open-limits'));
   await settle(tester, byKey('limit-summary'));
   return (app, server);

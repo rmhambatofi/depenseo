@@ -203,7 +203,7 @@ class _FormState extends ConsumerState<_NotificationSettingsForm> {
         if (prefs.dailyReminderOn)
           ListTile(
             key: const Key('notif-daily-time'),
-            leading: const Icon(Icons.schedule),
+            leading: const Icon(Icons.schedule_rounded),
             title: Text(l10n.notificationsDailyTime),
             subtitle: Text(prefs.dailyReminderTime!),
             enabled: enabled,
@@ -222,7 +222,7 @@ class _FormState extends ConsumerState<_NotificationSettingsForm> {
         if (quiet != null) ...[
           ListTile(
             key: const Key('notif-quiet-start'),
-            leading: const Icon(Icons.bedtime_outlined),
+            leading: const Icon(Icons.bedtime_rounded),
             title: Text(l10n.notificationsQuietStart),
             subtitle: Text(quiet.start),
             enabled: enabled,
@@ -230,7 +230,7 @@ class _FormState extends ConsumerState<_NotificationSettingsForm> {
           ),
           ListTile(
             key: const Key('notif-quiet-end'),
-            leading: const Icon(Icons.wb_sunny_outlined),
+            leading: const Icon(Icons.wb_sunny_rounded),
             title: Text(l10n.notificationsQuietEnd),
             subtitle: Text(quiet.end),
             enabled: enabled,

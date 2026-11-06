@@ -6,6 +6,7 @@ import '../../core/dates/date_display.dart';
 import '../../core/money/amount_format.dart';
 import '../../core/recurring/recurring_api.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../shell/account_avatar.dart';
 import 'occurrence_actions.dart';
 import 'recurring_providers.dart';
 
@@ -21,13 +22,16 @@ class RecurringScreen extends ConsumerWidget {
     final state = ref.watch(recurringOverviewProvider);
     final value = state.value;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.recurringTitle)),
+      appBar: AppBar(
+        title: Text(l10n.recurringTitle),
+        actions: const [AccountAvatarButton()],
+      ),
       floatingActionButton: value == null || state.hasError
           ? null
           : FloatingActionButton.extended(
               key: const Key('add-recurring'),
-              onPressed: () => context.push('/settings/recurring/new'),
-              icon: const Icon(Icons.add),
+              onPressed: () => context.push('/recurring/new'),
+              icon: const Icon(Icons.add_rounded),
               label: Text(l10n.recurringAdd),
             ),
       body: switch (state) {
@@ -105,8 +109,8 @@ class _RecurringList extends ConsumerWidget {
             key: Key('occurrence-${o.id}'),
             leading: Icon(
               o.awaitingConfirmation
-                  ? Icons.notification_important_outlined
-                  : Icons.event_outlined,
+                  ? Icons.notification_important_rounded
+                  : Icons.event_rounded,
             ),
             title: Text(o.name),
             subtitle: Text(
@@ -150,12 +154,12 @@ class _RecurringList extends ConsumerWidget {
               ),
             ),
             enabled: !stale,
-            onTap: () => context.push('/settings/recurring/${r.id}'),
+            onTap: () => context.push('/recurring/${r.id}'),
           ),
         const Divider(),
         ListTile(
           key: const Key('reminder-time'),
-          leading: const Icon(Icons.notifications_outlined),
+          leading: const Icon(Icons.notifications_rounded),
           title: Text(l10n.recurringReminderTime),
           subtitle: Text(
             l10n.recurringReminderTimeValue(overview.reminderTime),

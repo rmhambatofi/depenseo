@@ -27,7 +27,7 @@ Tests widget : `mobile-tests.md`. Phase 8 (refonte visuelle) : lire aussi `docs/
 - Tables Drift `categories`/`expenses` (`pending_sync`, `tags` JSON, horodatages ISO ms). Écritures locales **uniquement** via `ExpenseStore` (`lib/core/db/expense_store.dart`) ; elles ignorent les lignes à `deleted_at`. Après écriture : `refreshLocalExpenses(ref.invalidate)` puis `syncControllerProvider.notifier.request()`.
 - `SyncEngine` (`lib/core/sync/`, conflits `sync_rows.dart` `_localWins` + `base_updated_at`) ; `SyncController` (`lib/features/sync/`). Point de reprise `sync.v1.<carnet>.since` : **incrémenter `syncFormat`** quand une table locale alimentée par la synchro est ajoutée.
 - Suppression = `deleteWithUndo` (`pending_deletions.dart`, différée 5 s ; SnackBar `persist: false` obligatoire).
-- Routes à plat `/expenses`, `/expenses/new`, `/expenses/:expenseId` ; `QuickEntryScreen(expenseId:)` réutilisé en modification.
+- **Navigation (P8-03)** : coquille `StatefulShellRoute` (`features/shell/app_shell.dart`), onglets `/`, `/expenses`, `/limits`, `/recurring` (+ `new`, `:recurringId` sur le navigateur racine). Saisie `/expenses/new` et `/expenses/:expenseId` à plat, hors coquille ; `QuickEntryScreen(expenseId:)` réutilisé en modification. Passer d'un onglet à l'autre : `openTab(ref, shell, AppTab.x)` (relit Limites/Récurrentes) ; depuis un écran d'onglet, `StatefulNavigationShell.of(context).widget`. Les écrans d'onglet ne sont jamais fermés (pas de `BackButton`) : ils restent montés hors écran (`Offstage`).
 
 ## Écrans en ligne (ADR-052 à 058)
 

@@ -7,6 +7,7 @@ import '../../core/dates/date_display.dart';
 import '../../core/money/amount_format.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../limits/limits_screen.dart' show LimitSummaryCard;
+import '../shell/app_shell.dart' show AppTab, openTab;
 import 'dashboard_charts.dart';
 import 'dashboard_providers.dart';
 
@@ -59,13 +60,13 @@ class DashboardSection extends ConsumerWidget {
   }
 }
 
-class _UpcomingCard extends StatelessWidget {
+class _UpcomingCard extends ConsumerWidget {
   const _UpcomingCard({required this.dashboard});
 
   final Dashboard dashboard;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
     final error = Theme.of(context).colorScheme.error;
@@ -104,8 +105,12 @@ class _UpcomingCard extends StatelessWidget {
                   locale,
                 ),
               ),
-              // Payer ou passer l'échéance : écran des récurrences.
-              onTap: () => context.push('/settings/recurring'),
+              // Payer ou passer l'échéance : onglet des récurrences.
+              onTap: () => openTab(
+                ref,
+                StatefulNavigationShell.of(context).widget,
+                AppTab.recurring,
+              ),
             ),
         ],
       ),

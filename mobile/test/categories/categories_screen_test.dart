@@ -352,7 +352,7 @@ void main() {
     expect(find.text('Trajets'), findsOneWidget);
     final check = find.descendant(
       of: byKey('color-E53935'),
-      matching: find.byIcon(Icons.check),
+      matching: find.byIcon(Icons.check_rounded),
     );
     expect(check, findsOneWidget);
   });

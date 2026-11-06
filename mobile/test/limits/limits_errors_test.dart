@@ -48,8 +48,6 @@ void main() {
   testWidgets('hors ligne : connexion requise puis réessai', (tester) async {
     final app = await startSignedIn(tester);
     app.api.on('GET $base/current', (_) => throw Exception('réseau'));
-    await tester.tap(byKey('open-settings'));
-    await tester.pumpAndSettle();
     await tester.tap(byKey('open-limits'));
     await settle(tester, byKey('limit-offline'));
     expect(
@@ -157,14 +155,18 @@ void main() {
     await tester.enterText(byKey('limit-amount'), '300');
     app.api.on('GET $base/current', (_) => throw Exception('réseau'));
     await saveLimit(tester);
-    await settle(tester, byKey('limit-stale'));
+    // En tête de liste, au-dessus du bouton (hors de la zone visible).
+    await settle(
+      tester,
+      find.byKey(const Key('limit-stale'), skipOffstage: false),
+    );
     expect(byKey('limit-summary'), findsOneWidget);
     // Réglages peut-être périmés : pas de nouvel enregistrement (un rejeu
     // de la même création perdrait la saisie sans le dire).
     expect(tester.widget<FilledButton>(byKey('save-limit')).onPressed, isNull);
   });
 
-  testWidgets('écran fermé pendant l’enregistrement : aucune erreur', (
+  testWidgets('onglet quitté pendant l’enregistrement : aucune erreur', (
     tester,
   ) async {
     final (app, _) = await openLimits(tester, current: summary());
@@ -175,7 +177,8 @@ void main() {
     await tester.enterText(byKey('limit-amount'), '300');
     await saveLimit(tester);
     await tester.pump(const Duration(milliseconds: 50));
-    await tester.tap(find.byType(BackButton));
+    // Onglet quitté pendant l'enregistrement.
+    await tester.tap(byKey('open-home'));
     await tester.pumpAndSettle();
     reply.complete(FakeResponse(201, version(effectiveDate: today)));
     await settle(tester, snack('Limite enregistrée.'));

@@ -30,6 +30,10 @@ class AppTokens extends ThemeExtension<AppTokens> {
   /// Carte d'en-tête de l'accueil et bouton « + » (135°).
   final LinearGradient primaryGradient;
 
+  /// Texte et icônes sur [primaryGradient] (blanc dans les deux thèmes :
+  /// ≥ 4,5:1 au départ, ≥ 3:1 à l'arrivée).
+  Color get onGradient => const Color(0xFFFFFFFF);
+
   /// Fond des écrans.
   final Color background;
 

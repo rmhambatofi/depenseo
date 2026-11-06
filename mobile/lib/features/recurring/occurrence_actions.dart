@@ -33,7 +33,7 @@ Future<void> showOccurrenceActions(
         children: [
           ListTile(
             key: const Key('occurrence-pay'),
-            leading: const Icon(Icons.check_circle_outline),
+            leading: const Icon(Icons.check_circle_outline_rounded),
             title: Text(
               o.awaitingConfirmation
                   ? l10n.occurrenceConfirm
@@ -43,20 +43,20 @@ Future<void> showOccurrenceActions(
           ),
           ListTile(
             key: const Key('occurrence-adjust'),
-            leading: const Icon(Icons.edit_outlined),
+            leading: const Icon(Icons.edit_rounded),
             title: Text(l10n.occurrenceAdjust),
             onTap: () => Navigator.pop(context, _Action.adjust),
           ),
           if (o.adjusted)
             ListTile(
               key: const Key('occurrence-reset'),
-              leading: const Icon(Icons.undo),
+              leading: const Icon(Icons.undo_rounded),
               title: Text(l10n.occurrenceResetAmount),
               onTap: () => Navigator.pop(context, _Action.reset),
             ),
           ListTile(
             key: const Key('occurrence-skip'),
-            leading: const Icon(Icons.skip_next_outlined),
+            leading: const Icon(Icons.skip_next_rounded),
             title: Text(l10n.occurrenceSkip),
             onTap: () => Navigator.pop(context, _Action.skip),
           ),

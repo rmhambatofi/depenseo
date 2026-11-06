@@ -14,6 +14,7 @@ import '../home/home_dashboard_test.dart' show openHome;
 import '../limits/limit_harness.dart' show openLimits, summary;
 import '../lock/app_lock_test.dart' show lockedApp, lockScreen;
 import '../notifications/notification_harness.dart' show openNotifications;
+import '../recurring/recurring_harness.dart' show openRecurring, recurring;
 import '../support/test_app.dart';
 
 Future<void> expectGuidelines(WidgetTester tester) async {
@@ -93,6 +94,9 @@ final journeys = <String, Future<void> Function(WidgetTester)>{
   },
   'limite fixée': (tester) async {
     await openLimits(tester, current: summary(limit: 60000));
+  },
+  'dépenses récurrentes (onglet)': (tester) async {
+    await openRecurring(tester, items: [recurring()]);
   },
   'alertes et rappels': (tester) async {
     await openNotifications(tester);

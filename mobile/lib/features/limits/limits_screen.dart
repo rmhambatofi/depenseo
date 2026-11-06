@@ -6,6 +6,7 @@ import '../../core/limits/limit_api.dart';
 import '../../core/limits/limit_models.dart';
 import '../../core/money/amount_format.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../shell/account_avatar.dart';
 import 'limit_form.dart';
 import 'limit_providers.dart';
 
@@ -19,7 +20,10 @@ class LimitsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final overview = ref.watch(limitOverviewProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.limitsTitle)),
+      appBar: AppBar(
+        title: Text(l10n.limitsTitle),
+        actions: const [AccountAvatarButton()],
+      ),
       body: switch (overview) {
         // Contenu gardé pendant le rechargement qui suit un enregistrement.
         AsyncValue(:final value?) => ListView(

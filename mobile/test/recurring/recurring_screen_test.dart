@@ -223,20 +223,44 @@ void main() {
   });
 
   testWidgets('hors ligne : message et nouvel essai', (tester) async {
-    final (app, _) = await openRecurring(tester, items: [rent]);
-    final list = app.api.routes['GET $base/recurring-expenses']!;
-    app.api.on(
-      'GET $base/recurring-expenses',
-      (_) => FakeResponse.problem(503, 'Unavailable'),
+    late FakeHandler list;
+    final (app, _) = await openRecurring(
+      tester,
+      items: [rent],
+      until: byKey('recurring-offline'),
+      beforeOpen: (app) {
+        list = app.api.routes['GET $base/recurring-expenses']!;
+        app.api.on(
+          'GET $base/recurring-expenses',
+          (_) => FakeResponse.problem(503, 'Unavailable'),
+        );
+      },
     );
-    Navigator.of(tester.element(byKey('reminder-time'))).pop();
-    await tester.pumpAndSettle();
-    await tester.tap(byKey('open-recurring'));
-    await settle(tester, byKey('recurring-offline'));
     expect(byKey('add-recurring'), findsNothing);
 
     app.api.on('GET $base/recurring-expenses', list);
     await tester.tap(byKey('recurring-retry'));
+    await settle(tester, byKey('recurring-$rentId'));
+  });
+
+  testWidgets('onglet quitté puis repris : liste relue, contenu gardé '
+      'pendant la lecture (P8-03)', (tester) async {
+    final (app, _) = await openRecurring(tester, items: [rent]);
+    final reads = app.api.calls('GET $base/recurring-expenses').length;
+    // Toucher l'onglet courant ne relit rien.
+    await tester.tap(byKey('open-recurring'));
+    await tester.pumpAndSettle();
+    expect(app.api.calls('GET $base/recurring-expenses'), hasLength(reads));
+
+    await tester.tap(byKey('open-home'));
+    await tester.pumpAndSettle();
+    await tester.tap(byKey('open-recurring'));
+    await tester.pump();
+    expect(byKey('recurring-$rentId'), findsOneWidget);
+    await settleUntil(
+      tester,
+      () => app.api.calls('GET $base/recurring-expenses').length > reads,
+    );
     await settle(tester, byKey('recurring-$rentId'));
   });
 }
