@@ -8,7 +8,7 @@
 
 - Tâche en cours : aucune. **P8-08 fait** (recette visuelle : 21 parcours × clair/sombre × texte ×1/×2 dans `design-ref/captures/apres/`, locales ; 6 parcours a11y ajoutés ; défauts corrigés : menu fréquence de récurrente débordant à ×2, « Hebdomadaire » coupé dès ×1, tuile de dépense tronquée à ×2 ; limites assumées dans `A11Y.md`).
 - Rappels phase 8 : présentation seulement, aucune fonction de BilliTime absente du MVP (revenus, solde, virements, objectifs) ; garder toutes les `Key` des tests ; aucun calcul de total ou de pourcentage sur le téléphone (ajouter à `/dashboard` si besoin) ; `mobile/` ne doit jamais contenir la chaîne `/admin`.
-- Dernier commit : fix(mobile): visual acceptance of the redesign (NF-QUA-04).
+- Dernier commit : `7d66095` fix(mobile): visual acceptance of the redesign (NF-QUA-04), puis ce handoff. **Prochaine tâche : aucune** (attendre le propriétaire : backlog V1/V2 ou actions humaines ci-dessous).
 - Branche : main
 - Tests (2026-11-06, P8-08) : Flutter 605 (604 au passage du `tester`, + 1 test de relecture vérifié seul), `flutter analyze` et `dart format` propres, `tool/test_tz.sh` vert (4 fuseaux) ; API non relancée (aucun fichier API touché).
 - Restent en l'état, assumés : voir « Reliquats » de `pieges/api.md`, `pieges/mobile.md`, `pieges/admin.md`.
@@ -59,6 +59,5 @@
 - 2026-11-06 session 56 — P8-03 fait (barre du bas, « + » central, avatar, retour Android → Accueil, icônes rounded, parcours a11y « dépenses récurrentes (onglet) »). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 55 — P8-02 fait (49 clés d'icône, migration 0020 en comparaison binaire, sélecteur en grille, puces avec tuile, parcours a11y). Handoff après 1 tâche (~15 fichiers lus).
 - 2026-11-06 — pièges déplacés de PROGRESS.md (71 Ko) vers `docs/dev/pieges/` par domaine ; hook SessionStart et `/next` allégés.
-- 2026-11-06 session 54 — P8-01 fait (thème, police Plus Jakarta Sans OFL, jetons ajustés 4,5:1, choix Clair/Auto/Sombre persistant, harnais de captures, parcours a11y « réglages et apparence »). Handoff après 1 tâche.
-- 2026-11-05 session 53 — P7-08 fait : relecture finale par 3 `reviewer` ; connexion admin limitée en débit (ADR-067) ; mineurs traités.
+- 2026-11-05/06 sessions 53-54 — P7-08 (relecture finale, ADR-067) ; P8-01 (thème, police, choix Clair/Auto/Sombre, harnais de captures).
 - Sessions ≤ 51 (2026-11-04/05) : P0 à P6, P7-01 à P7-06 (détail dans `git log` et ADR-001…065).
