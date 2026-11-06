@@ -48,3 +48,6 @@ mobile/android/.gradle/
 # Playwright
 test-results/
 playwright-report/
+
+# Captures de référence UI (applications tierces) : locales, jamais committées.
+design-ref/

@@ -5,12 +5,14 @@ Garde au plus 10 entrées dans l'historique ; résume les plus anciennes.
 
 ## État courant
 
-**MVP terminé** (2026-11-05, session 53) : toutes les tâches de `PLAN.md` hors backlog sont `[x]`, suites vertes.
+**MVP terminé** (2026-11-05, session 53). **Phase 8 ouverte** (2026-11-06) : refonte visuelle de l'app mobile dans le style de BilliTime, demandée par le propriétaire du produit. Backlog V1/V2 **non démarré** (décision du propriétaire).
 
-- Tâche en cours : aucune. Prochaine étape : actions humaines de mise en service (`docs/dev/DEPLOY.md` check-list, mesure NF-PERF-01 sur téléphone dans `PERF.md`, réglages serveur Sentry, signature release Android), puis backlog V1/V2 sur demande.
-- Dernier commit : fix(api,admin): final review minor fixes (F-ADM-01, F-DEP-03) — après fix(ci) depenseo_dev (CI rouge depuis P7-07 : volume Docker ancien = bases `depenseo` et `depenseo_dev`, l'erreur ne se voit qu'avec `docker compose down -v`).
+- Tâche en cours : aucune. **Prochaine tâche : P8-01** (fondations). Lire d'abord `docs/dev/UI.md` (charte, jetons) et ADR-069 ; regarder les captures locales `design-ref/billitime/*.jpg` (non committées, ignorées par git ; absentes sur une autre machine : se fier à `UI.md`). Faire les captures « avant » dans le simulateur iOS avant tout changement.
+- Rappels phase 8 : présentation seulement, aucune fonction de BilliTime absente du MVP (revenus, solde, virements, objectifs) ; garder toutes les `Key` des tests ; aucun calcul de total ou de pourcentage sur le téléphone (ajouter à `/dashboard` si besoin) ; `mobile/` ne doit jamais contenir la chaîne `/admin`.
+- Mise en service (actions humaines, en parallèle) : check-list `docs/dev/DEPLOY.md`, mesure NF-PERF-01 sur téléphone (`PERF.md`), réglages serveur Sentry, signature release Android.
+- Dernier commit : docs(dev): plan UI redesign phase 8 (NF-QUA-04) — avant : fix(api,admin) mineurs de relecture, fix(ci) `depenseo_dev` (CI verte ; un volume Docker ancien masque ce genre d'erreur : vérifier avec `docker compose down -v`).
 - Branche : main
-- Tests (P7-08) : `pnpm -r typecheck`/`lint`/`format:check` verts, API 857 (couverture lignes 97,2 %), `test:tz` vert (4 fuseaux × 91), scripts racine 34, Flutter 437 + `flutter analyze` propre (non touché).
+- Tests (2026-11-06) : `pnpm -r typecheck`/`lint`/`format:check` verts, API 858, admin 22 + Playwright 3, scripts racine 34, Flutter 437 + `flutter analyze` propre (non touché depuis P7-08).
 - Mineurs de la relecture finale traités (2026-11-06) : listes admin sur `SERVER_SORT` (tout autre tri refusé par le fournisseur), curseurs oubliés en page 1 et bornés à 10 listes ; étiquette supprimée restaurée à la réutilisation ; risque d'horloge d'appareil en avance formalisé (ADR-068, à revoir avant le partage de carnet). Le repli UTC de `today.dart` était déjà testé (`today_test.dart`).
 - Restent en l'état, assumés : `parseAmountInput` suppose 2 décimales (à revoir avec F-DEP-08 devises) ; seau « compte » de la limitation de débit commun à `/auth/login` et à la connexion admin (ADR-067) ; regroupement des statistiques admin par jour UTC.
 
