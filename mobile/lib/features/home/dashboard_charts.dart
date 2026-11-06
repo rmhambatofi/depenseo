@@ -6,6 +6,11 @@ import '../../core/dashboard/dashboard_api.dart';
 import '../../core/dates/date_display.dart';
 import '../../core/money/amount_format.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../ui/app_card.dart';
+import '../../ui/icon_tile.dart';
+import '../../ui/section_header.dart';
+import '../../ui/tokens.dart';
+import '../categories/category_badge.dart';
 import 'dashboard_providers.dart';
 
 // Graphiques de l'accueil (F-TB-02, ADR-055). Les montants ne passent en
@@ -24,29 +29,26 @@ class _ChartCard extends StatelessWidget {
   final String title;
   final List<Widget> children;
 
+  /// Titre hors de la carte (charte P8, annoncé comme en-tête), carte de la
+  /// charte dessous.
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 8,
-        children: [
-          Text(title, style: Theme.of(context).textTheme.titleMedium),
-          ...children,
-        ],
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SectionHeader(title: title),
+      AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: AppSpacing.sm,
+          children: children,
+        ),
       ),
-    ),
+    ],
   );
 }
 
-final _hexColor = RegExp(r'^#[0-9a-fA-F]{6}$');
-
-Color _parseColor(String hex, Color fallback) => _hexColor.hasMatch(hex)
-    ? Color(0xFF000000 | int.parse(hex.substring(1), radix: 16))
-    : fallback;
-
-/// Répartition par catégorie racine : anneau + légende (nom, montant, %).
+/// « Où va votre argent ? » : anneau + liste de catégories racines en tuiles
+/// (nom, montant, part en % lue dans l'API).
 class CategoryBreakdown extends ConsumerWidget {
   const CategoryBreakdown({super.key, required this.dashboard});
 
@@ -57,16 +59,17 @@ class CategoryBreakdown extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
     final labels = ref.watch(categoryLabelsProvider);
-    final muted = Theme.of(context).colorScheme.outline;
+    final t = AppTokens.of(context);
     final currency = dashboard.gauge.currency;
     final shares = [
       for (final s in dashboard.categories)
         (
           share: s,
+          category: labels[s.categoryId],
           name: labels[s.categoryId]?.name ?? l10n.dashboardCategoryUnknown,
           color: switch (labels[s.categoryId]) {
-            final c? => _parseColor(c.color, muted),
-            null => muted,
+            final c? => parseCategoryColor(c.color),
+            null => t.textMuted,
           },
         ),
     ];
@@ -75,22 +78,25 @@ class CategoryBreakdown extends ConsumerWidget {
       title: l10n.dashboardCategoriesTitle,
       children: [
         if (shares.isEmpty)
-          Text(l10n.dashboardCategoriesEmpty)
+          Text(
+            l10n.dashboardCategoriesEmpty,
+            style: TextStyle(color: t.textMuted),
+          )
         else ...[
           ExcludeSemantics(
             child: SizedBox(
-              height: 160,
+              height: 180,
               child: PieChart(
                 PieChartData(
-                  centerSpaceRadius: 40,
-                  sectionsSpace: 2,
+                  centerSpaceRadius: 52,
+                  sectionsSpace: 3,
                   pieTouchData: PieTouchData(enabled: false),
                   sections: [
                     for (final s in shares)
                       PieChartSectionData(
                         value: s.share.total.toDouble(),
                         color: s.color,
-                        radius: 36,
+                        radius: 26,
                         showTitle: false,
                       ),
                   ],
@@ -101,10 +107,22 @@ class CategoryBreakdown extends ConsumerWidget {
           for (final s in shares)
             Row(
               key: Key('category-share-${s.share.categoryId}'),
-              spacing: 8,
+              spacing: AppSpacing.sm,
               children: [
-                Icon(Icons.circle, size: 12, color: s.color),
-                Expanded(child: Text(s.name)),
+                switch (s.category) {
+                  final c? => CategoryIconBadge(icon: c.icon, color: c.color),
+                  null => IconTile(
+                    icon: Icons.help_outline_rounded,
+                    color: t.textMuted,
+                    size: 40,
+                  ),
+                },
+                Expanded(
+                  child: Text(
+                    s.name,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
                 // Texte agrandi : le montant passe à la ligne au lieu de
                 // déborder (NF-QUA-04).
                 Flexible(
@@ -114,6 +132,9 @@ class CategoryBreakdown extends ConsumerWidget {
                       s.share.percent,
                     ),
                     textAlign: TextAlign.end,
+                    style: const TextStyle(
+                      fontFeatures: [FontFeature.tabularFigures()],
+                    ),
                   ),
                 ),
               ],
@@ -135,7 +156,7 @@ class CumulativeChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
-    final scheme = Theme.of(context).colorScheme;
+    final t = AppTokens.of(context);
     String money(int minor) =>
         formatAmount(minor, dashboard.gauge.currency, locale);
     final current = dashboard.current.lastOrNull?.cumulative ?? 0;
@@ -151,6 +172,9 @@ class CumulativeChart extends StatelessWidget {
       ],
       color: color,
       barWidth: 3,
+      isCurved: true,
+      preventCurveOverShooting: true,
+      isStrokeCapRound: true,
       dotData: const FlDotData(show: false),
       dashArray: dashArray,
     );
@@ -172,8 +196,8 @@ class CumulativeChart extends StatelessWidget {
                   // Autre devise : courbes non comparables, la précédente
                   // n'est pas tracée.
                   if (previous != null)
-                    line(dashboard.previous, scheme.outline, dashArray: [6, 4]),
-                  line(dashboard.current, scheme.primary),
+                    line(dashboard.previous, t.textMuted, dashArray: [6, 4]),
+                  line(dashboard.current, t.primary),
                 ],
               ),
             ),
@@ -182,8 +206,8 @@ class CumulativeChart extends StatelessWidget {
         Wrap(
           spacing: 16,
           children: [
-            _Legend(color: scheme.primary, label: l10n.dashboardCurrentPeriod),
-            _Legend(color: scheme.outline, label: l10n.dashboardPreviousPeriod),
+            _Legend(color: t.primary, label: l10n.dashboardCurrentPeriod),
+            _Legend(color: t.textMuted, label: l10n.dashboardPreviousPeriod),
           ],
         ),
         Text(
@@ -228,7 +252,7 @@ class EvolutionChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
-    final scheme = Theme.of(context).colorScheme;
+    final t = AppTokens.of(context);
     final periods = dashboard.evolution;
     final detail = [
       for (final (i, p) in periods.indexed)
@@ -263,12 +287,16 @@ class EvolutionChart extends StatelessWidget {
                       barRods: [
                         BarChartRodData(
                           toY: p.spent.toDouble(),
-                          width: 12,
-                          // Période en cours pleine, les autres en gris
-                          // contrasté (≥ 3:1) ; aussi signalée en texte.
+                          width: 14,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(7),
+                          ),
+                          // Période en cours en couleur primaire, les autres
+                          // en gris contrasté (≥ 3:1) ; aussi signalée en
+                          // texte.
                           color: i == periods.length - 1
-                              ? scheme.primary
-                              : scheme.outline,
+                              ? t.primary
+                              : t.textMuted,
                         ),
                       ],
                     ),
@@ -282,7 +310,7 @@ class EvolutionChart extends StatelessWidget {
             formatCalendarDate(periods.first.start, locale),
             formatCalendarDate(periods.last.end, locale),
           ),
-          style: Theme.of(context).textTheme.bodySmall,
+          style: TextStyle(color: t.textMuted, fontSize: 13),
         ),
       ],
     );

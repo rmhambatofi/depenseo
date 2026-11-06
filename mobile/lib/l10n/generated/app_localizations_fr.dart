@@ -826,7 +826,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dashboardOverdue => 'En retard';
 
   @override
-  String get dashboardCategoriesTitle => 'Répartition par catégorie';
+  String get dashboardCategoriesTitle => 'Où va votre argent ?';
 
   @override
   String get dashboardCategoriesEmpty => 'Aucune dépense sur la période.';
@@ -878,6 +878,20 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dashboardRecentTitle => 'Dernières dépenses';
+
+  @override
+  String get homeSpentLabel => 'Dépensé';
+
+  @override
+  String get homeNextPeriod => 'Période suivante';
+
+  @override
+  String homeLimitOf(String amount) {
+    return 'Limite : $amount';
+  }
+
+  @override
+  String get homeSeeAll => 'Voir tout';
 
   @override
   String get notificationsTitle => 'Notifications';

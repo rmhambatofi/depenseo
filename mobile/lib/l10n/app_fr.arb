@@ -375,7 +375,7 @@
   "dashboardUpcomingTitle": "Prochaines échéances",
   "dashboardUpcomingEmpty": "Aucune échéance à venir.",
   "dashboardOverdue": "En retard",
-  "dashboardCategoriesTitle": "Répartition par catégorie",
+  "dashboardCategoriesTitle": "Où va votre argent ?",
   "dashboardCategoriesEmpty": "Aucune dépense sur la période.",
   "dashboardCategoryUnknown": "Catégorie indisponible",
   "dashboardCategoryShare": "{amount} · {percent} %",
@@ -446,6 +446,17 @@
     }
   },
   "dashboardRecentTitle": "Dernières dépenses",
+  "homeSpentLabel": "Dépensé",
+  "homeNextPeriod": "Période suivante",
+  "homeLimitOf": "Limite : {amount}",
+  "@homeLimitOf": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "homeSeeAll": "Voir tout",
   "notificationsTitle": "Notifications",
   "notificationsSettingsHint": "Types, plage de silence, rappel quotidien",
   "notificationsOffline": "Connexion requise pour consulter ou modifier les notifications.",

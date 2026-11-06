@@ -6,11 +6,11 @@
 
 **MVP terminé** (2026-11-05, session 53). **Phase 8 ouverte** (2026-11-06) : refonte visuelle de l'app mobile dans le style de BilliTime, demandée par le propriétaire du produit. Backlog V1/V2 **non démarré** (décision du propriétaire).
 
-- Tâche en cours : aucune. **P8-03 fait** (coquille `StatefulShellRoute` `features/shell/` : onglets `/`, `/expenses`, `/limits`, `/recurring` — Limites et Récurrentes sortis des réglages —, « + » central en dégradé, avatar `open-settings`, retour système → Accueil, passage sur Limites/Récurrentes = relecture en ligne, icônes `*_rounded`). **Prochaine tâche : P8-04** (accueil). Lire `docs/dev/UI.md` ; captures avant `design-ref/captures/avant/` (locales, ignorées par git).
+- Tâche en cours : aucune. **P8-04 fait** (accueil : carte d'en-tête en dégradé `features/home/home_header.dart` — sélecteur parcourant les 12 périodes de `evolution`, la dernière = `gauge` —, sections titrées hors cartes, échéances et répartition en tuiles, barres arrondies, 5 dernières dépenses + « Voir tout » ; `AppCard` devenu conteneur sémantique). **Prochaine tâche : P8-05** (liste des dépenses). Lire `docs/dev/UI.md` ; captures avant `design-ref/captures/avant/` (locales, ignorées par git).
 - Rappels phase 8 : présentation seulement, aucune fonction de BilliTime absente du MVP (revenus, solde, virements, objectifs) ; garder toutes les `Key` des tests ; aucun calcul de total ou de pourcentage sur le téléphone (ajouter à `/dashboard` si besoin) ; `mobile/` ne doit jamais contenir la chaîne `/admin`.
-- Dernier commit : feat(mobile): bottom navigation shell with central add button (F-DEP-01, NF-QUA-04).
+- Dernier commit : feat(mobile): restyled home dashboard with gradient header (F-TB-01, F-TB-02).
 - Branche : main
-- Tests (2026-11-06, P8-03) : `pnpm -r typecheck`/`lint` verts, API 862 (3 échecs sous charge 43 — `cross-tenant`, `account-deletion` — verts seuls ; aucun fichier API touché), Flutter 536 + `flutter analyze` propre.
+- Tests (2026-11-06, P8-04) : `pnpm -r typecheck`/`lint` verts, Flutter 545 + `flutter analyze` propre ; API non relancée (aucun fichier API touché).
 - Restent en l'état, assumés : voir « Reliquats » de `pieges/api.md`, `pieges/mobile.md`, `pieges/admin.md`.
 
 ## Pièges transverses (toujours valables)
@@ -51,6 +51,7 @@
 
 ## Historique (plus récent en haut)
 
+- 2026-11-06 session 57 — P8-04 fait (accueil restylé, sélecteur de période sur `evolution`, conteneurs sémantiques des cartes). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 56 — P8-03 fait (barre du bas, « + » central, avatar, retour Android → Accueil, icônes rounded, parcours a11y « dépenses récurrentes (onglet) »). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 55 — P8-02 fait (49 clés d'icône, migration 0020 en comparaison binaire, sélecteur en grille, puces avec tuile, parcours a11y). Handoff après 1 tâche (~15 fichiers lus).
 - 2026-11-06 — pièges déplacés de PROGRESS.md (71 Ko) vers `docs/dev/pieges/` par domaine ; hook SessionStart et `/next` allégés.

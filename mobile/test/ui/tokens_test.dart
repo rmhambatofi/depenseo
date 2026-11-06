@@ -76,6 +76,20 @@ void main() {
           greaterThanOrEqualTo(3),
         );
       });
+
+      test('petits libellés : 4,5:1 jusqu’au milieu du dégradé (P8-04)', () {
+        // Carte d'en-tête : libellés dans la moitié du départ (haut gauche).
+        final gradient = tokens.primaryGradient.colors;
+        for (final t in [0.25, 0.5]) {
+          expect(
+            contrast(
+              tokens.onGradient,
+              Color.lerp(gradient.first, gradient.last, t)!,
+            ),
+            greaterThanOrEqualTo(4.5),
+          );
+        }
+      });
     });
   }
 

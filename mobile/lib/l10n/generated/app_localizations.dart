@@ -1475,7 +1475,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardCategoriesTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Répartition par catégorie'**
+  /// **'Où va votre argent ?'**
   String get dashboardCategoriesTitle;
 
   /// No description provided for @dashboardCategoriesEmpty.
@@ -1555,6 +1555,30 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Dernières dépenses'**
   String get dashboardRecentTitle;
+
+  /// No description provided for @homeSpentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépensé'**
+  String get homeSpentLabel;
+
+  /// No description provided for @homeNextPeriod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Période suivante'**
+  String get homeNextPeriod;
+
+  /// No description provided for @homeLimitOf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Limite : {amount}'**
+  String homeLimitOf(String amount);
+
+  /// No description provided for @homeSeeAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir tout'**
+  String get homeSeeAll;
 
   /// No description provided for @notificationsTitle.
   ///

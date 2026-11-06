@@ -134,8 +134,19 @@ Future<void> saveLimit(WidgetTester tester) async {
   await tester.tap(byKey('save-limit'));
 }
 
-String textOf(WidgetTester tester, String key) =>
-    tester.widget<Text>(byKey(key)).data!;
+/// Texte de l'élément [key] : un `Text`, ou le premier `Text` qu'il contient
+/// (`AmountText`).
+String textOf(WidgetTester tester, String key) => tester
+    .widget<Text>(
+      find
+          .descendant(
+            of: byKey(key),
+            matching: find.byType(Text),
+            matchRoot: true,
+          )
+          .first,
+    )
+    .data!;
 
 /// Message d'une SnackBar (et non le bandeau de jauge périmée).
 Finder snack(String text) => find.descendant(

@@ -6,13 +6,19 @@ import '../../core/dashboard/dashboard_api.dart';
 import '../../core/dates/date_display.dart';
 import '../../core/money/amount_format.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../limits/limits_screen.dart' show LimitSummaryCard;
+import '../../ui/amount_text.dart';
+import '../../ui/app_card.dart';
+import '../../ui/icon_tile.dart';
+import '../../ui/section_header.dart';
+import '../../ui/tokens.dart';
 import '../shell/app_shell.dart' show AppTab, openTab;
 import 'dashboard_charts.dart';
 import 'dashboard_providers.dart';
+import 'home_header.dart';
 
-/// Haut de l'accueil (F-TB-01/02, ADR-055) : jauge de la période, prochaines
-/// échéances et graphiques, tels que renvoyés par `GET …/dashboard`.
+/// Haut de l'accueil (F-TB-01/02, ADR-055, P8-04) : carte d'en-tête,
+/// prochaines échéances et graphiques, tels que renvoyés par
+/// `GET …/dashboard`.
 class DashboardSection extends ConsumerWidget {
   const DashboardSection({super.key});
 
@@ -24,7 +30,7 @@ class DashboardSection extends ConsumerWidget {
       Text(
         l10n.dashboardOffline,
         key: const Key('dashboard-offline'),
-        style: TextStyle(color: Theme.of(context).colorScheme.error),
+        style: TextStyle(color: AppTokens.of(context).danger),
       ),
       TextButton(
         key: const Key('dashboard-retry'),
@@ -33,7 +39,7 @@ class DashboardSection extends ConsumerWidget {
       ),
     ];
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+      padding: const EdgeInsets.only(top: AppSpacing.xs),
       child: switch (dashboard) {
         // Réponse précédente gardée pendant un rechargement ou après son échec.
         AsyncValue(:final value?) => Column(
@@ -41,7 +47,7 @@ class DashboardSection extends ConsumerWidget {
           children: [
             // Copie locale ou rechargement en échec : peut-être périmé.
             if (value.stale || dashboard.hasError) ...offline,
-            LimitSummaryCard(summary: value.dashboard.gauge),
+            HomeHeaderCard(dashboard: value.dashboard),
             _UpcomingCard(dashboard: value.dashboard),
             CategoryBreakdown(dashboard: value.dashboard),
             CumulativeChart(dashboard: value.dashboard),
@@ -69,51 +75,61 @@ class _UpcomingCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
-    final error = Theme.of(context).colorScheme.error;
-    return Card(
+    final t = AppTokens.of(context);
+    return Column(
       key: const Key('dashboard-upcoming'),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-            child: Text(
-              l10n.dashboardUpcomingTitle,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ),
-          if (dashboard.upcoming.isEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-              child: Text(l10n.dashboardUpcomingEmpty),
-            ),
-          for (final u in dashboard.upcoming)
-            ListTile(
-              key: Key('upcoming-${u.occurrence.id}'),
-              title: Text(u.occurrence.name),
-              subtitle: Text(
-                u.overdue
-                    ? '${formatCalendarDate(u.occurrence.dueDate, locale)}'
-                          ' · ${l10n.dashboardOverdue}'
-                    : formatCalendarDate(u.occurrence.dueDate, locale),
-                style: u.overdue ? TextStyle(color: error) : null,
-              ),
-              trailing: Text(
-                formatAmount(
-                  u.occurrence.amount,
-                  u.occurrence.currency,
-                  locale,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionHeader(title: l10n.dashboardUpcomingTitle),
+        AppCard(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (dashboard.upcoming.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Text(
+                    l10n.dashboardUpcomingEmpty,
+                    style: TextStyle(color: t.textMuted),
+                  ),
                 ),
-              ),
-              // Payer ou passer l'échéance : onglet des récurrences.
-              onTap: () => openTab(
-                ref,
-                StatefulNavigationShell.of(context).widget,
-                AppTab.recurring,
-              ),
-            ),
-        ],
-      ),
+              for (final u in dashboard.upcoming)
+                ListTile(
+                  key: Key('upcoming-${u.occurrence.id}'),
+                  leading: IconTile(
+                    icon: u.overdue
+                        ? Icons.event_busy_rounded
+                        : Icons.event_repeat_rounded,
+                    color: u.overdue ? t.danger : t.primary,
+                    size: 44,
+                  ),
+                  title: Text(u.occurrence.name),
+                  subtitle: Text(
+                    u.overdue
+                        ? '${formatCalendarDate(u.occurrence.dueDate, locale)}'
+                              ' · ${l10n.dashboardOverdue}'
+                        : formatCalendarDate(u.occurrence.dueDate, locale),
+                    style: TextStyle(color: u.overdue ? t.danger : t.textMuted),
+                  ),
+                  trailing: AmountText(
+                    formatAmount(
+                      u.occurrence.amount,
+                      u.occurrence.currency,
+                      locale,
+                    ),
+                  ),
+                  // Payer ou passer l'échéance : onglet des récurrences.
+                  onTap: () => openTab(
+                    ref,
+                    StatefulNavigationShell.of(context).widget,
+                    AppTab.recurring,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

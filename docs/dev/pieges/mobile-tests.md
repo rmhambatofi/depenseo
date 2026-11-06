@@ -30,6 +30,8 @@
 - `scrollUntilVisible` ne garantit pas une cible touchable : ajouter `ensureVisible`. Sur une liste paresseuse, `ensureVisible` seul échoue (« Bad state: No element ») : `scrollUntilVisible` d'abord, ou `reveal(tester, key)` sur l'écran Compte.
 - Réglages `/settings` (et Compte, dernière entrée) : `scrollUntilVisible(…, scrollable: find.byType(Scrollable).last)`. Menu déroulant de 31 jours : idem.
 - Accueil (`ListView` paresseux, clé `recent-expenses`) : `scrollable: find.descendant(of: find.byKey(...('recent-expenses')), matching: find.byType(Scrollable)).first`.
+- `textOf` (`limit_harness.dart`) lit le premier `Text` sous la clé : marche pour `AmountText`. Sémantique : vérifier aussi qu'un nœud **ne contient pas** le texte d'une section voisine (fusion silencieuse si aucun conteneur sémantique).
+- Vérification visuelle rapide d'un écran : `flutter test test/screenshots --dart-define=CAPTURE=../design-ref/captures/<dossier> --plain-name <parcours>` puis lire les PNG (texte ×2 révèle les montants coupés : `FittedBox(scaleDown)`).
 - `find.text` trouve aussi le texte d'un `TextField` : viser la ligne (`find.widgetWithText(ListTile, …)`).
 - `tester.pageBack()` ne trouve pas le bouton retour de go_router : `Navigator.of(tester.element(…)).pop()`.
 - Limites : `saveLimit` retire la SnackBar qui couvre le bouton.

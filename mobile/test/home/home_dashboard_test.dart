@@ -47,7 +47,8 @@ void main() {
   ) async {
     await openHome(tester, body: dashboard());
 
-    expect(nb(textOf(tester, 'limit-spent')), '310,00 € dépensés sur 500,00 €');
+    expect(nb(textOf(tester, 'limit-spent')), '310,00 €');
+    expect(nb(textOf(tester, 'limit-amount')), 'Limite : 500,00 €');
     expect(nb(textOf(tester, 'limit-remaining')), contains('190,00 €'));
 
     final upcoming = byKey('upcoming-0190a000-0000-7000-8000-000000000e01');
@@ -110,7 +111,7 @@ void main() {
       ),
     );
     expect(byKey('limit-none'), findsOneWidget);
-    expect(nb(textOf(tester, 'limit-spent')), '0,00 € dépensés sur la période');
+    expect(nb(textOf(tester, 'limit-spent')), '0,00 €');
     expect(find.text('Aucune échéance à venir.'), findsOneWidget);
     expect(find.text('Aucune dépense sur la période.'), findsOneWidget);
     await tester.ensureVisible(byKey('dashboard-cumulative-summary'));
@@ -204,7 +205,7 @@ void main() {
     await tester.tap(byKey('dashboard-retry'));
     await settle(tester, byKey('limit-summary'));
     expect(byKey('dashboard-offline'), findsOneWidget);
-    expect(nb(textOf(tester, 'limit-spent')), '310,00 € dépensés sur 500,00 €');
+    expect(nb(textOf(tester, 'limit-spent')), '310,00 €');
   });
 
   testWidgets('session changée pendant la requête : ni affiché ni gardé', (

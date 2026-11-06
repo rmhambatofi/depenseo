@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../l10n/generated/app_localizations.dart';
+import '../../ui/app_card.dart';
+import '../../ui/section_header.dart';
+import '../../ui/tokens.dart';
 import '../auth/auth_controller.dart';
 import '../expenses/expense_providers.dart';
 import '../expenses/expense_tile.dart';
 import '../shell/account_avatar.dart';
+import '../shell/app_shell.dart' show AppTab, openTab;
 import '../sync/sync_controller.dart';
 import 'dashboard_section.dart';
 
@@ -42,6 +47,10 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
+/// Dernières dépenses montrées sur l'accueil ; toutes dans l'onglet
+/// Dépenses (« Voir tout »).
+const homeRecentCount = 5;
+
 /// Indicateurs de la période (en ligne) puis dernières dépenses de la copie
 /// locale (consultables hors connexion, saisies non synchronisées comprises).
 class _HomeBody extends ConsumerWidget {
@@ -50,28 +59,50 @@ class _HomeBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final t = AppTokens.of(context);
     final items = visibleExpenses(
       ref,
       ref.watch(localExpensesProvider).value ?? const [],
     );
     return ListView(
       key: const Key('recent-expenses'),
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        0,
+        AppSpacing.md,
+        AppSpacing.lg,
+      ),
       children: [
         const DashboardSection(),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-          child: Text(
-            l10n.dashboardRecentTitle,
-            style: Theme.of(context).textTheme.titleMedium,
+        SectionHeader(
+          title: l10n.dashboardRecentTitle,
+          actionLabel: l10n.homeSeeAll,
+          actionKey: const Key('recent-see-all'),
+          onAction: () => openTab(
+            ref,
+            StatefulNavigationShell.of(context).widget,
+            AppTab.expenses,
           ),
         ),
-        if (items.isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(l10n.homeEmpty),
+        AppCard(
+          key: const Key('home-recent'),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (items.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Text(
+                    l10n.homeEmpty,
+                    style: TextStyle(color: t.textMuted),
+                  ),
+                ),
+              for (final item in items.take(homeRecentCount))
+                ExpenseTile(item: item),
+            ],
           ),
-        for (final item in items) ExpenseTile(item: item),
+        ),
       ],
     );
   }

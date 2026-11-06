@@ -21,21 +21,26 @@ class AppCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppTokens.of(context);
     final radius = BorderRadius.circular(AppRadius.card);
-    return Container(
-      decoration: BoxDecoration(
-        color: t.surface,
-        borderRadius: radius,
-        boxShadow: t.cardShadow,
-      ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: onTap == null
-            ? Padding(padding: padding, child: child)
-            : InkWell(
-                borderRadius: radius,
-                onTap: onTap,
-                child: Padding(padding: padding, child: child),
-              ),
+    // Conteneur sémantique (comme `Card`) : le contenu d'une carte n'est pas
+    // fusionné avec ses voisines dans une liste.
+    return Semantics(
+      container: true,
+      child: Container(
+        decoration: BoxDecoration(
+          color: t.surface,
+          borderRadius: radius,
+          boxShadow: t.cardShadow,
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: onTap == null
+              ? Padding(padding: padding, child: child)
+              : InkWell(
+                  borderRadius: radius,
+                  onTap: onTap,
+                  child: Padding(padding: padding, child: child),
+                ),
+        ),
       ),
     );
   }
