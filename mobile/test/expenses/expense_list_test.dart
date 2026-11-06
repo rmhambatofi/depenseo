@@ -93,6 +93,9 @@ Future<void> settleRequest(WidgetTester tester, Finder until) async {
 }
 
 Future<void> openExpenseTile(WidgetTester tester, String id) async {
+  // Liste groupée par jour (P8-05) : la dernière tuile peut sortir de l'écran.
+  await tester.ensureVisible(byKey('expense-$id'));
+  await tester.pump();
   await tester.tap(byKey('expense-$id'));
   await pumpIo(tester, until: byKey('delete-expense'));
 }

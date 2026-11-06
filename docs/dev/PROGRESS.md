@@ -6,17 +6,17 @@
 
 **MVP terminé** (2026-11-05, session 53). **Phase 8 ouverte** (2026-11-06) : refonte visuelle de l'app mobile dans le style de BilliTime, demandée par le propriétaire du produit. Backlog V1/V2 **non démarré** (décision du propriétaire).
 
-- Tâche en cours : aucune. **P8-04 fait** (accueil : carte d'en-tête en dégradé `features/home/home_header.dart` — sélecteur parcourant les 12 périodes de `evolution`, la dernière = `gauge` —, sections titrées hors cartes, échéances et répartition en tuiles, barres arrondies, 5 dernières dépenses + « Voir tout » ; `AppCard` devenu conteneur sémantique). **Prochaine tâche : P8-05** (liste des dépenses). Lire `docs/dev/UI.md` ; captures avant `design-ref/captures/avant/` (locales, ignorées par git).
+- Tâche en cours : aucune. **P8-05 fait** (liste des dépenses : sélecteur de mois `features/expenses/expense_month_header.dart` — mois courant dans le fuseau du compte, une période des filtres le remplace (ADR-070) —, groupes par jour sans total, tuile partagée accueil/liste avec catégorie complète `LocalExpenseItem.category`, recherche + bouton de filtres restylés). **Prochaine tâche : P8-06** (réglages, catégories, limites, récurrentes). Lire `docs/dev/UI.md`.
 - Rappels phase 8 : présentation seulement, aucune fonction de BilliTime absente du MVP (revenus, solde, virements, objectifs) ; garder toutes les `Key` des tests ; aucun calcul de total ou de pourcentage sur le téléphone (ajouter à `/dashboard` si besoin) ; `mobile/` ne doit jamais contenir la chaîne `/admin`.
-- Dernier commit : feat(mobile): restyled home dashboard with gradient header (F-TB-01, F-TB-02).
+- Dernier commit : feat(mobile): expense list with month selector and day groups (F-DEP-09, F-DEP-10).
 - Branche : main
-- Tests (2026-11-06, P8-04) : `pnpm -r typecheck`/`lint` verts, Flutter 545 + `flutter analyze` propre ; API non relancée (aucun fichier API touché).
+- Tests (2026-11-06, P8-05) : `pnpm -r typecheck`/`lint` verts, Flutter 557 + `flutter analyze` propre, `tool/test_tz.sh` vert (4 fuseaux) ; API non relancée (aucun fichier API touché).
 - Restent en l'état, assumés : voir « Reliquats » de `pieges/api.md`, `pieges/mobile.md`, `pieges/admin.md`.
 
 ## Pièges transverses (toujours valables)
 
 1. **Jamais deux suites API en parallèle** (`tester` et `reviewer`, banc, e2e admin) : le `globalSetup` vide `depenseo_test` → faux échecs. Tester d'abord, puis reviewer ; `pgrep -fl vitest` vide avant de lancer.
-2. Lancer `tester`/`reviewer` **au premier plan** (`run_in_background: false`) : en arrière-plan, le hook Stop rebondit tant que le diff n'est pas committé. Si l'outil Agent les lance quand même en asynchrone (vu en session 55), ne pas finir le tour : bloquer par une boucle Bash (`while kill -0 <pid>` sur le `dartvm` de `flutter test`, `pgrep -f vitest`) — `pgrep -f 'flutter test'` ne trouve pas le processus. Attente fiable (session 56) : boucle sur l'heure de modification du fichier de sortie de l'agent (`stat -f %m`, immobile > 45 s = fini) ; une boucle `pgrep` a tourné jusqu'au délai de Bash. Ne jamais `git stash` pendant qu'un sous-agent tourne.
+2. Lancer `tester`/`reviewer` **au premier plan** (`run_in_background: false`) : en arrière-plan, le hook Stop rebondit tant que le diff n'est pas committé. Si l'outil Agent les lance quand même en asynchrone (vu en session 55), ne pas finir le tour : bloquer par une boucle Bash (`while kill -0 <pid>` sur le `dartvm` de `flutter test`, `pgrep -f vitest`) — `pgrep -f 'flutter test'` ne trouve pas le processus. Attente fiable (session 56) : boucle sur l'heure de modification du fichier de sortie de l'agent (`stat -L -f %m` : c'est un lien symbolique, sans `-L` on lit l'heure du lien ; immobile > 45 s = fini) ; une boucle `pgrep` a tourné jusqu'au délai de Bash. Ne jamais `git stash` pendant qu'un sous-agent tourne.
 3. `pnpm test` exige Docker et la base : `open -a Docker`, `docker compose up -d db && scripts/db-wait.sh`. Un seul fichier : `pnpm --filter api exec vitest run <fichier>` (sinon échec du seuil de couverture).
 4. Remplacement par script après Prettier/`dart format` : échec silencieux → `assert old in s` en Python puis `grep -c`. Pas de `perl -pi` avec des `|` dans le motif.
 5. Après une modif de contrat API : `pnpm --filter api openapi` et committer `openapi.json` + `packages/api-client/src/schema.ts`. Nouvelle route : la classer dans le harnais cross-tenant (et la liste des routes publiques si `@Public()`).
@@ -51,6 +51,7 @@
 
 ## Historique (plus récent en haut)
 
+- 2026-11-06 session 58 — P8-05 fait (liste des dépenses : mois, groupes par jour, tuile restylée, ADR-070).
 - 2026-11-06 session 57 — P8-04 fait (accueil restylé, sélecteur de période sur `evolution`, conteneurs sémantiques des cartes). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 56 — P8-03 fait (barre du bas, « + » central, avatar, retour Android → Accueil, icônes rounded, parcours a11y « dépenses récurrentes (onglet) »). Handoff après 1 tâche (~20 fichiers lus).
 - 2026-11-06 session 55 — P8-02 fait (49 clés d'icône, migration 0020 en comparaison binaire, sélecteur en grille, puces avec tuile, parcours a11y). Handoff après 1 tâche (~15 fichiers lus).

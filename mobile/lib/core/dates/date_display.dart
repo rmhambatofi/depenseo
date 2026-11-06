@@ -39,3 +39,32 @@ String formatCalendarDate(String date, String locale, {bool long = false}) {
 /// [timeZone], affiché selon la langue (ADR-059).
 String formatInstantDate(String timeZone, DateTime instant, String locale) =>
     formatCalendarDate(todayIn(timeZone, instant), locale);
+
+final _plainMonth = RegExp(r'^(\d{4})-(\d{2})$');
+
+/// Mois calendaire `AAAA-MM` d'une date `AAAA-MM-JJ` (préfixe, sans fuseau).
+String monthOf(String date) => date.substring(0, 7);
+
+/// Mois `AAAA-MM` décalé de [delta] mois (arithmétique entière, sans fuseau).
+String shiftMonth(String month, int delta) {
+  final m = _plainMonth.firstMatch(month);
+  if (m == null) throw FormatException('Mois AAAA-MM attendu', month);
+  final index = int.parse(m.group(1)!) * 12 + int.parse(m.group(2)!) - 1;
+  final shifted = index + delta;
+  return '${(shifted ~/ 12).toString().padLeft(4, '0')}-'
+      '${(shifted % 12 + 1).toString().padLeft(2, '0')}';
+}
+
+/// Bornes incluses d'un mois, à comparer **comme chaînes** aux dates
+/// `AAAA-MM-JJ` : `-31` majore tout jour du mois sans calcul de calendrier.
+(String, String) monthBounds(String month) => ('$month-01', '$month-31');
+
+/// Mois `AAAA-MM` en toutes lettres selon la langue (« novembre 2026 ») ;
+/// valeur invalide affichée brute.
+String formatCalendarMonth(String month, String locale) {
+  final m = _plainMonth.firstMatch(month);
+  final mo = m == null ? 0 : int.parse(m.group(2)!);
+  if (mo < 1 || mo > 12) return month;
+  return DateFormat.yMMMM(locale)
+      .format(DateTime.utc(int.parse(m!.group(1)!), mo));
+}

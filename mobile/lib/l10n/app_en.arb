@@ -320,5 +320,9 @@
   "purchaseOtherAccount": "This purchase is already linked to another Depenseo account.",
   "purchaseRetryLater": "Verification not possible right now: it will be retried automatically.",
   "purchaseFailed": "The purchase did not go through.",
-  "exportExcelLocked": "Excel export requires Premium."
+  "exportExcelLocked": "Excel export requires Premium.",
+  "expenseMonthEmpty": "No expenses this month.",
+  "expensePreviousMonth": "Previous month",
+  "expenseNextMonth": "Next month",
+  "searchEmptyInMonth": "No matching expenses in {month}. To search several months, pick a period in the filters."
 }

@@ -8,6 +8,9 @@ import '../../core/db/app_database.dart';
 import '../../core/db/expense_filter.dart';
 import '../../core/money/amount_input.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../ui/icon_tile.dart';
+import '../../ui/section_header.dart';
+import '../../ui/tokens.dart';
 import '../categories/category_badge.dart';
 import 'expense_providers.dart';
 
@@ -133,28 +136,19 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
     final categories =
         ref.watch(filterCategoriesProvider).value ?? const <Category>[];
     final separator = _separator;
-    String show(String d) => formatCalendarDate(d, locale);
-
-    final period = switch ((_from, _to)) {
-      (final f?, final t?) => '${show(f)} – ${show(t)}',
-      (final f?, null) => '≥ ${show(f)}',
-      (null, final t?) => '≤ ${show(t)}',
-      _ => l10n.periodAny,
-    };
+    final period = filterPeriodLabel(l10n, locale, _from, _to);
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: ListView(
         shrinkWrap: true,
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         children: [
-          Text(
-            l10n.filtersTitle,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          SectionHeader(title: l10n.filtersTitle, padding: EdgeInsets.zero),
+          const SizedBox(height: AppSpacing.xs),
           ListTile(
             key: const Key('filter-period'),
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.date_range_rounded),
+            leading: const IconTile(icon: Icons.date_range_rounded, size: 40),
             title: Text(l10n.periodLabel),
             subtitle: Text(period),
             trailing: _from == null && _to == null
@@ -204,11 +198,17 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
             ],
           ),
           const SizedBox(height: 16),
-          Text(
-            l10n.categoryLabel,
-            style: Theme.of(context).textTheme.labelLarge,
+          Semantics(
+            header: true,
+            child: Text(
+              l10n.categoryLabel,
+              style: TextStyle(
+                color: AppTokens.of(context).textMuted,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.xs),
           Wrap(
             spacing: 8,
             runSpacing: 4,
@@ -256,4 +256,21 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
       ),
     );
   }
+}
+
+/// Libellé d'une période de filtre (bornes incluses, l'une ou l'autre
+/// facultative) ; partagé par la feuille et l'en-tête de la liste.
+String filterPeriodLabel(
+  AppLocalizations l10n,
+  String locale,
+  String? from,
+  String? to,
+) {
+  String show(String d) => formatCalendarDate(d, locale);
+  return switch ((from, to)) {
+    (final f?, final t?) => '${show(f)} – ${show(t)}',
+    (final f?, null) => '≥ ${show(f)}',
+    (null, final t?) => '≤ ${show(t)}',
+    _ => l10n.periodAny,
+  };
 }

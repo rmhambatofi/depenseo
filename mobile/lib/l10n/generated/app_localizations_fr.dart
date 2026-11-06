@@ -1139,4 +1139,18 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get exportExcelLocked => 'Export Excel réservé à Premium.';
+
+  @override
+  String get expenseMonthEmpty => 'Aucune dépense ce mois-ci.';
+
+  @override
+  String get expensePreviousMonth => 'Mois précédent';
+
+  @override
+  String get expenseNextMonth => 'Mois suivant';
+
+  @override
+  String searchEmptyInMonth(String month) {
+    return 'Aucune dépense ne correspond en $month. Pour chercher sur plusieurs mois, choisissez une période dans les filtres.';
+  }
 }

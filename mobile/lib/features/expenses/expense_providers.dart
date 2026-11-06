@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/misc.dart' show ProviderOrFamily;
 import 'package:uuid/uuid.dart';
 
 import '../../core/account/account_context.dart';
+import '../../core/dates/date_display.dart';
+import '../../core/dates/today.dart';
 import '../../core/db/app_database.dart';
 import '../../core/db/expense_filter.dart';
 import '../../core/db/expense_store.dart';
@@ -93,13 +95,13 @@ class ExpenseNotFound implements Exception {
   const ExpenseNotFound();
 }
 
-/// Dépense de la copie locale, avec le nom de sa catégorie (`null` si la
-/// catégorie n'est pas encore synchronisée).
+/// Dépense de la copie locale, avec sa catégorie (`null` si la catégorie
+/// n'est pas encore synchronisée).
 class LocalExpenseItem {
-  const LocalExpenseItem(this.expense, this.categoryName);
+  const LocalExpenseItem(this.expense, this.category);
 
   final Expense expense;
-  final String? categoryName;
+  final Category? category;
 }
 
 /// Dernières dépenses du carnet, lues dans la base locale : consultables hors
@@ -111,8 +113,8 @@ final localExpensesProvider =
       final account = await ref.watch(accountContextProvider.future);
       final db = await ref.watch(databaseProvider.future);
       return [
-        for (final (e, name) in await db.recentExpenses(account.notebookId))
-          LocalExpenseItem(e, name),
+        for (final (e, c) in await db.recentExpenses(account.notebookId))
+          LocalExpenseItem(e, c),
       ];
     });
 
@@ -132,6 +134,33 @@ class ExpenseFilterController extends Notifier<ExpenseFilter> {
       state = state.withCriteriaOf(criteria);
 }
 
+/// Décalage en mois du sélecteur de la liste (0 = mois courant), conservé
+/// tant que l'onglet reste monté.
+final expenseMonthOffsetProvider =
+    NotifierProvider.autoDispose<MonthOffsetController, int>(
+      MonthOffsetController.new,
+    );
+
+class MonthOffsetController extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void shift(int delta) => state += delta;
+}
+
+/// Mois `AAAA-MM` affiché par la liste : mois courant dans le fuseau du
+/// compte, décalé par le sélecteur. Ignoré quand les filtres fixent une
+/// période (ADR-070).
+final expenseMonthProvider = FutureProvider.autoDispose<String>(
+  retry: _noRetry,
+  (ref) async {
+    final offset = ref.watch(expenseMonthOffsetProvider);
+    final account = await ref.watch(accountContextProvider.future);
+    final today = todayIn(account.timeZone, ref.read(clockProvider)());
+    return shiftMonth(monthOf(today), offset);
+  },
+);
+
 /// Catégories proposées dans les filtres (masquées comprises).
 final filterCategoriesProvider = FutureProvider.autoDispose<List<Category>>(
   retry: _noRetry,
@@ -149,14 +178,15 @@ final expenseSearchProvider =
       ref,
     ) async {
       final filter = ref.watch(expenseFilterProvider);
+      final month = await ref.watch(expenseMonthProvider.future);
       final account = await ref.watch(accountContextProvider.future);
       final db = await ref.watch(databaseProvider.future);
       return [
-        for (final (e, name) in await db.searchExpenses(
+        for (final (e, c) in await db.searchExpenses(
           account.notebookId,
-          filter,
+          filter.hasPeriod ? filter : filter.withPeriod(monthBounds(month)),
         ))
-          LocalExpenseItem(e, name),
+          LocalExpenseItem(e, c),
       ];
     });
 

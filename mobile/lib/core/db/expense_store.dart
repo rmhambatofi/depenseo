@@ -13,8 +13,8 @@ extension ExpenseStore on AppDatabase {
       (select(expenses)..where((e) => e.id.equals(id))).getSingleOrNull();
 
   /// Dépenses actives du carnet répondant à [filter], date puis saisie
-  /// décroissantes, avec le nom de leur catégorie s'il est connu.
-  Future<List<(Expense, String?)>> searchExpenses(
+  /// décroissantes, avec leur catégorie si elle est connue.
+  Future<List<(Expense, Category?)>> searchExpenses(
     String notebookId,
     ExpenseFilter filter, {
     int limit = 500,
@@ -56,11 +56,11 @@ extension ExpenseStore on AppDatabase {
     // donc la limite s'applique après le filtrage.
     if (text.isEmpty) query.limit(limit);
     final rows = await query.get();
-    final result = <(Expense, String?)>[];
+    final result = <(Expense, Category?)>[];
     for (final r in rows) {
       final e = r.readTable(expenses);
       if (text.isNotEmpty && !_matches(e, text)) continue;
-      result.add((e, r.readTableOrNull(categories)?.name));
+      result.add((e, r.readTableOrNull(categories)));
       if (result.length >= limit) break;
     }
     return result;

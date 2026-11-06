@@ -37,6 +37,19 @@ class ExpenseFilter {
 
   bool get isEmpty => !hasCriteria && text.trim().isEmpty;
 
+  /// Période choisie dans les filtres (remplace le mois de la liste).
+  bool get hasPeriod => from != null || to != null;
+
+  /// Mêmes critères sur la période [bounds] (`(from, to)` inclus).
+  ExpenseFilter withPeriod((String, String) bounds) => ExpenseFilter(
+    text: text,
+    minAmount: minAmount,
+    maxAmount: maxAmount,
+    from: bounds.$1,
+    to: bounds.$2,
+    categoryIds: categoryIds,
+  );
+
   ExpenseFilter withText(String value) => ExpenseFilter(
     text: value,
     minAmount: minAmount,

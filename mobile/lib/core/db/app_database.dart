@@ -176,8 +176,8 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// Dernières dépenses non supprimées du carnet (date puis saisie
-  /// décroissantes), avec le nom de leur catégorie s'il est connu.
-  Future<List<(Expense, String?)>> recentExpenses(
+  /// décroissantes), avec leur catégorie si elle est connue.
+  Future<List<(Expense, Category?)>> recentExpenses(
     String notebookId, {
     int limit = 50,
   }) async {
@@ -201,7 +201,7 @@ class AppDatabase extends _$AppDatabase {
     final rows = await query.get();
     return [
       for (final r in rows)
-        (r.readTable(expenses), r.readTableOrNull(categories)?.name),
+        (r.readTable(expenses), r.readTableOrNull(categories)),
     ];
   }
 

@@ -213,4 +213,42 @@ void main() {
       expect(todayIn('Indian/Reunion', i), '2026-10-25');
     });
   });
+
+  group('mois calendaires (liste des dépenses, P8-05)', () {
+    test('monthOf, shiftMonth : arithmétique entière, années comprises', () {
+      expect(monthOf('2026-11-05'), '2026-11');
+      expect(shiftMonth('2026-11', -1), '2026-10');
+      expect(shiftMonth('2026-01', -1), '2025-12');
+      expect(shiftMonth('2026-12', 1), '2027-01');
+      expect(shiftMonth('2026-03', -15), '2024-12');
+      expect(shiftMonth('2026-03', 0), '2026-03');
+    });
+
+    test('monthBounds : bornes AAAA-MM-JJ comparables comme chaînes', () {
+      expect(monthBounds('2026-02'), ('2026-02-01', '2026-02-31'));
+      // Toute date valide du mois est entre les bornes, aucune d'un autre.
+      for (final d in ['2026-02-01', '2026-02-28', '2028-02-29']) {
+        final (from, to) = monthBounds(monthOf(d));
+        expect(d.compareTo(from) >= 0 && d.compareTo(to) <= 0, isTrue);
+      }
+      final (from, to) = monthBounds('2026-02');
+      expect('2026-03-01'.compareTo(to) > 0, isTrue);
+      expect('2026-01-31'.compareTo(from) < 0, isTrue);
+    });
+
+    test('formatCalendarMonth : mois en toutes lettres selon la langue', () {
+      expect(formatCalendarMonth('2026-11', 'fr'), 'novembre 2026');
+      expect(formatCalendarMonth('2026-03', 'en'), 'March 2026');
+      expect(formatCalendarMonth('2026-13', 'fr'), '2026-13');
+    });
+
+    test('mois courant dans le fuseau du compte, pas de l\'hôte', () {
+      // 31 octobre 23:30 UTC : déjà novembre à Paris et à La Réunion.
+      final i = DateTime.utc(2026, 10, 31, 23, 30);
+      expect(monthOf(todayIn('Europe/Paris', i)), '2026-11');
+      expect(monthOf(todayIn('Indian/Reunion', i)), '2026-11');
+      expect(monthOf(todayIn('America/Montreal', i)), '2026-10');
+      expect(monthOf(todayIn('Europe/Lisbon', i)), '2026-10');
+    });
+  });
 }

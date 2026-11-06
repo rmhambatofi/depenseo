@@ -551,5 +551,16 @@
   "purchaseOtherAccount": "Cet achat est déjà lié à un autre compte Depenseo.",
   "purchaseRetryLater": "Vérification impossible pour l’instant : elle sera retentée automatiquement.",
   "purchaseFailed": "L’achat n’a pas abouti.",
-  "exportExcelLocked": "Export Excel réservé à Premium."
+  "exportExcelLocked": "Export Excel réservé à Premium.",
+  "expenseMonthEmpty": "Aucune dépense ce mois-ci.",
+  "expensePreviousMonth": "Mois précédent",
+  "expenseNextMonth": "Mois suivant",
+  "searchEmptyInMonth": "Aucune dépense ne correspond en {month}. Pour chercher sur plusieurs mois, choisissez une période dans les filtres.",
+  "@searchEmptyInMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  }
 }

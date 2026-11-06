@@ -5,12 +5,18 @@ import 'package:go_router/go_router.dart';
 import '../../core/dates/date_display.dart';
 import '../../core/money/amount_format.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../ui/amount_text.dart';
+import '../../ui/icon_tile.dart';
+import '../../ui/tokens.dart';
+import '../categories/category_badge.dart';
 import '../sync/sync_controller.dart';
 import 'expense_providers.dart';
 import 'pending_deletions.dart';
 import 'quick_entry_screen.dart';
 
-/// Ligne de dépense (accueil et liste) ; un appui ouvre la modification.
+/// Tuile de dépense (accueil et liste, P8-05) : tuile de catégorie,
+/// catégorie, commerçant · note, montant et date ; un appui ouvre la
+/// modification. Lue d'un bloc par les lecteurs d'écran.
 class ExpenseTile extends ConsumerWidget {
   const ExpenseTile({super.key, required this.item});
 
@@ -19,8 +25,10 @@ class ExpenseTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final t = AppTokens.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
     final e = item.expense;
+    final category = item.category;
     final status = e.syncError == 'conflict'
         ? (Icons.sync_problem_rounded, l10n.expenseSyncConflict)
         : e.syncError != null
@@ -28,27 +36,103 @@ class ExpenseTile extends ConsumerWidget {
         : e.pendingSync
         ? (Icons.cloud_upload_rounded, l10n.expensePendingSync)
         : null;
-    return ListTile(
+    final details = [
+      if (e.merchant != null && e.merchant!.trim().isNotEmpty) e.merchant!,
+      if (e.note != null && e.note!.trim().isNotEmpty) e.note!,
+    ].join(' · ');
+    final muted = TextStyle(color: t.textMuted, fontSize: 13);
+    return MergeSemantics(
       key: Key('expense-${e.id}'),
-      title: Text(item.categoryName ?? l10n.categoryNotSynced),
-      subtitle: Text(
-        [
-          formatCalendarDate(e.date, locale),
-          if (e.merchant != null) e.merchant!,
-        ].join(' · '),
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (status != null)
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: 8),
-              child: Icon(status.$1, size: 18, semanticLabel: status.$2),
+      // Annoncée comme bouton, comme l'ancienne `ListTile`.
+      child: Semantics(
+        button: true,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppRadius.tile),
+          onTap: () => openExpense(context, ref, e.id),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
             ),
-          Text(formatAmount(e.amount, e.currency, locale)),
-        ],
+            child: Row(
+              children: [
+                category == null
+                    ? IconTile(icon: Icons.category_rounded, color: t.textMuted)
+                    : CategoryIconBadge(
+                        icon: category.icon,
+                        color: category.color,
+                        faded: category.hidden,
+                        size: 48,
+                      ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        category?.name ?? l10n.categoryNotSynced,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: t.text,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (details.isNotEmpty)
+                        Text(
+                          details,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: muted,
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                // Flexible : en texte agrandi, le montant se réduit au lieu de
+                // déborder (FittedBox) et la date se coupe.
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (status != null)
+                              Padding(
+                                padding: const EdgeInsetsDirectional.only(
+                                  end: 4,
+                                ),
+                                child: Icon(
+                                  status.$1,
+                                  size: 16,
+                                  color: t.textMuted,
+                                  semanticLabel: status.$2,
+                                ),
+                              ),
+                            AmountText(
+                              formatAmount(e.amount, e.currency, locale),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        formatCalendarDate(e.date, locale),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: muted,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
-      onTap: () => openExpense(context, ref, e.id),
     );
   }
 }

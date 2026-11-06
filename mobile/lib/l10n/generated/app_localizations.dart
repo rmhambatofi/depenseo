@@ -2023,6 +2023,30 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Export Excel réservé à Premium.'**
   String get exportExcelLocked;
+
+  /// No description provided for @expenseMonthEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune dépense ce mois-ci.'**
+  String get expenseMonthEmpty;
+
+  /// No description provided for @expensePreviousMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois précédent'**
+  String get expensePreviousMonth;
+
+  /// No description provided for @expenseNextMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois suivant'**
+  String get expenseNextMonth;
+
+  /// No description provided for @searchEmptyInMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune dépense ne correspond en {month}. Pour chercher sur plusieurs mois, choisissez une période dans les filtres.'**
+  String searchEmptyInMonth(String month);
 }
 
 class _AppLocalizationsDelegate
