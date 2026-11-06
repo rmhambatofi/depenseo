@@ -49,12 +49,12 @@ test('jeu de caractères et collation serveur : utf8mb4 / utf8mb4_unicode_520_ci
   assert.equal(collation, 'utf8mb4_unicode_520_ci');
 });
 
-test('les bases depenseo et depenseo_test existent en utf8mb4_unicode_520_ci', () => {
+test('les bases depenseo_dev et depenseo_test existent en utf8mb4_unicode_520_ci', () => {
   const rows = query(
-    "SELECT SCHEMA_NAME, DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME IN ('depenseo', 'depenseo_test') ORDER BY SCHEMA_NAME",
+    "SELECT SCHEMA_NAME, DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME IN ('depenseo_dev', 'depenseo_test') ORDER BY SCHEMA_NAME",
   );
   assert.deepEqual(rows, [
-    ['depenseo', 'utf8mb4', 'utf8mb4_unicode_520_ci'],
+    ['depenseo_dev', 'utf8mb4', 'utf8mb4_unicode_520_ci'],
     ['depenseo_test', 'utf8mb4', 'utf8mb4_unicode_520_ci'],
   ]);
 });
@@ -87,7 +87,7 @@ test("trois comptes distincts : l'API et le back-office n'ont aucun droit sur le
     ['depenseo_api', API_PW],
     ['depenseo_admin', ADMIN_PW],
   ]) {
-    for (const database of ['depenseo', 'depenseo_test']) {
+    for (const database of ['depenseo_dev', 'depenseo_test']) {
       assert.throws(
         () => query(ddl, { user, password, database }),
         /CREATE command denied/,
@@ -101,7 +101,7 @@ test("trois comptes distincts : l'API et le back-office n'ont aucun droit sur le
       `${user}@mysql`,
     );
   }
-  for (const database of ['depenseo', 'depenseo_test']) {
+  for (const database of ['depenseo_dev', 'depenseo_test']) {
     query(ddl, { user: 'depenseo_migrator', password: MIGRATOR_PW, database });
   }
 });
